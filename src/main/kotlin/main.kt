@@ -1,8 +1,3 @@
-import androidx.compose.desktop.Window
-import androidx.compose.material.MaterialTheme
+import com.riskrieg.mapeditor.Init
 
-fun main() = Window {
-    MaterialTheme {
-
-    }
-}
+fun main() = Init().start()
