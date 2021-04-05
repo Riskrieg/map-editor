@@ -22,8 +22,8 @@ class Editor(val mapName: String = "") {
 
     @Composable
     private fun loadImages() {
-        base = imageResource(Constants.MAP_PATH + "north-america/north-america-base.png")
-        text = imageResource(Constants.MAP_PATH + "north-america/north-america-text.png")
+//        base = imageResource(Constants.MAP_PATH + "north-america/north-america-base.png")
+//        text = imageResource(Constants.MAP_PATH + "north-america/north-america-text.png")
     }
 
     @Composable
@@ -58,8 +58,8 @@ class Editor(val mapName: String = "") {
 
             }
         ).indication(interactionSource = MutableInteractionSource() ,indication = null)) {
-            Image(bitmap = base, contentDescription = "", modifier = Modifier.size(base.width.dp, base.height.dp))
-            Image(bitmap = text, contentDescription = "", modifier = Modifier.size(text.width.dp, text.height.dp))
+//            Image(bitmap = base, contentDescription = "", modifier = Modifier.size(base.width.dp, base.height.dp))
+//            Image(bitmap = text, contentDescription = "", modifier = Modifier.size(text.width.dp, text.height.dp))
         }
     }
 

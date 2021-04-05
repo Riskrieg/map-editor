@@ -6,5 +6,5 @@ pluginManagement {
     }
     
 }
-rootProject.name = "riskrieg-map-editor"
+rootProject.name = "map-editor"
 

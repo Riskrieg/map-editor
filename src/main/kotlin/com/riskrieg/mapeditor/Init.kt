@@ -30,14 +30,6 @@ class Init {
         }
     }
 
-//    @Composable
-//    fun MapView() {
-//        val base: ImageBitmap = imageResource(Constants.MAP_PATH + "north-america/north-america-base.png")
-//        val text: ImageBitmap = imageResource(Constants.MAP_PATH + "north-america/north-america-text.png")
-//        Image(bitmap = base, contentDescription = "", modifier = Modifier.size(base.width.dp, base.height.dp))
-//        Image(bitmap = text, contentDescription = "", modifier = Modifier.size(text.width.dp, text.height.dp))
-//    }
-
     fun MyMenuBar(): MenuBar {
         return MenuBar(
             Menu(
