@@ -25,7 +25,7 @@ class Init {
             menuBar = MyMenuBar()
         ) {
             DesktopTheme {
-                Editor().init()
+                Editor("north-america").init()
             }
         }
     }

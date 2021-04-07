@@ -1,7 +1,7 @@
 package com.riskrieg.mapeditor.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -10,10 +10,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asDesktopBitmap
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
 import com.riskrieg.mapeditor.Constants
+import org.jetbrains.skija.IRect
 import java.awt.Point
 
 class Editor(val mapName: String = "") {
@@ -25,8 +29,8 @@ class Editor(val mapName: String = "") {
 
     @Composable
     private fun loadImages() {
-        base = imageResource(Constants.MAP_PATH + "north-america/north-america-base.png")
-        text = imageResource(Constants.MAP_PATH + "north-america/north-america-text.png")
+        base = imageResource(Constants.MAP_PATH + "$mapName/$mapName-base.png")
+        text = imageResource(Constants.MAP_PATH + "$mapName/$mapName-text.png")
     }
 
     @Composable
@@ -50,8 +54,12 @@ class Editor(val mapName: String = "") {
     @Composable
     private fun MapView() {
         Box {
-            Image(bitmap = base, contentDescription = "", modifier = mapModifier())
-            Image(bitmap = text, contentDescription = "", modifier = Modifier.size(text.width.dp, text.height.dp))
+            Canvas(modifier = mapModifier()) {
+                drawIntoCanvas { canvas ->
+                    canvas.nativeCanvas.drawBitmapRect(base.asDesktopBitmap(), IRect(0, 0, base.width, base.height).toRect())
+                    canvas.nativeCanvas.drawBitmapRect(text.asDesktopBitmap(), IRect(0, 0, base.width, base.height).toRect())
+                }
+            }
         }
     }
 
