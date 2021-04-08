@@ -7,12 +7,15 @@ import androidx.compose.ui.window.Menu
 import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.MenuItem
 import com.riskrieg.mapeditor.ui.Editor
+import java.io.File
+import javax.imageio.ImageIO
 
 class Init {
 
     fun start() {
         Window(
             title = "Riskrieg Map Editor v2.0",
+            icon = ImageIO.read(File("src/main/resources/icon/riskrieg-icon.png")),
             size = IntSize(1280, 720),
             menuBar = MyMenuBar()
         ) {
