@@ -48,6 +48,23 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "map-editor"
             packageVersion = "1.0.0"
+
+            val iconsRoot = project.file("src/main/resources/image")
+
+            linux {
+                iconFile.set(iconsRoot.resolve("icon/linux.png"))
+            }
+
+            windows {
+                iconFile.set(iconsRoot.resolve("icon/windows.ico"))
+                menuGroup = packageName
+                perUserInstall = true
+            }
+
+//            macOS {
+//                iconFile.set(iconsRoot.resolve("icon/macos.icns"))
+//            }
+
         }
     }
 }

@@ -14,7 +14,6 @@ import androidx.compose.ui.window.MenuItem
 import com.riskrieg.mapeditor.model.EditMode
 import com.riskrieg.mapeditor.model.EditorModel
 import com.riskrieg.mapeditor.ui.Editor
-import java.io.File
 import javax.imageio.ImageIO
 
 class Init {
@@ -27,7 +26,7 @@ class Init {
     fun start() {
         Window(
             title = "${Constants.NAME} Map Editor v2.0.0-ALPHA-1",
-            icon = ImageIO.read(File("src/main/resources/icon/riskrieg-icon.png")),
+            icon = ImageIO.read(Init::class.java.classLoader.getResourceAsStream("icon/icon.png")),
             size = IntSize(Constants.DEFAULT_WINDOW_WIDTH, Constants.DEFAULT_WINDOW_HEIGHT),
             menuBar = MyMenuBar()
         ) {
