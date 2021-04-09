@@ -16,7 +16,7 @@ class Init {
         Window(
             title = "Riskrieg Map Editor v2.0",
             icon = ImageIO.read(File("src/main/resources/icon/riskrieg-icon.png")),
-            size = IntSize(1280, 720),
+            size = IntSize(Constants.DEFAULT_WINDOW_WIDTH, Constants.DEFAULT_WINDOW_HEIGHT),
             menuBar = MyMenuBar()
         ) {
             DesktopTheme {

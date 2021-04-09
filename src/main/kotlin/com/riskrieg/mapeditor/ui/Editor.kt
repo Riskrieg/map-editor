@@ -27,6 +27,9 @@ class Editor(private val mapName: String = "") {
 
     private var mousePos = Point(0, 0)
 
+    private lateinit var base: BufferedImage
+    private lateinit var text: BufferedImage
+
     @Composable
     fun init() {
         Row {
@@ -45,9 +48,13 @@ class Editor(private val mapName: String = "") {
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
     private fun MapView() { // TODO: At some point, they will make canvas pointerMoveFilter relative to the canvas instead of the window, so change code here whenever that happens.
-        var base: BufferedImage = ImageIO.read(File("src/main/resources/" + Constants.MAP_PATH + "$mapName/$mapName-base.png"))
-        val text: BufferedImage = ImageIO.read(File("src/main/resources/" + Constants.MAP_PATH + "$mapName/$mapName-text.png"))
-        base = ImageUtil.convert(base, 2)
+        if (mapName.isBlank()) {
+            base = BufferedImage(Constants.DEFAULT_WINDOW_WIDTH, Constants.DEFAULT_WINDOW_HEIGHT, 2)
+            text = BufferedImage(Constants.DEFAULT_WINDOW_WIDTH, Constants.DEFAULT_WINDOW_HEIGHT, 2)
+        } else { // Primarily for easy debugging
+            base = ImageUtil.convert(ImageIO.read(File("src/main/resources/" + Constants.MAP_PATH + "$mapName/$mapName-base.png")), 2)
+            text = ImageUtil.convert(ImageIO.read(File("src/main/resources/" + Constants.MAP_PATH + "$mapName/$mapName-text.png")), 2)
+        }
 
         val stateVertical = rememberScrollState(0)
         val stateHorizontal = rememberScrollState(0)
@@ -71,6 +78,8 @@ class Editor(private val mapName: String = "") {
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },
                         onClick = { // TODO: Code is only here for now to test
+                            val root = ImageUtil.getRootPixel(base, mousePos) // Test
+                            println("Mouse: (${mousePos.x}, ${mousePos.y}) | Root: (${root.x}, ${root.y})") // Test
                             if (base.getRGB(mousePos.x, mousePos.y) == Constants.TERRITORY_COLOR.rgb) {
                                 val fill: Fill = MilazzoFill(base, Constants.TERRITORY_COLOR, Constants.SELECT_COLOR)
                                 fill.fill(Point(mousePos.x, mousePos.y))

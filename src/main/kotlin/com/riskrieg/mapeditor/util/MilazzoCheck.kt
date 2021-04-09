@@ -1,19 +1,27 @@
-package com.riskrieg.mapeditor.fill
+package com.riskrieg.mapeditor.util
 
 import java.awt.Color
 import java.awt.Point
 import java.awt.image.BufferedImage
 
-class MilazzoFill(private var image: BufferedImage, private val original: Color, private val fill: Color) : Fill {
+/**
+ * The purpose of this class is to use the Milazzo bucket fill algorithm to return a 2D boolean array of all pixels that are part of the region.
+ * The (x, y) coordinate in the array is set to "true" if it is a pixel that is part of the fill region.
+ */
+class MilazzoCheck(private var image: BufferedImage, private val start: Point) {
 
     private val width: Int = image.width
     private val height: Int = image.height
+    private val visited = Array(image.width) { BooleanArray(image.height) }
+    private val original: Color = Color(image.getRGB(start.x, start.y))
+    private val fill: Color = Color.PINK // Doesn't matter as long as it's not the territory color
 
-    override fun image(): BufferedImage {
-        return image
+    fun array(): Array<BooleanArray> {
+        fill(start)
+        return visited
     }
 
-    override fun fill(seed: Point) {
+    private fun fill(seed: Point) {
         if (original.rgb == fill.rgb) {
             return
         }
@@ -22,11 +30,6 @@ class MilazzoFill(private var image: BufferedImage, private val original: Color,
         }
     }
 
-    /**
-     * This method moves the "cursor" to the top-left-most position that it can and then proceeds to fill from there.
-     * @param x The x coordinate to start at.
-     * @param y The y coordinate to start at.
-     */
     private fun fill_(x: Int, y: Int) {
         var thisX = x
         var thisY = y
@@ -40,11 +43,6 @@ class MilazzoFill(private var image: BufferedImage, private val original: Color,
         fillCore(thisX, thisY)
     }
 
-    /**
-     * This method fills entire rectangular blocks at a time, making for relatively few pixel color tests compared to other methods.
-     * @param x The x coordinate to start filling at.
-     * @param y The y coordinate to start filling at.
-     */
     private fun fillCore(x: Int, y: Int) {
         var thisX = x
         var thisY = y
@@ -98,7 +96,7 @@ class MilazzoFill(private var image: BufferedImage, private val original: Color,
     /* Private Methods */
 
     private fun canPaint(x: Int, y: Int): Boolean {
-        return getPixel(x, y) == original.rgb
+        return !visited[x][y] && getPixel(x, y) == original.rgb
     }
 
     private fun getPixel(x: Int, y: Int): Int {
@@ -106,7 +104,7 @@ class MilazzoFill(private var image: BufferedImage, private val original: Color,
     }
 
     private fun setPixel(x: Int, y: Int) {
-        image.setRGB(x, y, fill.rgb)
+        visited[x][y] = true
     }
 
 }
