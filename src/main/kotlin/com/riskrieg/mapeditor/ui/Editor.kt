@@ -54,16 +54,17 @@ class Editor(private val model: EditorModel, private var baseBitmap: MutableStat
 
     @Composable
     private fun Footer() {
-        Row(Modifier.fillMaxWidth().background(color = Color.LightGray).padding(3.dp)) {
+        Row(Modifier.fillMaxWidth().height(25.dp).background(color = Color.LightGray).padding(3.dp)) {
             Text(
-                "Left click to select regions or territories.",
+                text = "Left click to select/deselect regions or territories.",
                 fontSize = 12.sp,
                 textAlign = TextAlign.Start
             )
             Text(
-                "Mouse: (${mousePos.x}, ${mousePos.y})  |   Size: ${model.width()}x${model.height()}",
+                modifier = Modifier.fillMaxWidth(),
+                text = "Edit Mode: ${model.editMode.value}  |   Mouse: (${mousePos.x}, ${mousePos.y})  |   Size: ${model.width()}x${model.height()}",
                 fontSize = 12.sp,
-                textAlign = TextAlign.End,
+                textAlign = TextAlign.End
             )
         }
     }
@@ -76,7 +77,7 @@ class Editor(private val model: EditorModel, private var baseBitmap: MutableStat
                     EditMode.NO_EDIT -> {
                     }
                     EditMode.EDIT_TERRITORY -> {
-                        Button(modifier = Modifier.fillMaxWidth().height(35.dp).absolutePadding(top = 4.dp, left = 2.dp, right = 2.dp, bottom = 0.dp),
+                        Button(modifier = Modifier.fillMaxWidth().height(40.dp).absolutePadding(top = 4.dp, left = 2.dp, right = 2.dp, bottom = 0.dp),
                             colors = ButtonDefaults.buttonColors(backgroundColor = Color(Constants.BORDER_COLOR.rgb), contentColor = Color.White),
                             onClick = {
                                 val name = JOptionPane.showInputDialog(JTextArea(), "Enter territory name:")
@@ -90,7 +91,7 @@ class Editor(private val model: EditorModel, private var baseBitmap: MutableStat
                             }) {
                             Text("Add", fontSize = 14.sp)
                         }
-                        Button(modifier = Modifier.fillMaxWidth().height(35.dp).absolutePadding(top = 0.dp, left = 2.dp, right = 2.dp, bottom = 0.dp),
+                        Button(modifier = Modifier.fillMaxWidth().height(40.dp).absolutePadding(top = 0.dp, left = 2.dp, right = 2.dp, bottom = 0.dp),
                             colors = ButtonDefaults.buttonColors(backgroundColor = Color(Constants.BORDER_COLOR.rgb), contentColor = Color.White),
                             onClick = {
 
@@ -99,7 +100,7 @@ class Editor(private val model: EditorModel, private var baseBitmap: MutableStat
                         }
                     }
                     EditMode.EDIT_NEIGHBORS -> {
-                        Button(modifier = Modifier.fillMaxWidth().height(35.dp),
+                        Button(modifier = Modifier.fillMaxWidth().height(40.dp).absolutePadding(top = 4.dp, left = 2.dp, right = 2.dp, bottom = 0.dp),
                             colors = ButtonDefaults.buttonColors(backgroundColor = Color(Constants.BORDER_COLOR.rgb), contentColor = Color.White),
                             onClick = {
                                 model.submitNeighbors()
