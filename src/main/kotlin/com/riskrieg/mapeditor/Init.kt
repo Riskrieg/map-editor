@@ -2,7 +2,9 @@ package com.riskrieg.mapeditor
 
 import androidx.compose.desktop.DesktopTheme
 import androidx.compose.desktop.Window
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.window.KeyStroke
 import androidx.compose.ui.window.Menu
 import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.MenuItem
@@ -29,11 +31,36 @@ class Init {
         return MenuBar(
             Menu(
                 name = "File",
-                MenuItem(
-                    name = "Test"
+                MenuItem( // TODO: Figure out a more streamlined way to do these two
+                    name = "Open base layer...",
+                    shortcut = KeyStroke(Key.O)
                 ),
                 MenuItem(
-                    name = "Test2"
+                    name = "Open text layer...",
+                    shortcut = KeyStroke(Key.L)
+                ),
+                MenuItem(
+                    name = "Save",
+                    shortcut = KeyStroke(Key.S)
+                ),
+                MenuItem(
+                    name = "Import...",
+                    shortcut = KeyStroke(Key.I)
+                ),
+                MenuItem(
+                    name = "Export...",
+                    shortcut = KeyStroke(Key.E)
+                )
+            ),
+            Menu(
+                name = "Mode",
+                MenuItem(
+                    name = "Edit Territories",
+                    shortcut = KeyStroke(Key.T)
+                ),
+                MenuItem(
+                    name = "Edit Neighbors",
+                    shortcut = KeyStroke(Key.N)
                 )
             )
         )
