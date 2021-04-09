@@ -1,7 +1,10 @@
 package com.riskrieg.mapeditor
 
-import androidx.compose.desktop.DesktopTheme
+import androidx.compose.desktop.DesktopMaterialTheme
 import androidx.compose.desktop.Window
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.window.KeyStroke
@@ -18,6 +21,9 @@ class Init {
 
     private val model: EditorModel = EditorModel("north-america")
 
+    private var baseBitmap by mutableStateOf(model.base())
+    private var textBitmap = model.text()
+
     fun start() {
         Window(
             title = "${Constants.NAME} Map Editor v2.0.0",
@@ -25,8 +31,8 @@ class Init {
             size = IntSize(Constants.DEFAULT_WINDOW_WIDTH, Constants.DEFAULT_WINDOW_HEIGHT),
             menuBar = MyMenuBar()
         ) {
-            DesktopTheme {
-                Editor(model).init()
+            DesktopMaterialTheme {
+                Editor(model, mutableStateOf(baseBitmap), textBitmap).init()
             }
         }
     }
@@ -62,7 +68,7 @@ class Init {
                     name = "Edit Territories",
                     shortcut = KeyStroke(Key.T),
                     onClick = {
-                        model.editMode = EditMode.EDIT_TERRITORY
+                        model.editMode.value = EditMode.EDIT_TERRITORY
                     }
                 ),
                 MenuItem(
@@ -70,7 +76,8 @@ class Init {
                     shortcut = KeyStroke(Key.N),
                     onClick = {
                         model.clearSelectedRegions() // TODO: Have to update baseBitmap somehow
-                        model.editMode = EditMode.EDIT_NEIGHBORS
+                        model.editMode.value = EditMode.EDIT_NEIGHBORS
+                        baseBitmap = model.update()
                     }
                 )
             )

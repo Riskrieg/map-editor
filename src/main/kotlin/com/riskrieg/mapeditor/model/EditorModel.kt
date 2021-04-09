@@ -1,12 +1,12 @@
 package com.riskrieg.mapeditor.model
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.asDesktopBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.riskrieg.mapeditor.Constants
 import com.riskrieg.mapeditor.fill.MilazzoFill
 import com.riskrieg.mapeditor.util.ImageUtil
 import org.jetbrains.skija.Bitmap
-import org.jgrapht.Graph
 import org.jgrapht.Graphs
 import org.jgrapht.graph.SimpleGraph
 import java.awt.Color
@@ -19,13 +19,12 @@ import javax.imageio.ImageIO
 
 class EditorModel(mapName: String = "") {
 
-    private val graph: Graph<Territory, Border>
+    private val graph = SimpleGraph<Territory, Border>(Border::class.java)
 
     private var base: BufferedImage
     private var text: BufferedImage
 
     init {
-        graph = SimpleGraph(Border::class.java)
         if (mapName.isBlank()) {
             base = BufferedImage(Constants.DEFAULT_WINDOW_WIDTH, Constants.DEFAULT_WINDOW_HEIGHT, 2)
             text = BufferedImage(Constants.DEFAULT_WINDOW_WIDTH, Constants.DEFAULT_WINDOW_HEIGHT, 2)
@@ -35,7 +34,7 @@ class EditorModel(mapName: String = "") {
         }
     }
 
-    var editMode: EditMode = EditMode.NO_EDIT
+    var editMode = mutableStateOf(EditMode.EDIT_TERRITORY)
 
     /* Basic Functions */
     fun base(): Bitmap {
@@ -61,7 +60,7 @@ class EditorModel(mapName: String = "") {
         g2d.dispose()
 
         for (territory in graph.vertexSet()) {
-            if (Graphs.neighborSetOf(graph, territory).isEmpty()) {
+            if (Graphs.neighborSetOf(graph, territory).isEmpty()) { // TODO: Need to figure out a different way to color finished territories, may need to use old method
                 for (point in territory.seedPoints) {
                     MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SUBMITTED_COLOR).fill(point)
                 }
@@ -90,16 +89,20 @@ class EditorModel(mapName: String = "") {
         return ImageUtil.toBitmap(copy).asImageBitmap().asDesktopBitmap()
     }
 
+    fun getSelectedRegions(): Deque<Point> {
+        return selectedRegions
+    }
+
+    fun getSubmittedTerritories(): Set<Territory> {
+        return graph.vertexSet()
+    }
+
     /* EditMode.EDIT_TERRITORY */
     private val selectedRegions: Deque<Point> = ArrayDeque()
 
     fun isRegionSelected(point: Point): Boolean {
         val root = ImageUtil.getRootPixel(base, point)
         return selectedRegions.contains(root)
-    }
-
-    fun getSelectedRegions(): Deque<Point> {
-        return selectedRegions
     }
 
     fun clearSelectedRegions() {
@@ -109,7 +112,9 @@ class EditorModel(mapName: String = "") {
     fun selectRegion(point: Point) {
         val root = ImageUtil.getRootPixel(base, point)
         if (base.getRGB(root.x, root.y) == Constants.TERRITORY_COLOR.rgb) {
-            selectedRegions.add(root)
+            if (getTerritory(root).isEmpty) {
+                selectedRegions.add(root)
+            }
         }
     }
 
@@ -118,10 +123,19 @@ class EditorModel(mapName: String = "") {
         selectedRegions.remove(root)
     }
 
-    fun submitTerritoryFromRegions(name: String) {
+    fun submitRegionsAsTerritory(name: String): Optional<Territory> {
+        val result = Territory(name, selectedRegions.toSet())
         if (selectedRegions.isNotEmpty()) {
-            graph.addVertex(Territory(name, selectedRegions.toSet()))
+            graph.addVertex(result)
+            clearSelectedRegions()
+            return Optional.of(result)
         }
+        clearSelectedRegions()
+        return Optional.empty()
+    }
+
+    fun removeSubmitted(territory: Territory) {
+        // TODO: Write this
     }
 
     /* EditMode.EDIT_NEIGHBORS */
@@ -134,15 +148,18 @@ class EditorModel(mapName: String = "") {
     }
 
     fun isSelected(point: Point): Boolean { // Might not need this but it's here for now just in case
-        return selected.seedPoints.contains(point)
+        val root = ImageUtil.getRootPixel(base, point)
+        return selected.seedPoints.contains(root)
     }
 
     fun select(point: Point) {
         this.selected = getTerritory(point).orElse(noTerritorySelected)
-        neighbors.addAll(Graphs.neighborListOf(graph, selected)) // Add all existing neighbors
+        if (selected != noTerritorySelected) {
+            neighbors.addAll(Graphs.neighborListOf(graph, selected)) // Add all existing neighbors
+        }
     }
 
-    fun clearSelection() {
+    fun deselect() {
         this.selected = noTerritorySelected
         neighbors.clear()
     }
@@ -165,6 +182,31 @@ class EditorModel(mapName: String = "") {
         neighbors.remove(territory)
     }
 
+    fun submitNeighbors() {
+        if (selected != noTerritorySelected) {
+            if (graph.containsVertex(selected)) {
+                val edgesToRemove = HashSet<Border>()
+                val currentNeighbors = Graphs.neighborListOf(graph, selected)
+                currentNeighbors.removeAll(neighbors)
+                for (deselectedNeighbor in currentNeighbors) {
+                    for (border in graph.edgeSet()) {
+                        if (border.equals(graph.getEdge(selected, deselectedNeighbor))) {
+                            edgesToRemove.add(border)
+                        }
+                    }
+                }
+                graph.removeAllEdges(edgesToRemove)
+            }
+
+            for (selectedNeighbor in neighbors) {
+                val border = Border(selected, selectedNeighbor)
+                graph.addEdge(selected, selectedNeighbor, border)
+            }
+            deselect()
+        }
+    }
+
+    /* Private Methods */
     private fun getTerritory(point: Point): Optional<Territory> {
         val root = ImageUtil.getRootPixel(base, point)
         for (territory in graph.vertexSet()) {
@@ -173,12 +215,6 @@ class EditorModel(mapName: String = "") {
             }
         }
         return Optional.empty()
-    }
-
-    fun submitNeighbors() {
-        if (selected != noTerritorySelected) {
-            // TODO: Implement this properly
-        }
     }
 
 }

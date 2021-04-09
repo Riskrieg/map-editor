@@ -3,26 +3,40 @@ package com.riskrieg.mapeditor.ui
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.riskrieg.mapeditor.Constants
 import com.riskrieg.mapeditor.model.EditMode
 import com.riskrieg.mapeditor.model.EditorModel
+import com.riskrieg.mapeditor.model.Territory
 import org.jetbrains.skija.Bitmap
 import org.jetbrains.skija.IRect
 import java.awt.Point
+import javax.swing.JOptionPane
+import javax.swing.JTextArea
 
-class Editor(private val model: EditorModel) {
+
+class Editor(private val model: EditorModel, private var baseBitmap: MutableState<Bitmap>, private var textBitmap: Bitmap) {
 
     private var mousePos = Point(0, 0)
 
+    private val submittedTerritories = mutableStateListOf<Territory>() // TODO: Ideally temporary but may not have another workaround
+
     @Composable
     fun init() {
+        lightColors(primary = Color.Blue, primaryVariant = Color.Blue, secondary = Color.Yellow, secondaryVariant = Color.Yellow, surface = Color.Cyan)
+        darkColors(primary = Color.Blue, primaryVariant = Color.Blue, secondary = Color.Yellow, secondaryVariant = Color.Yellow, surface = Color.Cyan)
         Row {
             SideBar()
             MapView()
@@ -31,8 +45,51 @@ class Editor(private val model: EditorModel) {
 
     @Composable
     private fun SideBar() {
-        Box(Modifier.fillMaxHeight().width(80.dp).padding(4.dp)) {
+        Box(Modifier.fillMaxHeight().width(120.dp).padding(4.dp)) {
+            Column(Modifier.fillMaxSize(), Arrangement.spacedBy(5.dp)) {
+                when (model.editMode.value) {
+                    EditMode.NO_EDIT -> {
+                    }
+                    EditMode.EDIT_TERRITORY -> {
+                        Button(modifier = Modifier.fillMaxWidth().height(35.dp),
+                            colors = ButtonDefaults.buttonColors(backgroundColor = Color(Constants.BORDER_COLOR.rgb), contentColor = Color.White),
+                            onClick = {
+                                val name = JOptionPane.showInputDialog(JTextArea(), "Enter territory name:")
+                                val opt = model.submitRegionsAsTerritory(name)
+                                if (opt.isPresent) {
+                                    submittedTerritories.add(opt.get())
+                                }
+                                baseBitmap.value = model.update()
+                            }) {
+                            Text("Add", fontSize = 14.sp)
+                        }
+                        Button(modifier = Modifier.fillMaxWidth().height(35.dp),
+                            colors = ButtonDefaults.buttonColors(backgroundColor = Color(Constants.BORDER_COLOR.rgb), contentColor = Color.White),
+                            onClick = {
 
+                            }) {
+                            Text("Remove", fontSize = 14.sp)
+                        }
+                    }
+                    EditMode.EDIT_NEIGHBORS -> {
+                        Button(modifier = Modifier.fillMaxWidth().height(35.dp),
+                            colors = ButtonDefaults.buttonColors(backgroundColor = Color(Constants.BORDER_COLOR.rgb), contentColor = Color.White),
+                            onClick = {
+                                model.submitNeighbors()
+                                baseBitmap.value = model.update()
+                            }) {
+                            Text("Submit", fontSize = 14.sp)
+                        }
+                    }
+                }
+                Box(Modifier.fillMaxSize().background(color = Color(Constants.TERRITORY_COLOR.rgb))) {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        items(submittedTerritories) { territory ->
+                            Text(modifier = Modifier.fillMaxWidth(), text = territory.name) // TODO: Heavily unfinished and not working properly
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -42,10 +99,6 @@ class Editor(private val model: EditorModel) {
         val stateVertical = rememberScrollState(0)
         val stateHorizontal = rememberScrollState(0)
         var pointerPos: Offset? by remember { mutableStateOf(null) }
-
-        var baseBitmap by remember { mutableStateOf(Bitmap()) }
-        baseBitmap = model.base()
-        val textBitmap = model.text()
 
         Box(modifier = Modifier.fillMaxSize()) {
             Box(
@@ -63,7 +116,7 @@ class Editor(private val model: EditorModel) {
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },
                         onClick = {
-                            when (model.editMode) {
+                            when (model.editMode.value) {
                                 EditMode.NO_EDIT -> {
                                 }
                                 EditMode.EDIT_TERRITORY -> {
@@ -76,7 +129,7 @@ class Editor(private val model: EditorModel) {
                                 EditMode.EDIT_NEIGHBORS -> {
                                     if (model.hasSelection()) {
                                         if (model.isSelected(mousePos)) {
-                                            model.clearSelection()
+                                            model.deselect()
                                         } else if (model.isNeighbor(mousePos)) {
                                             model.deselectNeighbor(mousePos)
                                         } else {
@@ -87,7 +140,7 @@ class Editor(private val model: EditorModel) {
                                     }
                                 }
                             }
-                            baseBitmap = model.update()
+                            baseBitmap.value = model.update()
                         }
                     )
                 ) {
@@ -99,7 +152,7 @@ class Editor(private val model: EditorModel) {
                                 scrollOffset.y.toInt() + pointerPos!!.y.toInt()
                             )
                         }
-                        canvas.nativeCanvas.drawBitmapRect(baseBitmap, IRect(0, 0, model.width(), model.height()).toRect())
+                        canvas.nativeCanvas.drawBitmapRect(baseBitmap.value, IRect(0, 0, model.width(), model.height()).toRect())
                         canvas.nativeCanvas.drawBitmapRect(textBitmap, IRect(0, 0, model.width(), model.height()).toRect())
                     }
                 }
