@@ -26,7 +26,7 @@ class Init {
 
     fun start() {
         Window(
-            title = "${Constants.NAME} Map Editor v2.0.0",
+            title = "${Constants.NAME} Map Editor v2.0.0-ALPHA-1",
             icon = ImageIO.read(File("src/main/resources/icon/riskrieg-icon.png")),
             size = IntSize(Constants.DEFAULT_WINDOW_WIDTH, Constants.DEFAULT_WINDOW_HEIGHT),
             menuBar = MyMenuBar()
