@@ -124,13 +124,15 @@ class EditorModel(mapName: String = "") {
     }
 
     fun submitRegionsAsTerritory(name: String): Optional<Territory> {
-        val result = Territory(name, selectedRegions.toSet())
         if (selectedRegions.isNotEmpty()) {
-            graph.addVertex(result)
+            val result = Territory(name, selectedRegions.toSet())
+            if (selectedRegions.isNotEmpty()) {
+                graph.addVertex(result)
+                clearSelectedRegions()
+                return Optional.of(result)
+            }
             clearSelectedRegions()
-            return Optional.of(result)
         }
-        clearSelectedRegions()
         return Optional.empty()
     }
 
