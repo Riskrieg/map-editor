@@ -129,12 +129,16 @@ class EditorModel(mapName: String = "") {
     private var selected: Territory = noTerritorySelected
     private val neighbors: MutableSet<Territory> = HashSet()
 
-//    fun isSelected(point: Point): Boolean { // Might not need this but it's here for now just in case
-//        return selected.seedPoints.contains(point)
-//    }
+    fun hasSelection(): Boolean {
+        return selected != noTerritorySelected
+    }
 
-    fun select(selected: Territory) {
-        this.selected = selected
+    fun isSelected(point: Point): Boolean { // Might not need this but it's here for now just in case
+        return selected.seedPoints.contains(point)
+    }
+
+    fun select(point: Point) {
+        this.selected = getTerritory(point).orElse(noTerritorySelected)
         neighbors.addAll(Graphs.neighborListOf(graph, selected)) // Add all existing neighbors
     }
 
@@ -143,15 +147,32 @@ class EditorModel(mapName: String = "") {
         neighbors.clear()
     }
 
-    fun selectNeighbor(territory: Territory) {
+    fun isNeighbor(point: Point): Boolean {
+        val territory = getTerritory(point).orElse(noTerritorySelected)
+        return neighbors.contains(territory)
+    }
+
+    fun selectNeighbor(point: Point) {
+        val territory = getTerritory(point).orElse(noTerritorySelected)
         if (territory == selected) {
             return
         }
         neighbors.add(territory)
     }
 
-    fun deselectNeighbor(territory: Territory) {
+    fun deselectNeighbor(point: Point) {
+        val territory = getTerritory(point).orElse(noTerritorySelected)
         neighbors.remove(territory)
+    }
+
+    private fun getTerritory(point: Point): Optional<Territory> {
+        val root = ImageUtil.getRootPixel(base, point)
+        for (territory in graph.vertexSet()) {
+            if (territory.seedPoints.contains(root)) {
+                return Optional.of(territory)
+            }
+        }
+        return Optional.empty()
     }
 
     fun submitNeighbors() {

@@ -76,6 +76,19 @@ class Editor(private val model: EditorModel) {
                                     }
                                 }
                                 EditMode.EDIT_NEIGHBORS -> {
+                                    if (model.hasSelection()) {
+                                        if (model.isSelected(mousePos)) {
+                                            model.clearSelection()
+                                            baseBitmap = model.update()
+                                        } else if (model.isNeighbor(mousePos)) {
+                                            model.deselectNeighbor(mousePos)
+                                        } else {
+                                            model.selectNeighbor(mousePos)
+                                        }
+                                    } else {
+                                        model.select(mousePos)
+                                        baseBitmap = model.update()
+                                    }
                                 }
                             }
                         }
