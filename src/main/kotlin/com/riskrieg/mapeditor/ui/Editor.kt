@@ -83,7 +83,7 @@ class Editor(private val mapName: String = "") {
                             if (base.getRGB(mousePos.x, mousePos.y) == Constants.TERRITORY_COLOR.rgb) {
                                 val fill: Fill = MilazzoFill(base, Constants.TERRITORY_COLOR, Constants.SELECT_COLOR)
                                 fill.fill(Point(mousePos.x, mousePos.y))
-                                baseBitmap = ImageUtil.toBitmap(base).asImageBitmap().asDesktopBitmap();
+                                baseBitmap = ImageUtil.toBitmap(base).asImageBitmap().asDesktopBitmap()
                             } else if (base.getRGB(mousePos.x, mousePos.y) == Constants.SELECT_COLOR.rgb) {
                                 val fill: Fill = MilazzoFill(base, Constants.SELECT_COLOR, Constants.TERRITORY_COLOR)
                                 fill.fill(Point(mousePos.x, mousePos.y))
