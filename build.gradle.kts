@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.riskrieg"
-version = "2.0.0"
+version = "2.0.0-ALPHA-1"
 
 repositories {
     jcenter()
