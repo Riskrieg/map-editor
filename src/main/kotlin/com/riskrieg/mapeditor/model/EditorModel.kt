@@ -71,6 +71,13 @@ class EditorModel(mapName: String = "") {
                 }
             }
         }
+        if (neighbors.isNotEmpty()) {
+            for (territory in neighbors) {
+                for (point in territory.seedPoints) {
+                    MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.NEIGHBOR_SELECT_COLOR).fill(point)
+                }
+            }
+        }
         if (selectedRegions.isNotEmpty()) {
             for (point in selectedRegions) {
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SELECT_COLOR).fill(point)
@@ -78,13 +85,6 @@ class EditorModel(mapName: String = "") {
         } else if (selected != noTerritorySelected) {
             for (point in selected.seedPoints) {
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SELECT_COLOR).fill(point)
-            }
-        }
-        if (neighbors.isNotEmpty()) {
-            for (territory in neighbors) {
-                for (point in territory.seedPoints) {
-                    MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.NEIGHBOR_SELECT_COLOR).fill(point)
-                }
             }
         }
         return ImageUtil.toBitmap(copy).asImageBitmap().asDesktopBitmap()
