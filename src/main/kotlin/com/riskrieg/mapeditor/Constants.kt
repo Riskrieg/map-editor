@@ -12,6 +12,6 @@ object Constants {
     var TERRITORY_COLOR = Color(224, 218, 217)
     var BORDER_COLOR = Color(116, 88, 60)
 
-    var DEFAULT_WINDOW_WIDTH = 1280;
-    var DEFAULT_WINDOW_HEIGHT = 720;
+    var DEFAULT_WINDOW_WIDTH = 1280
+    var DEFAULT_WINDOW_HEIGHT = 720
 }
