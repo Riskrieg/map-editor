@@ -69,17 +69,14 @@ class Editor(private val model: EditorModel) {
                                 EditMode.EDIT_TERRITORY -> {
                                     if (!model.isRegionSelected(mousePos)) {
                                         model.selectRegion(mousePos)
-                                        baseBitmap = model.update()
                                     } else if (model.isRegionSelected(mousePos)) {
                                         model.deselectRegion(mousePos)
-                                        baseBitmap = model.update()
                                     }
                                 }
                                 EditMode.EDIT_NEIGHBORS -> {
                                     if (model.hasSelection()) {
                                         if (model.isSelected(mousePos)) {
                                             model.clearSelection()
-                                            baseBitmap = model.update()
                                         } else if (model.isNeighbor(mousePos)) {
                                             model.deselectNeighbor(mousePos)
                                         } else {
@@ -87,10 +84,10 @@ class Editor(private val model: EditorModel) {
                                         }
                                     } else {
                                         model.select(mousePos)
-                                        baseBitmap = model.update()
                                     }
                                 }
                             }
+                            baseBitmap = model.update()
                         }
                     )
                 ) {
