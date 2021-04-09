@@ -8,11 +8,15 @@ import androidx.compose.ui.window.KeyStroke
 import androidx.compose.ui.window.Menu
 import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.MenuItem
+import com.riskrieg.mapeditor.model.EditMode
+import com.riskrieg.mapeditor.model.EditorModel
 import com.riskrieg.mapeditor.ui.Editor
 import java.io.File
 import javax.imageio.ImageIO
 
 class Init {
+
+    private val model: EditorModel = EditorModel("north-america")
 
     fun start() {
         Window(
@@ -22,7 +26,7 @@ class Init {
             menuBar = MyMenuBar()
         ) {
             DesktopTheme {
-                Editor("north-america").init()
+                Editor(model).init()
             }
         }
     }
@@ -56,11 +60,18 @@ class Init {
                 name = "Mode",
                 MenuItem(
                     name = "Edit Territories",
-                    shortcut = KeyStroke(Key.T)
+                    shortcut = KeyStroke(Key.T),
+                    onClick = {
+                        model.editMode = EditMode.EDIT_TERRITORY
+                    }
                 ),
                 MenuItem(
                     name = "Edit Neighbors",
-                    shortcut = KeyStroke(Key.N)
+                    shortcut = KeyStroke(Key.N),
+                    onClick = {
+                        model.clearSelectedRegions() // TODO: Have to update baseBitmap somehow
+                        model.editMode = EditMode.EDIT_NEIGHBORS
+                    }
                 )
             )
         )
