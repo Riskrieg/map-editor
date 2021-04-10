@@ -1,8 +1,12 @@
 package com.riskrieg.mapeditor.model
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import com.riskrieg.mapeditor.Constants
 import com.riskrieg.mapeditor.fill.MilazzoFill
 import com.riskrieg.mapeditor.util.Extensions.convert
@@ -30,15 +34,18 @@ class EditorModel(mapName: String = "") {
     private var base: BufferedImage by mutableStateOf(BufferedImage(1, 1, 2))
     private var text: BufferedImage by mutableStateOf(BufferedImage(1, 1, 2))
 
-    private var baseBitmap by mutableStateOf(base.toBitmap())
-    private var textBitmap by mutableStateOf(text.toBitmap())
+    private var baseBitmap by mutableStateOf(base.toBitmap().asImageBitmap())
+    private var textBitmap by mutableStateOf(text.toBitmap().asImageBitmap())
+
+    private val submittedTerritories = mutableStateListOf<Territory>() // Unfortunately necessary for now
+    private val finishedTerritories = mutableStateListOf<Territory>() // Unfortunately necessary for now
 
     init {
         if (mapName.isNotBlank()) { // Primarily for easy debugging
             base = ImageIO.read(File("src/main/resources/" + Constants.MAP_PATH + "$mapName/$mapName-base.png")).convert(2)
             text = ImageIO.read(File("src/main/resources/" + Constants.MAP_PATH + "$mapName/$mapName-text.png")).convert(2)
-            baseBitmap = base.toBitmap()
-            textBitmap = text.toBitmap()
+            baseBitmap = base.toBitmap().asImageBitmap()
+            textBitmap = text.toBitmap().asImageBitmap()
         }
     }
 
@@ -51,23 +58,13 @@ class EditorModel(mapName: String = "") {
         graph = SimpleGraph<Territory, Border>(Border::class.java)
     }
 
-    fun base(): Bitmap {
+    fun base(): ImageBitmap {
         return baseBitmap
     }
 
-    fun text(): Bitmap {
+    fun text(): ImageBitmap {
         return textBitmap
     }
-
-//    fun importBase(bufferedImage: BufferedImage) {
-//        reset()
-//        baseBitmap = bufferedImage.toBitmap()
-//    }
-//
-//    fun importText(bufferedImage: BufferedImage) {
-//        reset()
-//        textBitmap = bufferedImage.toBitmap()
-//    }
 
     fun width(): Int {
         return baseBitmap.width
@@ -83,22 +80,21 @@ class EditorModel(mapName: String = "") {
         g2d.drawImage(base, 0, 0, null)
         g2d.dispose()
 
-        for (territory in graph.vertexSet()) {
-            if (Graphs.neighborSetOf(graph, territory).isEmpty()) { // TODO: Need to figure out a different way to color finished territories, may need to use old method
-                for (point in territory.seedPoints) {
-                    MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SUBMITTED_COLOR).fill(point)
-                }
-            } else {
-                for (point in territory.seedPoints) {
-                    MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.FINISHED_COLOR).fill(point)
-                }
+        for (territory in submittedTerritories) {
+            for (point in territory.seedPoints) {
+                MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SUBMITTED_COLOR).fill(point)
             }
         }
-        if (neighbors.isNotEmpty()) {
-            for (territory in neighbors) {
-                for (point in territory.seedPoints) {
-                    MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.NEIGHBOR_SELECT_COLOR).fill(point)
-                }
+
+        for (territory in finishedTerritories) {
+            for (point in territory.seedPoints) {
+                MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.FINISHED_COLOR).fill(point)
+            }
+        }
+
+        for (territory in neighbors) {
+            for (point in territory.seedPoints) {
+                MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.NEIGHBOR_SELECT_COLOR).fill(point)
             }
         }
         if (selectedRegions.isNotEmpty()) {
@@ -110,15 +106,15 @@ class EditorModel(mapName: String = "") {
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SELECT_COLOR).fill(point)
             }
         }
-        baseBitmap = copy.toBitmap()
+        baseBitmap = copy.toBitmap().asImageBitmap()
     }
 
     fun getSelectedRegions(): Deque<Point> {
         return selectedRegions
     }
 
-    fun getSubmittedTerritories(): Set<Territory> {
-        return graph.vertexSet()
+    fun getSubmittedTerritories(): SnapshotStateList<Territory> {
+        return submittedTerritories
     }
 
     /* EditMode.EDIT_TERRITORY */
@@ -152,6 +148,7 @@ class EditorModel(mapName: String = "") {
             val result = Territory(name, selectedRegions.toSet())
             if (selectedRegions.isNotEmpty()) {
                 graph.addVertex(result)
+                submittedTerritories.add(result)
                 clearSelectedRegions()
                 return Optional.of(result)
             }
@@ -228,6 +225,7 @@ class EditorModel(mapName: String = "") {
                 val border = Border(selected, selectedNeighbor)
                 graph.addEdge(selected, selectedNeighbor, border)
             }
+            finishedTerritories.add(selected)
             deselect()
         }
     }
@@ -236,8 +234,8 @@ class EditorModel(mapName: String = "") {
 
     fun importMapLayers() {
         reset()
-        baseBitmap = Bitmap()
-        textBitmap = Bitmap()
+        baseBitmap = Bitmap().asImageBitmap()
+        textBitmap = Bitmap().asImageBitmap()
         val chooser = JFileChooser()
         val filter = FileNameExtensionFilter("Images (*.png)", "png")
         chooser.fileFilter = filter
@@ -246,14 +244,14 @@ class EditorModel(mapName: String = "") {
             try {
                 val newBase = ImageIO.read(chooser.selectedFile)
                 base = newBase
-                baseBitmap = base.toBitmap()
+                baseBitmap = base.toBitmap().asImageBitmap()
 
                 val successText = chooser.showDialog(null, "Import Text Layer")
                 if (successText == JFileChooser.APPROVE_OPTION) {
                     val newText = ImageIO.read(chooser.selectedFile)
                     if (newText.height == height() && newText.width == width()) {
                         text = newText
-                        textBitmap = text.toBitmap()
+                        textBitmap = text.toBitmap().asImageBitmap()
                     } else {
                         JOptionPane.showMessageDialog(null, "Your text layer must match the width and height of your base layer. Import your base layer first.")
                     }

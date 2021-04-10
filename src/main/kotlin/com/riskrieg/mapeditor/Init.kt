@@ -12,6 +12,7 @@ import com.riskrieg.mapeditor.model.EditMode
 import com.riskrieg.mapeditor.model.EditorModel
 import com.riskrieg.mapeditor.ui.Editor
 import javax.imageio.ImageIO
+import javax.swing.JOptionPane
 
 class Init {
 
@@ -38,7 +39,8 @@ class Init {
                     name = "Import...",
                     shortcut = KeyStroke(Key.I),
                     onClick = {
-                        model.importMapFile()
+                        JOptionPane.showMessageDialog(null, "This isn't implemented quite yet!")
+//                        model.importMapFile()
                     }
                 ),
                 MenuItem(
@@ -50,7 +52,10 @@ class Init {
                 ),
                 MenuItem(
                     name = "Export...",
-                    shortcut = KeyStroke(Key.E)
+                    shortcut = KeyStroke(Key.E),
+                    onClick = {
+                        JOptionPane.showMessageDialog(null, "This isn't implemented quite yet!")
+                    }
                 )
             ),
             Menu(
