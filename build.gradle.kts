@@ -61,9 +61,9 @@ compose.desktop {
                 perUserInstall = true
             }
 
-//            macOS {
-//                iconFile.set(iconsRoot.resolve("icon/macos.icns"))
-//            }
+            macOS {
+                iconFile.set(iconsRoot.resolve("icon/macos.icns"))
+            }
 
         }
     }
