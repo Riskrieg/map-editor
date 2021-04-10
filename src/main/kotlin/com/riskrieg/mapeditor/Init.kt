@@ -56,20 +56,27 @@ class Init {
                     onClick = {
                         JOptionPane.showMessageDialog(null, "This isn't implemented quite yet!")
                     }
+                ),
+                MenuItem(
+                    name = "Export Graph...",
+                    shortcut = KeyStroke(Key.R),
+                    onClick = {
+                        JOptionPane.showMessageDialog(null, "This isn't implemented quite yet!")
+                    }
                 )
             ),
             Menu(
                 name = "Import",
                 MenuItem(
                     name = "Image Layers...",
-                    shortcut = KeyStroke(Key.T),
+                    shortcut = KeyStroke(Key.L),
                     onClick = {
                         model.importMapAsLayers()
                     }
                 ),
                 MenuItem(
                     name = "Graph...",
-                    shortcut = KeyStroke(Key.B),
+                    shortcut = KeyStroke(Key.G),
                     onClick = {
                         model.importGraphFile()
                     }
