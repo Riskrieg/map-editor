@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import com.aaronjyoder.util.json.gson.GsonUtil
 import com.riskrieg.mapeditor.Constants
 import com.riskrieg.mapeditor.fill.MilazzoFill
 import com.riskrieg.mapeditor.util.Extensions.convert
@@ -20,6 +21,7 @@ import java.awt.Point
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.IOException
+import java.lang.Exception
 import java.util.*
 import javax.imageio.ImageIO
 import javax.swing.JFileChooser
@@ -242,8 +244,7 @@ class EditorModel(mapName: String = "") {
 
     /* File I/O */
 
-    fun importMapLayers() {
-        reset()
+    fun importMapAsLayers() {
         val chooser = JFileChooser()
         val filter = FileNameExtensionFilter("Images (*.png)", "png")
         chooser.fileFilter = filter
@@ -251,6 +252,7 @@ class EditorModel(mapName: String = "") {
         if (successBase == JFileChooser.APPROVE_OPTION) {
             try {
                 val newBase = ImageIO.read(chooser.selectedFile)
+                reset()
                 base = newBase
                 baseBitmap = base.toBitmap().asImageBitmap()
 
@@ -267,6 +269,42 @@ class EditorModel(mapName: String = "") {
                 }
 
             } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun importGraphFile() {
+        val chooser = JFileChooser()
+        val filter = FileNameExtensionFilter("Json Graph (*.json)", "json")
+        chooser.fileFilter = filter
+        val successGraph = chooser.showDialog(null, "Import Graph File")
+        if (successGraph == JFileChooser.APPROVE_OPTION) {
+            try {
+
+                if (base.width != 1 && base.height != 1) {
+                    val mapGraph: MapGraph = GsonUtil.read(chooser.selectedFile.path, MapGraph::class.java)
+                    graph = SimpleGraph<Territory, Border>(Border::class.java)
+
+                    for (territory in mapGraph.vertices()) {
+                        graph.addVertex(territory)
+                    }
+                    for (border in mapGraph.edges()) {
+                        graph.addEdge(border.source, border.target, border)
+                    }
+                    submittedTerritories.addAll(graph.vertexSet())
+                    finishedTerritories.addAll(graph.vertexSet())
+                    update()
+                    editMode = EditMode.EDIT_NEIGHBORS
+                } else {
+                    JOptionPane.showMessageDialog(null, "Please import a base image layer and text image layer before importing a graph file.")
+                }
+
+            } catch (e: Exception) {
+                graph = SimpleGraph<Territory, Border>(Border::class.java)
+                submittedTerritories.clear()
+                finishedTerritories.clear()
+                JOptionPane.showMessageDialog(null, "File invalid: JSON format does not match that of a correct map graph file.")
                 e.printStackTrace()
             }
         }
