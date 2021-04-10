@@ -16,7 +16,7 @@ import javax.swing.JOptionPane
 
 class Init {
 
-    private val model: EditorModel = EditorModel("north-america")
+    private val model: EditorModel = EditorModel()
 
     fun start() {
         Window(

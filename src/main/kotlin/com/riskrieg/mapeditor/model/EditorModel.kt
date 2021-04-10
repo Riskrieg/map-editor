@@ -41,16 +41,17 @@ class EditorModel(mapName: String = "") {
     private val submittedTerritories = mutableStateListOf<Territory>() // Unfortunately necessary for now
     private val finishedTerritories = mutableStateListOf<Territory>() // Unfortunately necessary for now
 
+    var editMode by mutableStateOf(EditMode.NO_EDIT)
+
     init {
         if (mapName.isNotBlank()) { // Primarily for easy debugging
             base = ImageIO.read(File("src/main/resources/" + Constants.MAP_PATH + "$mapName/$mapName-base.png")).convert(2)
             text = ImageIO.read(File("src/main/resources/" + Constants.MAP_PATH + "$mapName/$mapName-text.png")).convert(2)
             baseBitmap = base.toBitmap().asImageBitmap()
             textBitmap = text.toBitmap().asImageBitmap()
+            editMode = EditMode.EDIT_TERRITORY
         }
     }
-
-    var editMode by mutableStateOf(EditMode.EDIT_TERRITORY)
 
     /* Basic Functions */
     fun reset() {
