@@ -21,7 +21,6 @@ import java.awt.Point
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.IOException
-import java.lang.Exception
 import java.util.*
 import javax.imageio.ImageIO
 import javax.swing.JFileChooser
@@ -237,7 +236,11 @@ class EditorModel(mapName: String = "") {
                 val border = Border(selected, selectedNeighbor)
                 graph.addEdge(selected, selectedNeighbor, border)
             }
-            finishedTerritories.add(selected)
+            if (Graphs.neighborListOf(graph, selected).size == 0) {
+                finishedTerritories.remove(selected)
+            } else if (!finishedTerritories.contains(selected)) {
+                finishedTerritories.add(selected)
+            }
             deselect()
         }
     }
