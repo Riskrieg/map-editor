@@ -49,13 +49,20 @@ class EditorModel(mapName: String = "") {
         }
     }
 
-    var editMode = mutableStateOf(EditMode.EDIT_TERRITORY)
+    var editMode by mutableStateOf(EditMode.EDIT_TERRITORY)
 
     /* Basic Functions */
     fun reset() {
+        editMode = EditMode.NO_EDIT
         clearSelectedRegions()
         deselect()
+        submittedTerritories.clear()
+        finishedTerritories.clear()
         graph = SimpleGraph<Territory, Border>(Border::class.java)
+        base = BufferedImage(1, 1, 2)
+        text = BufferedImage(1, 1, 2)
+        baseBitmap = Bitmap().asImageBitmap()
+        textBitmap = Bitmap().asImageBitmap()
     }
 
     fun base(): ImageBitmap {
@@ -97,6 +104,7 @@ class EditorModel(mapName: String = "") {
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.NEIGHBOR_SELECT_COLOR).fill(point)
             }
         }
+
         if (selectedRegions.isNotEmpty()) {
             for (point in selectedRegions) {
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SELECT_COLOR).fill(point)
@@ -106,6 +114,7 @@ class EditorModel(mapName: String = "") {
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SELECT_COLOR).fill(point)
             }
         }
+
         baseBitmap = copy.toBitmap().asImageBitmap()
     }
 
@@ -114,6 +123,7 @@ class EditorModel(mapName: String = "") {
     }
 
     fun getSubmittedTerritories(): SnapshotStateList<Territory> {
+//        submittedTerritories.sort()
         return submittedTerritories
     }
 
@@ -234,8 +244,6 @@ class EditorModel(mapName: String = "") {
 
     fun importMapLayers() {
         reset()
-        baseBitmap = Bitmap().asImageBitmap()
-        textBitmap = Bitmap().asImageBitmap()
         val chooser = JFileChooser()
         val filter = FileNameExtensionFilter("Images (*.png)", "png")
         chooser.fileFilter = filter
@@ -252,6 +260,7 @@ class EditorModel(mapName: String = "") {
                     if (newText.height == height() && newText.width == width()) {
                         text = newText
                         textBitmap = text.toBitmap().asImageBitmap()
+                        editMode = EditMode.EDIT_TERRITORY
                     } else {
                         JOptionPane.showMessageDialog(null, "Your text layer must match the width and height of your base layer. Import your base layer first.")
                     }

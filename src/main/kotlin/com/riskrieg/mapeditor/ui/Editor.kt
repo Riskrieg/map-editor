@@ -58,7 +58,7 @@ class Editor(private val model: EditorModel) {
             )
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = "Edit Mode: ${model.editMode.value}  |   Mouse: (${mousePos.x}, ${mousePos.y})  |   Size: ${model.width()}x${model.height()}",
+                text = "Edit Mode: ${model.editMode}  |   Mouse: (${mousePos.x}, ${mousePos.y})  |   Size: ${model.width()}x${model.height()}",
                 fontSize = 12.sp,
                 textAlign = TextAlign.End
             )
@@ -70,7 +70,7 @@ class Editor(private val model: EditorModel) {
     private fun SideBar(modifier: Modifier) {
         Box(modifier = modifier) {
             Column(Modifier.fillMaxSize(), Arrangement.spacedBy(5.dp)) {
-                when (model.editMode.value) {
+                when (model.editMode) {
                     EditMode.NO_EDIT -> {
                     }
                     EditMode.EDIT_TERRITORY -> {
@@ -108,8 +108,10 @@ class Editor(private val model: EditorModel) {
                     val state = rememberLazyListState()
                     LazyColumn(modifier = Modifier.fillMaxSize().padding(end = 12.dp), state) {
                         items(model.getSubmittedTerritories().size) { i ->
-                            TextBox(model.getSubmittedTerritories()[i].name)
-                            Spacer(modifier = Modifier.height(5.dp))
+                            if (model.getSubmittedTerritories().size > 0) {
+                                TextBox(model.getSubmittedTerritories()[i].name)
+                                Spacer(modifier = Modifier.height(5.dp))
+                            }
                         }
                     }
                     VerticalScrollbar(
@@ -163,7 +165,7 @@ class Editor(private val model: EditorModel) {
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },
                         onClick = {
-                            when (model.editMode.value) {
+                            when (model.editMode) {
                                 EditMode.NO_EDIT -> {
                                 }
                                 EditMode.EDIT_TERRITORY -> {

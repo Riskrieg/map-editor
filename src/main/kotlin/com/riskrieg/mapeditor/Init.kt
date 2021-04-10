@@ -36,8 +36,15 @@ class Init {
             Menu(
                 name = "File",
                 MenuItem(
-                    name = "Import...",
-                    shortcut = KeyStroke(Key.I),
+                    name = "New",
+                    shortcut = KeyStroke(Key.N),
+                    onClick = {
+                        model.reset()
+                    }
+                ),
+                MenuItem(
+                    name = "Open...",
+                    shortcut = KeyStroke(Key.O),
                     onClick = {
                         JOptionPane.showMessageDialog(null, "This isn't implemented quite yet!")
 //                        model.importMapFile()
@@ -45,7 +52,7 @@ class Init {
                 ),
                 MenuItem(
                     name = "Import as Layers...",
-                    shortcut = KeyStroke(Key.O),
+                    shortcut = KeyStroke(Key.I),
                     onClick = {
                         model.importMapLayers()
                     }
@@ -65,16 +72,16 @@ class Init {
                     shortcut = KeyStroke(Key.T),
                     onClick = {
                         model.deselect()
-                        model.editMode.value = EditMode.EDIT_TERRITORY
+                        model.editMode = EditMode.EDIT_TERRITORY
                         model.update()
                     }
                 ),
                 MenuItem(
                     name = "Edit Neighbors",
-                    shortcut = KeyStroke(Key.N),
+                    shortcut = KeyStroke(Key.B),
                     onClick = {
                         model.clearSelectedRegions() // TODO: Have to update baseBitmap somehow
-                        model.editMode.value = EditMode.EDIT_NEIGHBORS
+                        model.editMode = EditMode.EDIT_NEIGHBORS
                         model.update()
                     }
                 )

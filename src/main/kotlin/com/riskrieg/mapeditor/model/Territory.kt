@@ -3,7 +3,7 @@ package com.riskrieg.mapeditor.model
 import java.awt.Point
 import java.util.*
 
-class Territory(val name: String, val seedPoints: Set<Point> = HashSet()) {
+class Territory(val name: String, val seedPoints: Set<Point> = HashSet()) : Comparable<Territory> {
 
     constructor(name: String, seedPoint: Point) : this(name, setOf<Point>(seedPoint))
 
@@ -25,5 +25,9 @@ class Territory(val name: String, val seedPoints: Set<Point> = HashSet()) {
     init {
         require(name.isNotBlank()) { "String 'name' cannot be blank" }
         check(seedPoints.isNotEmpty()) { "Set<Point> 'seedPoints' must not be empty" }
+    }
+
+    override fun compareTo(other: Territory): Int {
+        return this.name.compareTo(other.name)
     }
 }
