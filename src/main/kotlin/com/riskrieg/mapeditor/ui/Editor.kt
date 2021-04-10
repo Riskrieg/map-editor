@@ -23,14 +23,17 @@ import com.riskrieg.mapeditor.Constants
 import com.riskrieg.mapeditor.model.EditMode
 import com.riskrieg.mapeditor.model.EditorModel
 import com.riskrieg.mapeditor.model.Territory
-import org.jetbrains.skija.Bitmap
 import org.jetbrains.skija.IRect
 import java.awt.Point
+import java.io.IOException
+import javax.imageio.ImageIO
+import javax.swing.JFileChooser
 import javax.swing.JOptionPane
 import javax.swing.JTextArea
+import javax.swing.filechooser.FileNameExtensionFilter
 
 
-class Editor(private val model: EditorModel, private var baseBitmap: MutableState<Bitmap>, private var textBitmap: Bitmap) {
+class Editor(private val model: EditorModel) {
 
     private var mousePos by mutableStateOf(Point(0, 0))
 
@@ -86,7 +89,7 @@ class Editor(private val model: EditorModel, private var baseBitmap: MutableStat
                                     if (opt.isPresent) {
                                         submittedTerritories.add(opt.get())
                                     }
-                                    baseBitmap.value = model.update()
+                                    model.update()
                                 }
                             }) {
                             Text("Add", fontSize = 14.sp)
@@ -104,7 +107,7 @@ class Editor(private val model: EditorModel, private var baseBitmap: MutableStat
                             colors = ButtonDefaults.buttonColors(backgroundColor = Color(Constants.BORDER_COLOR.rgb), contentColor = Color.White),
                             onClick = {
                                 model.submitNeighbors()
-                                baseBitmap.value = model.update()
+                                model.update()
                             }) {
                             Text("Submit", fontSize = 14.sp)
                         }
@@ -168,7 +171,7 @@ class Editor(private val model: EditorModel, private var baseBitmap: MutableStat
                                     }
                                 }
                             }
-                            baseBitmap.value = model.update()
+                            model.update()
                         }
                     )
                 ) {
@@ -180,8 +183,8 @@ class Editor(private val model: EditorModel, private var baseBitmap: MutableStat
                                 scrollOffset.y.toInt() + pointerPos!!.y.toInt()
                             )
                         }
-                        canvas.nativeCanvas.drawBitmapRect(baseBitmap.value, IRect(0, 0, model.width(), model.height()).toRect())
-                        canvas.nativeCanvas.drawBitmapRect(textBitmap, IRect(0, 0, model.width(), model.height()).toRect())
+                        canvas.nativeCanvas.drawBitmapRect(model.base(), IRect(0, 0, model.width(), model.height()).toRect())
+                        canvas.nativeCanvas.drawBitmapRect(model.text(), IRect(0, 0, model.width(), model.height()).toRect())
                     }
                 }
             }

@@ -1,10 +1,12 @@
 package com.riskrieg.mapeditor.model
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.asDesktopBitmap
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.runtime.setValue
 import com.riskrieg.mapeditor.Constants
 import com.riskrieg.mapeditor.fill.MilazzoFill
+import com.riskrieg.mapeditor.util.Extensions.convert
+import com.riskrieg.mapeditor.util.Extensions.toBitmap
 import com.riskrieg.mapeditor.util.ImageUtil
 import org.jetbrains.skija.Bitmap
 import org.jgrapht.Graphs
@@ -13,47 +15,69 @@ import java.awt.Color
 import java.awt.Point
 import java.awt.image.BufferedImage
 import java.io.File
+import java.io.IOException
 import java.util.*
 import javax.imageio.ImageIO
+import javax.swing.JFileChooser
+import javax.swing.JOptionPane
+import javax.swing.filechooser.FileNameExtensionFilter
 
 
 class EditorModel(mapName: String = "") {
 
-    private val graph = SimpleGraph<Territory, Border>(Border::class.java)
+    private var graph = SimpleGraph<Territory, Border>(Border::class.java)
 
-    private var base: BufferedImage
-    private var text: BufferedImage
+    private var base: BufferedImage by mutableStateOf(BufferedImage(1, 1, 2))
+    private var text: BufferedImage by mutableStateOf(BufferedImage(1, 1, 2))
+
+    private var baseBitmap by mutableStateOf(base.toBitmap())
+    private var textBitmap by mutableStateOf(text.toBitmap())
 
     init {
-        if (mapName.isBlank()) {
-            base = BufferedImage(Constants.DEFAULT_WINDOW_WIDTH, Constants.DEFAULT_WINDOW_HEIGHT, 2)
-            text = BufferedImage(Constants.DEFAULT_WINDOW_WIDTH, Constants.DEFAULT_WINDOW_HEIGHT, 2)
-        } else { // Primarily for easy debugging
-            base = ImageUtil.convert(ImageIO.read(File("src/main/resources/" + Constants.MAP_PATH + "$mapName/$mapName-base.png")), 2)
-            text = ImageUtil.convert(ImageIO.read(File("src/main/resources/" + Constants.MAP_PATH + "$mapName/$mapName-text.png")), 2)
+        if (mapName.isNotBlank()) { // Primarily for easy debugging
+            base = ImageIO.read(File("src/main/resources/" + Constants.MAP_PATH + "$mapName/$mapName-base.png")).convert(2)
+            text = ImageIO.read(File("src/main/resources/" + Constants.MAP_PATH + "$mapName/$mapName-text.png")).convert(2)
+            baseBitmap = base.toBitmap()
+            textBitmap = text.toBitmap()
         }
     }
 
     var editMode = mutableStateOf(EditMode.EDIT_TERRITORY)
 
     /* Basic Functions */
+    fun reset() {
+        clearSelectedRegions()
+        deselect()
+        graph = SimpleGraph<Territory, Border>(Border::class.java)
+    }
+
     fun base(): Bitmap {
-        return ImageUtil.toBitmap(base).asImageBitmap().asDesktopBitmap()
+        return baseBitmap
     }
 
     fun text(): Bitmap {
-        return ImageUtil.toBitmap(text).asImageBitmap().asDesktopBitmap()
+        return textBitmap
     }
 
+//    fun importBase(bufferedImage: BufferedImage) {
+//        reset()
+//        baseBitmap = bufferedImage.toBitmap()
+//    }
+//
+//    fun importText(bufferedImage: BufferedImage) {
+//        reset()
+//        textBitmap = bufferedImage.toBitmap()
+//    }
+
     fun width(): Int {
-        return base.width
+        return baseBitmap.width
     }
 
     fun height(): Int {
-        return base.height
+        return baseBitmap.height
     }
 
-    fun update(): Bitmap {
+    fun update() {
         val copy = BufferedImage(base.width, base.height, BufferedImage.TYPE_INT_ARGB)
         val g2d = copy.createGraphics()
         g2d.drawImage(base, 0, 0, null)
@@ -86,7 +110,7 @@ class EditorModel(mapName: String = "") {
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SELECT_COLOR).fill(point)
             }
         }
-        return ImageUtil.toBitmap(copy).asImageBitmap().asDesktopBitmap()
+        baseBitmap = copy.toBitmap()
     }
 
     fun getSelectedRegions(): Deque<Point> {
@@ -173,7 +197,7 @@ class EditorModel(mapName: String = "") {
 
     fun selectNeighbor(point: Point) {
         val territory = getTerritory(point).orElse(noTerritorySelected)
-        if (territory == selected) {
+        if (territory == selected || territory == noTerritorySelected) {
             return
         }
         neighbors.add(territory)
@@ -206,6 +230,48 @@ class EditorModel(mapName: String = "") {
             }
             deselect()
         }
+    }
+
+    /* File I/O */
+
+    fun importMapLayers() {
+        reset()
+        baseBitmap = Bitmap()
+        textBitmap = Bitmap()
+        val chooser = JFileChooser()
+        val filter = FileNameExtensionFilter("Images (*.png)", "png")
+        chooser.fileFilter = filter
+        val successBase = chooser.showDialog(null, "Import Base Layer")
+        if (successBase == JFileChooser.APPROVE_OPTION) {
+            try {
+                val newBase = ImageIO.read(chooser.selectedFile)
+                base = newBase
+                baseBitmap = base.toBitmap()
+
+                val successText = chooser.showDialog(null, "Import Text Layer")
+                if (successText == JFileChooser.APPROVE_OPTION) {
+                    val newText = ImageIO.read(chooser.selectedFile)
+                    if (newText.height == height() && newText.width == width()) {
+                        text = newText
+                        textBitmap = text.toBitmap()
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Your text layer must match the width and height of your base layer. Import your base layer first.")
+                    }
+                }
+
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun importMapFile() {
+        reset()
+        val chooser = JFileChooser()
+        val filter = FileNameExtensionFilter("Riskrieg Map (*.rkm)", "rkm")
+        chooser.fileFilter = filter
+        val success = chooser.showDialog(null, "Import")
+        // TODO: Finish writing this
     }
 
     /* Private Methods */
