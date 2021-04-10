@@ -249,6 +249,7 @@ class EditorModel(mapName: String = "") {
 
     fun importMapAsLayers() {
         val chooser = JFileChooser()
+        chooser.isAcceptAllFileFilterUsed = false
         val filter = FileNameExtensionFilter("Images (*.png)", "png")
         chooser.fileFilter = filter
         val successBase = chooser.showDialog(null, "Import Base Layer")
@@ -279,7 +280,8 @@ class EditorModel(mapName: String = "") {
 
     fun importGraphFile() {
         val chooser = JFileChooser()
-        val filter = FileNameExtensionFilter("Json Graph (*.json)", "json")
+        chooser.isAcceptAllFileFilterUsed = false
+        val filter = FileNameExtensionFilter("${Constants.NAME} Graph (*.json)", "json")
         chooser.fileFilter = filter
         val successGraph = chooser.showDialog(null, "Import Graph File")
         if (successGraph == JFileChooser.APPROVE_OPTION) {
@@ -316,6 +318,7 @@ class EditorModel(mapName: String = "") {
     fun importMapFile() {
         reset()
         val chooser = JFileChooser()
+        chooser.isAcceptAllFileFilterUsed = false
         val filter = FileNameExtensionFilter("Riskrieg Map (*.rkm)", "rkm")
         chooser.fileFilter = filter
         val success = chooser.showDialog(null, "Import")
@@ -327,15 +330,14 @@ class EditorModel(mapName: String = "") {
             JOptionPane.showMessageDialog(null, "Nothing to export.")
             return
         } else if (graph.edgeSet().size == 0) {
-            JOptionPane.showMessageDialog(null, "Please add territory neighbors before exporting.")
+            JOptionPane.showMessageDialog(null, "Please add some territory neighbors before exporting.")
             return
         }
         val chooser = JFileChooser()
         chooser.currentDirectory = File(".")
         chooser.dialogTitle = "Save ${Constants.NAME} Graph File"
-//        chooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
         chooser.isAcceptAllFileFilterUsed = false
-        val filter = FileNameExtensionFilter("Json Graph (*.json)", "json")
+        val filter = FileNameExtensionFilter("${Constants.NAME} Graph (*.json)", "json")
         chooser.fileFilter = filter
 
         if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
