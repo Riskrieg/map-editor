@@ -25,12 +25,8 @@ import com.riskrieg.mapeditor.model.EditorModel
 import com.riskrieg.mapeditor.model.Territory
 import org.jetbrains.skija.IRect
 import java.awt.Point
-import java.io.IOException
-import javax.imageio.ImageIO
-import javax.swing.JFileChooser
 import javax.swing.JOptionPane
 import javax.swing.JTextArea
-import javax.swing.filechooser.FileNameExtensionFilter
 
 
 class Editor(private val model: EditorModel) {
@@ -57,7 +53,7 @@ class Editor(private val model: EditorModel) {
 
     @Composable
     private fun Footer() {
-        Row(Modifier.fillMaxWidth().height(25.dp).background(color = Color.LightGray).padding(3.dp)) {
+        Row(Modifier.fillMaxWidth().height(25.dp).background(color = Color(240, 240, 240)).padding(3.dp)) {
             Text(
                 text = "Left click to select/deselect regions or territories.",
                 fontSize = 12.sp,
