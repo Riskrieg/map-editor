@@ -61,7 +61,7 @@ class Init {
                     name = "Export Graph...",
                     shortcut = KeyStroke(Key.R),
                     onClick = {
-                        JOptionPane.showMessageDialog(null, "This isn't implemented quite yet!")
+                        model.exportGraphFile()
                     }
                 )
             ),

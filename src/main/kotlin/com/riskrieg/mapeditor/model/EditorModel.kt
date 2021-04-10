@@ -322,6 +322,38 @@ class EditorModel(mapName: String = "") {
         // TODO: Finish writing this
     }
 
+    fun exportGraphFile() {
+        if (graph.vertexSet().size == 0) {
+            JOptionPane.showMessageDialog(null, "Nothing to export.")
+            return
+        } else if (graph.edgeSet().size == 0) {
+            JOptionPane.showMessageDialog(null, "Please add territory neighbors before exporting.")
+            return
+        }
+        val chooser = JFileChooser()
+        chooser.currentDirectory = File(".")
+        chooser.dialogTitle = "Save ${Constants.NAME} Graph File"
+//        chooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
+        chooser.isAcceptAllFileFilterUsed = false
+        val filter = FileNameExtensionFilter("Json Graph (*.json)", "json")
+        chooser.fileFilter = filter
+
+        if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+            if (chooser.selectedFile.name.isNullOrBlank()) {
+                JOptionPane.showMessageDialog(null, "Invalid file name.")
+            } else {
+                val directory = chooser.currentDirectory.path.replace('\\', '/') + "/"
+                val fileName = Regex("[^A-Za-z0-9_\\-]").replace(chooser.selectedFile.nameWithoutExtension, "")
+                try {
+                    GsonUtil.write(directory, "${fileName}.json", MapGraph::class.java, MapGraph(graph))
+                    JOptionPane.showMessageDialog(null, "Graph file successfully exported to the selected directory.")
+                } catch (e: Exception) {
+                    JOptionPane.showMessageDialog(null, "Unable to save graph file due to an error.")
+                }
+            }
+        }
+    }
+
     /* Private Methods */
     private fun getTerritory(point: Point): Optional<Territory> {
         val root = ImageUtil.getRootPixel(base, point)
