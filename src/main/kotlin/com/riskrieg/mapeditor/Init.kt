@@ -46,8 +46,7 @@ class Init {
                     name = "Open...",
                     shortcut = KeyStroke(Key.O),
                     onClick = {
-                        JOptionPane.showMessageDialog(null, "This isn't implemented quite yet!")
-//                        model.importMapFile()
+                        model.openRkmFile()
                     }
                 ),
                 MenuItem(

@@ -8,11 +8,15 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.aaronjyoder.util.json.gson.GsonUtil
+import com.riskrieg.map.data.MapGraph
+import com.riskrieg.map.territory.Border
+import com.riskrieg.map.territory.Territory
 import com.riskrieg.mapeditor.Constants
 import com.riskrieg.mapeditor.fill.MilazzoFill
 import com.riskrieg.mapeditor.util.Extensions.convert
 import com.riskrieg.mapeditor.util.Extensions.toBitmap
 import com.riskrieg.mapeditor.util.ImageUtil
+import com.riskrieg.rkm.RkmReader
 import org.jetbrains.skija.Bitmap
 import org.jgrapht.Graphs
 import org.jgrapht.graph.SimpleGraph
@@ -90,19 +94,19 @@ class EditorModel(mapName: String = "") {
         g2d.dispose()
 
         for (territory in submittedTerritories) {
-            for (point in territory.seedPoints) {
+            for (point in territory.seedPoints()) {
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SUBMITTED_COLOR).fill(point)
             }
         }
 
         for (territory in finishedTerritories) {
-            for (point in territory.seedPoints) {
+            for (point in territory.seedPoints()) {
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.FINISHED_COLOR).fill(point)
             }
         }
 
         for (territory in neighbors) {
-            for (point in territory.seedPoints) {
+            for (point in territory.seedPoints()) {
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.NEIGHBOR_SELECT_COLOR).fill(point)
             }
         }
@@ -112,7 +116,7 @@ class EditorModel(mapName: String = "") {
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SELECT_COLOR).fill(point)
             }
         } else if (selected != noTerritorySelected) {
-            for (point in selected.seedPoints) {
+            for (point in selected.seedPoints()) {
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SELECT_COLOR).fill(point)
             }
         }
@@ -183,7 +187,7 @@ class EditorModel(mapName: String = "") {
 
     fun isSelected(point: Point): Boolean { // Might not need this but it's here for now just in case
         val root = ImageUtil.getRootPixel(base, point)
-        return selected.seedPoints.contains(root)
+        return selected.seedPoints().contains(root)
     }
 
     fun select(point: Point) {
@@ -247,13 +251,47 @@ class EditorModel(mapName: String = "") {
 
     /* File I/O */
 
+    fun openRkmFile() {
+        val chooser = JFileChooser()
+        chooser.isAcceptAllFileFilterUsed = false
+        val filter = FileNameExtensionFilter("Riskrieg Map (*.rkm)", "rkm")
+        chooser.fileFilter = filter
+        if (chooser.showDialog(null, "Import") == JFileChooser.APPROVE_OPTION) {
+            try {
+                val reader = RkmReader(chooser.selectedFile)
+                val map = reader.read()
+                reset()
+                base = map.mapImage.baseImage()
+                baseBitmap = base.toBitmap().asImageBitmap()
+                text = map.mapImage.textImage()
+                textBitmap = text.toBitmap().asImageBitmap()
+
+                graph = SimpleGraph<Territory, Border>(Border::class.java)
+
+                for (territory in map.graph.vertices()) {
+                    graph.addVertex(territory)
+                }
+                for (border in map.graph.edges()) {
+                    graph.addEdge(border.source(), border.target(), border)
+                }
+                submittedTerritories.addAll(graph.vertexSet())
+                finishedTerritories.addAll(graph.vertexSet())
+                update()
+                editMode = EditMode.EDIT_NEIGHBORS
+            } catch (e: Exception) {
+                JOptionPane.showMessageDialog(null, "Invalid map file.")
+                return
+            }
+        }
+        // TODO: Finish writing this
+    }
+
     fun importMapAsLayers() {
         val chooser = JFileChooser()
         chooser.isAcceptAllFileFilterUsed = false
         val filter = FileNameExtensionFilter("Images (*.png)", "png")
         chooser.fileFilter = filter
-        val successBase = chooser.showDialog(null, "Import Base Layer")
-        if (successBase == JFileChooser.APPROVE_OPTION) {
+        if (chooser.showDialog(null, "Import Base Layer") == JFileChooser.APPROVE_OPTION) {
             try {
                 val newBase = ImageIO.read(chooser.selectedFile)
                 reset()
@@ -283,8 +321,7 @@ class EditorModel(mapName: String = "") {
         chooser.isAcceptAllFileFilterUsed = false
         val filter = FileNameExtensionFilter("${Constants.NAME} Graph (*.json)", "json")
         chooser.fileFilter = filter
-        val successGraph = chooser.showDialog(null, "Import Graph File")
-        if (successGraph == JFileChooser.APPROVE_OPTION) {
+        if (chooser.showDialog(null, "Import Graph File") == JFileChooser.APPROVE_OPTION) {
             try {
 
                 if (base.width != 1 && base.height != 1) {
@@ -295,7 +332,7 @@ class EditorModel(mapName: String = "") {
                         graph.addVertex(territory)
                     }
                     for (border in mapGraph.edges()) {
-                        graph.addEdge(border.source, border.target, border)
+                        graph.addEdge(border.source(), border.target(), border)
                     }
                     submittedTerritories.addAll(graph.vertexSet())
                     finishedTerritories.addAll(graph.vertexSet())
@@ -313,16 +350,6 @@ class EditorModel(mapName: String = "") {
                 e.printStackTrace()
             }
         }
-    }
-
-    fun importMapFile() {
-        reset()
-        val chooser = JFileChooser()
-        chooser.isAcceptAllFileFilterUsed = false
-        val filter = FileNameExtensionFilter("Riskrieg Map (*.rkm)", "rkm")
-        chooser.fileFilter = filter
-        val success = chooser.showDialog(null, "Import")
-        // TODO: Finish writing this
     }
 
     fun exportGraphFile() {
@@ -360,7 +387,7 @@ class EditorModel(mapName: String = "") {
     private fun getTerritory(point: Point): Optional<Territory> {
         val root = ImageUtil.getRootPixel(base, point)
         for (territory in graph.vertexSet()) {
-            if (territory.seedPoints.contains(root)) {
+            if (territory.seedPoints().contains(root)) {
                 return Optional.of(territory)
             }
         }

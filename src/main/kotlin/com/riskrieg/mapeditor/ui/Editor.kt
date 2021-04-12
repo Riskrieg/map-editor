@@ -109,7 +109,7 @@ class Editor(private val model: EditorModel) {
                     LazyColumn(modifier = Modifier.fillMaxSize().padding(end = 12.dp), state) {
                         items(model.getSubmittedTerritories().size) { i ->
                             if (model.getSubmittedTerritories().size > 0) {
-                                TextBox(model.getSubmittedTerritories()[i].name)
+                                TextBox(model.getSubmittedTerritories()[i].name())
                                 Spacer(modifier = Modifier.height(5.dp))
                             }
                         }

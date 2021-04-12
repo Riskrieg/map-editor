@@ -20,8 +20,8 @@ repositories {
 dependencies {
     implementation("com.github.aaronjyoder:Json-Utilities:1.0.0a15")
     implementation("com.github.Dansoftowner:jSystemThemeDetector:2.1") // temporary until isSystemDarkTheme() implemented in Desktop
-    implementation("org.jgrapht:jgrapht-core:1.5.0")
-    implementation("org.jgrapht:jgrapht-io:1.5.0")
+    implementation("com.riskrieg:map-format:1.0.0")
+    implementation("org.jgrapht:jgrapht-io:1.5.1")
 
     testImplementation(kotlin("test-junit5"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
