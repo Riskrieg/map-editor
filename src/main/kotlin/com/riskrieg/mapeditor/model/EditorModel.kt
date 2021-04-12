@@ -125,7 +125,6 @@ class EditorModel(mapName: String = "") {
     }
 
     fun getSubmittedTerritories(): SnapshotStateList<Territory> {
-//        submittedTerritories.sort()
         return submittedTerritories
     }
 
