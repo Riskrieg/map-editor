@@ -95,7 +95,7 @@ class Init {
                     name = "Edit Neighbors",
                     shortcut = KeyStroke(Key.B),
                     onClick = {
-                        model.clearSelectedRegions() // TODO: Have to update baseBitmap somehow
+                        model.clearSelectedRegions()
                         model.editMode = EditMode.EDIT_NEIGHBORS
                         model.update()
                     }
