@@ -175,7 +175,10 @@ class EditorModel(mapName: String = "") {
     }
 
     fun removeSubmitted(territory: Territory) {
-        // TODO: Write this
+        finishedTerritories.remove(territory)
+        submittedTerritories.remove(territory)
+        graph.removeVertex(territory)
+        update()
     }
 
     /* EditMode.EDIT_NEIGHBORS */

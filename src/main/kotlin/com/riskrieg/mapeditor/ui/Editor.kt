@@ -9,6 +9,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -20,6 +21,7 @@ import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.riskrieg.map.territory.Territory
 import com.riskrieg.mapeditor.Constants
 import com.riskrieg.mapeditor.model.EditMode
 import com.riskrieg.mapeditor.model.EditorModel
@@ -68,6 +70,8 @@ class Editor(private val model: EditorModel) {
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
     private fun SideBar(modifier: Modifier) {
+        var selectedTerritory: Territory? by remember { mutableStateOf(null) }
+        var selectedItemIndex by remember { mutableStateOf(-1) }
         Box(modifier = modifier) {
             Column(Modifier.fillMaxSize(), Arrangement.spacedBy(5.dp)) {
                 when (model.editMode) {
@@ -77,9 +81,12 @@ class Editor(private val model: EditorModel) {
                         Button(modifier = Modifier.fillMaxWidth().height(40.dp).absolutePadding(top = 4.dp, left = 2.dp, right = 2.dp, bottom = 0.dp),
                             colors = ButtonDefaults.buttonColors(backgroundColor = Color(Constants.BORDER_COLOR.rgb), contentColor = Color.White),
                             onClick = {
-                                val name = JOptionPane.showInputDialog(JTextArea(), "Enter territory name:")
+                                val name = JOptionPane.showInputDialog(JTextArea(), "Enter territory name: ")
                                 if (name != null && name.isNotBlank()) {
                                     val opt = model.submitRegionsAsTerritory(name)
+                                    if (opt.isPresent) {
+                                        selectedTerritory = opt.get()
+                                    }
                                     model.update()
                                 }
                             }) {
@@ -88,7 +95,10 @@ class Editor(private val model: EditorModel) {
                         Button(modifier = Modifier.fillMaxWidth().height(40.dp).absolutePadding(top = 0.dp, left = 2.dp, right = 2.dp, bottom = 0.dp),
                             colors = ButtonDefaults.buttonColors(backgroundColor = Color(Constants.BORDER_COLOR.rgb), contentColor = Color.White),
                             onClick = {
-
+                                if (selectedTerritory != null) {
+                                    model.removeSubmitted(selectedTerritory!!)
+                                    selectedItemIndex = -1
+                                }
                             }) {
                             Text("Remove", fontSize = 14.sp)
                         }
@@ -104,41 +114,52 @@ class Editor(private val model: EditorModel) {
                         }
                     }
                 }
-                Box(Modifier.fillMaxSize().background(color = Color.White)) {
-                    val state = rememberLazyListState()
-                    LazyColumn(modifier = Modifier.fillMaxSize().padding(end = 12.dp), state) {
-                        items(model.getSubmittedTerritories().size) { i ->
-                            if (model.getSubmittedTerritories().size > 0) {
-                                TextBox(model.getSubmittedTerritories()[i].name())
-                                Spacer(modifier = Modifier.height(5.dp))
-                            }
+                TerritoryList(model.getSubmittedTerritories(), selectedItemIndex, selectAction = { index ->
+                    if (model.editMode == EditMode.EDIT_TERRITORY) {
+                        if (index == selectedItemIndex) {
+                            selectedItemIndex = -1
+                            selectedTerritory = null
+                        } else {
+                            selectedItemIndex = index
+                            selectedTerritory = model.getSubmittedTerritories()[index]
                         }
                     }
-                    VerticalScrollbar(
-                        modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                        adapter = rememberScrollbarAdapter(
-                            scrollState = state,
-                            itemCount = model.getSubmittedTerritories().size,
-                            averageItemSize = 37.dp
-                        )
-                    )
-
-                }
+                })
             }
         }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    fun TextBox(text: String = "Item") { // TODO: Add ability to select these
-        val active = remember { mutableStateOf(false) }
-        Box(
-            modifier = Modifier.height(32.dp)
-                .fillMaxWidth()
-                .background(color = if (active.value) Color(200, 200, 200) else Color(240, 240, 240))
-                .padding(start = 10.dp).pointerMoveFilter(onEnter = { active.value = true; false }, onExit = { active.value = false; false }),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Text(text = text)
+    fun TerritoryList(list: SnapshotStateList<Territory>, selectedIndex: Int, modifier: Modifier = Modifier, selectAction: (Int) -> Unit) {
+        Box(Modifier.fillMaxSize().background(color = Color.White)) {
+            val state = rememberLazyListState()
+            LazyColumn(modifier = Modifier.fillMaxSize().padding(end = 12.dp), state) {
+                items(list.size) { i ->
+                    if (list.isNotEmpty()) {
+                        Box(
+                            modifier = Modifier.height(32.dp).fillMaxWidth()
+                                .background(color = if (selectedIndex == i) Color(127, 187, 235, 220) else Color(240, 240, 240))
+                                .clickable { selectAction(i) },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (i != list.size) {
+                                Text(list[i].name())
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(5.dp))
+                    }
+                }
+            }
+            VerticalScrollbar(
+                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+                adapter = rememberScrollbarAdapter(
+                    scrollState = state,
+                    itemCount = list.size,
+                    averageItemSize = 37.dp
+                )
+            )
+
         }
     }
 

@@ -2,6 +2,8 @@ package com.riskrieg.mapeditor
 
 import androidx.compose.desktop.DesktopMaterialTheme
 import androidx.compose.desktop.Window
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.window.KeyStroke
@@ -54,12 +56,26 @@ class Init {
                     onClick = {
                         model.exportAsRkm()
                     }
+                )
+            ),
+            Menu(
+                name = "Edit",
+                MenuItem(
+                    name = "Edit Territories",
+                    shortcut = KeyStroke(Key.T),
+                    onClick = {
+                        model.deselect()
+                        model.editMode = EditMode.EDIT_TERRITORY
+                        model.update()
+                    }
                 ),
                 MenuItem(
-                    name = "Export Graph...",
-                    shortcut = KeyStroke(Key.R),
+                    name = "Edit Neighbors",
+                    shortcut = KeyStroke(Key.B),
                     onClick = {
-                        model.exportGraphFile()
+                        model.clearSelectedRegions()
+                        model.editMode = EditMode.EDIT_NEIGHBORS
+                        model.update()
                     }
                 )
             ),
@@ -81,23 +97,21 @@ class Init {
                 )
             ),
             Menu(
-                name = "Mode",
+                name = "Export",
                 MenuItem(
-                    name = "Edit Territories",
-                    shortcut = KeyStroke(Key.T),
+                    name = "Graph...",
+                    shortcut = KeyStroke(Key.R),
                     onClick = {
-                        model.deselect()
-                        model.editMode = EditMode.EDIT_TERRITORY
-                        model.update()
+                        model.exportGraphFile()
                     }
-                ),
+                )
+            ),
+            Menu(
+                name = "Help",
                 MenuItem(
-                    name = "Edit Neighbors",
-                    shortcut = KeyStroke(Key.B),
+                    name = "About",
                     onClick = {
-                        model.clearSelectedRegions()
-                        model.editMode = EditMode.EDIT_NEIGHBORS
-                        model.update()
+                        // TODO: Bring up popup menu
                     }
                 )
             )
