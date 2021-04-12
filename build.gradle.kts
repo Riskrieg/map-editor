@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.riskrieg"
-version = "2.0.0-ALPHA-1"
+version = "2.0.0-alpha.1"
 
 repositories {
     jcenter()
@@ -46,23 +46,23 @@ compose.desktop {
         mainClass = "MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "map-editor"
-            packageVersion = "1.0.0"
+            packageName = "Riskrieg Map Editor"
+            packageVersion = "1.9.0"
 
-            val iconsRoot = project.file("src/main/resources/image")
+            val iconsRoot = project.file("src/main/resources/icon/")
 
             linux {
-                iconFile.set(iconsRoot.resolve("icon/linux.png"))
+                iconFile.set(iconsRoot.resolve("linux.png"))
             }
 
             windows {
-                iconFile.set(iconsRoot.resolve("icon/windows.ico"))
+                iconFile.set(iconsRoot.resolve("windows.ico"))
                 menuGroup = packageName
                 perUserInstall = true
             }
 
             macOS {
-                iconFile.set(iconsRoot.resolve("icon/macos.icns"))
+                iconFile.set(iconsRoot.resolve("macos.icns"))
             }
 
         }

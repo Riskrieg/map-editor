@@ -20,7 +20,7 @@ class Init {
 
     fun start() {
         Window(
-            title = "${Constants.NAME} Map Editor v2.0.0-ALPHA-1",
+            title = "${Constants.NAME} Map Editor v2.0.0-alpha.1",
             icon = ImageIO.read(Init::class.java.classLoader.getResourceAsStream("icon/icon.png")),
             size = IntSize(Constants.DEFAULT_WINDOW_WIDTH, Constants.DEFAULT_WINDOW_HEIGHT),
             menuBar = MyMenuBar()
