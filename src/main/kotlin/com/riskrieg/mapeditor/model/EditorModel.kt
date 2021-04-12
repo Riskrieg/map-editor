@@ -8,15 +8,19 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.aaronjyoder.util.json.gson.GsonUtil
+import com.riskrieg.map.GameMap
+import com.riskrieg.map.data.MapAuthor
 import com.riskrieg.map.data.MapGraph
+import com.riskrieg.map.data.MapImage
+import com.riskrieg.map.data.MapName
 import com.riskrieg.map.territory.Border
 import com.riskrieg.map.territory.Territory
 import com.riskrieg.mapeditor.Constants
 import com.riskrieg.mapeditor.fill.MilazzoFill
-import com.riskrieg.mapeditor.util.Extensions.convert
 import com.riskrieg.mapeditor.util.Extensions.toBitmap
 import com.riskrieg.mapeditor.util.ImageUtil
 import com.riskrieg.rkm.RkmReader
+import com.riskrieg.rkm.RkmWriter
 import org.jetbrains.skija.Bitmap
 import org.jgrapht.Graphs
 import org.jgrapht.graph.SimpleGraph
@@ -34,28 +38,26 @@ import javax.swing.filechooser.FileNameExtensionFilter
 
 class EditorModel(mapName: String = "") {
 
+    // Metadata that will be exported, and may also be used in the editor model
+
+    private var mapCodeName: String = ""
+    private var mapDisplayName: String = ""
+    private var mapAuthorName: String = ""
+
     private var graph = SimpleGraph<Territory, Border>(Border::class.java)
 
     private var base: BufferedImage by mutableStateOf(BufferedImage(1, 1, 2))
     private var text: BufferedImage by mutableStateOf(BufferedImage(1, 1, 2))
+
+    // Purely for editor model
+
+    var editMode by mutableStateOf(EditMode.NO_EDIT)
 
     private var baseBitmap by mutableStateOf(base.toBitmap().asImageBitmap())
     private var textBitmap by mutableStateOf(text.toBitmap().asImageBitmap())
 
     private val submittedTerritories = mutableStateListOf<Territory>() // Unfortunately necessary for now
     private val finishedTerritories = mutableStateListOf<Territory>() // Unfortunately necessary for now
-
-    var editMode by mutableStateOf(EditMode.NO_EDIT)
-
-    init {
-        if (mapName.isNotBlank()) { // Primarily for easy debugging
-            base = ImageIO.read(File("src/main/resources/" + Constants.MAP_PATH + "$mapName/$mapName-base.png")).convert(2)
-            text = ImageIO.read(File("src/main/resources/" + Constants.MAP_PATH + "$mapName/$mapName-text.png")).convert(2)
-            baseBitmap = base.toBitmap().asImageBitmap()
-            textBitmap = text.toBitmap().asImageBitmap()
-            editMode = EditMode.EDIT_TERRITORY
-        }
-    }
 
     /* Basic Functions */
     fun reset() {
@@ -266,6 +268,10 @@ class EditorModel(mapName: String = "") {
                 text = map.mapImage.textImage()
                 textBitmap = text.toBitmap().asImageBitmap()
 
+                mapCodeName = map.mapName().name()
+                mapDisplayName = map.mapName().displayName()
+                mapAuthorName = map.author().name()
+
                 graph = SimpleGraph<Territory, Border>(Border::class.java)
 
                 for (territory in map.graph.vertices()) {
@@ -283,7 +289,52 @@ class EditorModel(mapName: String = "") {
                 return
             }
         }
-        // TODO: Finish writing this
+    }
+
+    fun exportAsRkm() {
+        if (mapCodeName.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Map code name cannot be empty.")
+            return
+        }
+        if (mapDisplayName.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Map display name cannot be empty.")
+            return
+        }
+        if (mapAuthorName.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Map author name cannot be empty.")
+            return
+        }
+        if (graph.vertexSet().size == 0) {
+            JOptionPane.showMessageDialog(null, "Nothing to export.")
+            return
+        } else if (graph.edgeSet().size == 0) {
+            JOptionPane.showMessageDialog(null, "Please finish adding territory neighbors before exporting.")
+            return
+        }
+        val chooser = JFileChooser()
+        chooser.currentDirectory = File(".")
+        chooser.dialogTitle = "Save ${Constants.NAME} Map File"
+        chooser.isAcceptAllFileFilterUsed = false
+        val filter = FileNameExtensionFilter("${Constants.NAME} Map File (*.rkm)", "rkm")
+        chooser.fileFilter = filter
+
+        chooser.selectedFile = File("$mapCodeName.rkm")
+        if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+            if (chooser.selectedFile.name.isNullOrBlank()) {
+                JOptionPane.showMessageDialog(null, "Invalid file name.")
+            } else {
+                val directory = chooser.currentDirectory.path.replace('\\', '/') + "/"
+                val fileName = Regex("[^A-Za-z0-9_\\-]").replace(mapCodeName, "")
+                try {
+                    val gameMap = GameMap(MapName(mapCodeName, mapDisplayName), MapAuthor(mapAuthorName), MapGraph(graph), MapImage(base, text))
+                    val writer = RkmWriter(gameMap)
+                    writer.write(File(directory + "${fileName}.rkm"))
+                    JOptionPane.showMessageDialog(null, "Map file successfully exported to the selected directory.")
+                } catch (e: Exception) {
+                    JOptionPane.showMessageDialog(null, "Unable to save map file due to an error.")
+                }
+            }
+        }
     }
 
     fun importMapAsLayers() {

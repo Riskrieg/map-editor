@@ -12,7 +12,6 @@ import com.riskrieg.mapeditor.model.EditMode
 import com.riskrieg.mapeditor.model.EditorModel
 import com.riskrieg.mapeditor.ui.Editor
 import javax.imageio.ImageIO
-import javax.swing.JOptionPane
 
 class Init {
 
@@ -53,7 +52,7 @@ class Init {
                     name = "Export...",
                     shortcut = KeyStroke(Key.E),
                     onClick = {
-                        JOptionPane.showMessageDialog(null, "This isn't implemented quite yet!")
+                        model.exportAsRkm()
                     }
                 ),
                 MenuItem(
