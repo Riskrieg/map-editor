@@ -5,9 +5,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -44,26 +42,38 @@ class Editor(private val model: EditorModel) {
         Column {
             Row(modifier = Modifier.weight(1f)) {
                 SideBar(Modifier.fillMaxHeight().width(120.dp))
-                MapView(Modifier.fillMaxSize())
+                Column(Modifier.weight(1f)) {
+                    MapView(Modifier.fillMaxSize())
+                }
+                if (model.editMode != EditMode.NO_EDIT) {
+                    MetadataEditor(Modifier.fillMaxHeight().width(180.dp))
+                }
             }
             Footer()
         }
     }
 
     @Composable
-    private fun Footer() {
-        Row(Modifier.fillMaxWidth().height(25.dp).background(color = Color(240, 240, 240)).padding(3.dp)) {
-            Text(
-                text = "Left click to select/deselect regions or territories.",
-                fontSize = 12.sp,
-                textAlign = TextAlign.Start
-            )
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = "Edit Mode: ${model.editMode}  |   Mouse: (${mousePos.x}, ${mousePos.y})  |   Size: ${model.width()}x${model.height()}",
-                fontSize = 12.sp,
-                textAlign = TextAlign.End
-            )
+    fun MetadataEditor(modifier: Modifier) {
+        Column(modifier = modifier.padding(5.dp)) {
+            val colors = TextFieldDefaults.textFieldColors(cursorColor = Color(Constants.BORDER_COLOR.rgb), focusedIndicatorColor = Color(Constants.BORDER_COLOR.rgb))
+            Spacer(modifier = Modifier.height(2.dp))
+            Text("Map Code Name")
+            TextField(model.mapCodeName, colors = colors, onValueChange = {
+                model.mapCodeName = it
+            })
+            Spacer(modifier = Modifier.height(2.dp))
+            Text("Map Display Name")
+            Spacer(modifier = Modifier.height(5.dp))
+            TextField(model.mapDisplayName, colors = colors, onValueChange = {
+                model.mapDisplayName = it
+            })
+            Spacer(modifier = Modifier.height(2.dp))
+            Text("Map Author Name")
+            Spacer(modifier = Modifier.height(5.dp))
+            TextField(model.mapAuthorName, colors = colors, onValueChange = {
+                model.mapAuthorName = it
+            })
         }
     }
 
@@ -234,6 +244,23 @@ class Editor(private val model: EditorModel) {
             HorizontalScrollbar(
                 modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter).padding(end = 12.dp),
                 adapter = rememberScrollbarAdapter(stateHorizontal)
+            )
+        }
+    }
+
+    @Composable
+    private fun Footer() {
+        Row(Modifier.fillMaxWidth().height(25.dp).background(color = Color(240, 240, 240)).padding(3.dp)) {
+            Text(
+                text = "Left click to select/deselect regions or territories.",
+                fontSize = 12.sp,
+                textAlign = TextAlign.Start
+            )
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = "Edit Mode: ${model.editMode}  |   Mouse: (${mousePos.x}, ${mousePos.y})  |   Size: ${model.width()}x${model.height()}",
+                fontSize = 12.sp,
+                textAlign = TextAlign.End
             )
         }
     }

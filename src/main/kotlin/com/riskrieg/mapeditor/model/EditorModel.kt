@@ -40,9 +40,9 @@ class EditorModel(mapName: String = "") {
 
     // Metadata that will be exported, and may also be used in the editor model
 
-    private var mapCodeName: String = ""
-    private var mapDisplayName: String = ""
-    private var mapAuthorName: String = ""
+    var mapCodeName: String by mutableStateOf("")
+    var mapDisplayName: String by mutableStateOf("")
+    var mapAuthorName: String by mutableStateOf("")
 
     private var graph = SimpleGraph<Territory, Border>(Border::class.java)
 
@@ -71,6 +71,9 @@ class EditorModel(mapName: String = "") {
         text = BufferedImage(1, 1, 2)
         baseBitmap = Bitmap().asImageBitmap()
         textBitmap = Bitmap().asImageBitmap()
+        mapCodeName = ""
+        mapDisplayName = ""
+        mapAuthorName = ""
     }
 
     fun base(): ImageBitmap {
