@@ -47,7 +47,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Riskrieg Map Editor"
-            packageVersion = "1.9.0"
+            packageVersion = "1.9.9"
 
             val iconsRoot = project.file("src/main/resources/icon/")
 

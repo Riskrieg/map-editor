@@ -2,8 +2,6 @@ package com.riskrieg.mapeditor
 
 import androidx.compose.desktop.DesktopMaterialTheme
 import androidx.compose.desktop.Window
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.window.KeyStroke
@@ -87,19 +85,19 @@ class Init {
                     onClick = {
                         model.importMapAsLayers()
                     }
-                ),
+                )
+            ),
+            Menu(
+                name = "Debug",
                 MenuItem(
-                    name = "Graph...",
+                    name = "Import Graph...",
                     shortcut = KeyStroke(Key.G),
                     onClick = {
                         model.importGraphFile()
                     }
-                )
-            ),
-            Menu(
-                name = "Export",
+                ),
                 MenuItem(
-                    name = "Graph...",
+                    name = "Export Graph...",
                     shortcut = KeyStroke(Key.R),
                     onClick = {
                         model.exportGraphFile()
