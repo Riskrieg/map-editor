@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.input.pointer.pointerMoveFilter
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,7 +44,17 @@ class Editor(private val model: EditorModel) {
             Row(modifier = Modifier.weight(1f)) {
                 SideBar(Modifier.fillMaxHeight().width(120.dp))
                 Column(Modifier.weight(1f)) {
-                    MapView(Modifier.fillMaxSize())
+                    if (model.editMode == EditMode.NO_EDIT) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Text(
+                                "Open a map file (.rkm) or import your map images in order to get started.",
+                                fontStyle = FontStyle.Italic, textAlign = TextAlign.Center,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                    } else {
+                        MapView(Modifier.fillMaxSize())
+                    }
                 }
                 if (model.editMode != EditMode.NO_EDIT) {
                     MetadataEditor(Modifier.fillMaxHeight().width(180.dp))
