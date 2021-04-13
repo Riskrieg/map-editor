@@ -1,6 +1,7 @@
 import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
     kotlin("jvm") version "1.4.31"
@@ -8,7 +9,7 @@ plugins {
 }
 
 group = "com.riskrieg"
-version = "2.0.0-alpha.1"
+version = "2.0.0"
 
 repositories {
     jcenter()
@@ -48,21 +49,28 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Riskrieg Map Editor"
-            packageVersion = "1.9.9"
+            packageVersion = "2.0.0"
+            description = "A map editor for Riskrieg."
+
+            val secrets = Properties()
+            secrets.load(file("secrets.properties").inputStream())
 
             val iconsRoot = project.file("src/main/resources/icon/")
 
             linux {
                 iconFile.set(iconsRoot.resolve("linux.png"))
+                menuGroup = "Riskrieg"
             }
 
             windows {
                 iconFile.set(iconsRoot.resolve("windows.ico"))
-                menuGroup = packageName
+                menuGroup = "Riskrieg"
+                dirChooser = true
                 perUserInstall = true
+                upgradeUuid = secrets["guid"].toString()
             }
 
-            macOS {
+            macOS { // Requires a Mac in order to notarize
                 iconFile.set(iconsRoot.resolve("macos.icns"))
             }
 
