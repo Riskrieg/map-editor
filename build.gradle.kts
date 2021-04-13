@@ -52,9 +52,6 @@ compose.desktop {
             packageVersion = "2.0.0"
             description = "A map editor for Riskrieg."
 
-            val secrets = Properties()
-            secrets.load(file("secrets.properties").inputStream())
-
             val iconsRoot = project.file("src/main/resources/icon/")
 
             linux {
@@ -63,6 +60,8 @@ compose.desktop {
             }
 
             windows {
+                val secrets = Properties()
+                Properties().load(file("secrets.properties").inputStream())
                 iconFile.set(iconsRoot.resolve("windows.ico"))
                 menuGroup = "Riskrieg"
                 dirChooser = true
