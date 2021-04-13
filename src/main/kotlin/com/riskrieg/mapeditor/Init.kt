@@ -47,7 +47,7 @@ class Init {
         }
 
         Window(
-            title = "${Constants.NAME} Map Editor v2.0.0-alpha.1",
+            title = "${Constants.NAME} Map Editor v${Constants.VERSION}",
             icon = ImageIO.read(Init::class.java.classLoader.getResourceAsStream("icon/icon.png")),
             size = IntSize(Constants.DEFAULT_WINDOW_WIDTH, Constants.DEFAULT_WINDOW_HEIGHT),
             menuBar = MyMenuBar(model)

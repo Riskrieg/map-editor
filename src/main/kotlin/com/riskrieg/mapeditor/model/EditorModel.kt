@@ -51,6 +51,8 @@ class EditorModel(mapName: String = "") {
 
     // Purely for editor model
 
+    var mousePos by mutableStateOf(Point(0, 0))
+
     var editMode by mutableStateOf(EditMode.NO_EDIT)
 
     private var baseBitmap by mutableStateOf(base.toBitmap().asImageBitmap())
@@ -262,7 +264,7 @@ class EditorModel(mapName: String = "") {
     fun openRkmFile() {
         val chooser = JFileChooser()
         chooser.isAcceptAllFileFilterUsed = false
-        val filter = FileNameExtensionFilter("Riskrieg Map (*.rkm)", "rkm")
+        val filter = FileNameExtensionFilter("${Constants.NAME} Map (*.rkm)", "rkm")
         chooser.fileFilter = filter
         if (chooser.showDialog(null, "Import") == JFileChooser.APPROVE_OPTION) {
             try {
