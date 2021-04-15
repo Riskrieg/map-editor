@@ -30,6 +30,7 @@ import java.awt.Color
 import java.awt.Point
 import java.awt.image.BufferedImage
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
 import javax.imageio.ImageIO
@@ -257,7 +258,7 @@ class EditorModel(mapName: String = "") {
             }
 
             for (selectedNeighbor in neighbors) {
-                val border = Border(selected, selectedNeighbor)
+                val border = Border(selected.id(), selectedNeighbor.id())
                 graph.addEdge(selected, selectedNeighbor, border)
             }
             if (Graphs.neighborListOf(graph, selected).size == 0) {
@@ -296,7 +297,9 @@ class EditorModel(mapName: String = "") {
                     graph.addVertex(territory)
                 }
                 for (border in map.graph.edges()) {
-                    graph.addEdge(border.source(), border.target(), border)
+                    val source = map.graph.vertices().find { it.id().equals(border.source()) }
+                    val target = map.graph.vertices().find { it.id().equals(border.target()) }
+                    graph.addEdge(source, target, border)
                 }
 
                 submittedTerritories.addAll(graph.vertexSet())
@@ -351,7 +354,9 @@ class EditorModel(mapName: String = "") {
                 try {
                     val gameMap = GameMap(MapName(mapCodeName, mapDisplayName), MapAuthor(mapAuthorName), MapGraph(graph), MapImage(base, text))
                     val writer = RkmWriter(gameMap)
-                    writer.write(File(directory + "${fileName}.rkm"))
+                    val fos = FileOutputStream(File(directory + "${fileName}.rkm"))
+                    writer.write(fos)
+                    fos.close()
                     JOptionPane.showMessageDialog(null, "Map file successfully exported to the selected directory.")
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -407,7 +412,9 @@ class EditorModel(mapName: String = "") {
                         graph.addVertex(territory)
                     }
                     for (border in mapGraph.edges()) {
-                        graph.addEdge(border.source(), border.target(), border)
+                        val source = graph.vertexSet().find { it.id().equals(border.source()) }
+                        val target = graph.vertexSet().find { it.id().equals(border.target()) }
+                        graph.addEdge(source, target, border)
                     }
                     submittedTerritories.addAll(graph.vertexSet())
                     finishedTerritories.addAll(graph.vertexSet())
