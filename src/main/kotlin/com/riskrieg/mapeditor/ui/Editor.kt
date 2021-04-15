@@ -3,9 +3,6 @@ package com.riskrieg.mapeditor.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
@@ -17,7 +14,6 @@ import com.riskrieg.mapeditor.ui.component.Footer
 import com.riskrieg.mapeditor.ui.component.MapView
 import com.riskrieg.mapeditor.ui.component.MetadataEditor
 import com.riskrieg.mapeditor.ui.component.TerritorySidebar
-import java.awt.Point
 
 
 class Editor(private val model: EditorModel) {

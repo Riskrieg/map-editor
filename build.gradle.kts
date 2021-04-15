@@ -1,7 +1,6 @@
 import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
     kotlin("jvm") version "1.4.31"
@@ -9,7 +8,7 @@ plugins {
 }
 
 group = "com.riskrieg"
-version = "2.0.0"
+version = "2.1.0"
 
 repositories {
     jcenter()
@@ -22,7 +21,7 @@ dependencies {
     implementation("com.github.aaronjyoder:Json-Utilities:1.0.0a15")
     implementation("com.formdev:flatlaf:1.1.2")
     implementation("com.github.Dansoftowner:jSystemThemeDetector:2.1") // temporary until isSystemDarkTheme() implemented in Desktop
-    implementation("com.riskrieg:rkm:1.0.1")
+    implementation("com.riskrieg:rkm:1.1.0")
     implementation("org.jgrapht:jgrapht-io:1.5.1")
 
     testImplementation(kotlin("test-junit5"))
@@ -49,7 +48,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Exe, TargetFormat.Deb, TargetFormat.Rpm)
             packageName = "Riskrieg Map Editor"
-            packageVersion = "2.0.0"
+            packageVersion = "2.1.0"
             description = "A map editor for Riskrieg."
 
             val iconsRoot = project.file("src/main/resources/icon/")
@@ -60,13 +59,10 @@ compose.desktop {
             }
 
             windows {
-                val secrets = Properties()
-                Properties().load(file("secrets.properties").inputStream())
                 iconFile.set(iconsRoot.resolve("windows.ico"))
                 menuGroup = "Riskrieg"
                 dirChooser = true
                 perUserInstall = true
-                upgradeUuid = secrets["guid"].toString()
             }
 
             macOS { // Requires a Mac in order to notarize

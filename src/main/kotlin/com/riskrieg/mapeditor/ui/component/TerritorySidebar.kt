@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.riskrieg.map.territory.Territory
+import com.riskrieg.map.vertex.Territory
 import com.riskrieg.mapeditor.Constants
 import com.riskrieg.mapeditor.model.EditMode
 import com.riskrieg.mapeditor.model.EditorModel

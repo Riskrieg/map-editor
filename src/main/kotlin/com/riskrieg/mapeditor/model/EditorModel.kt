@@ -13,8 +13,10 @@ import com.riskrieg.map.data.MapAuthor
 import com.riskrieg.map.data.MapGraph
 import com.riskrieg.map.data.MapImage
 import com.riskrieg.map.data.MapName
-import com.riskrieg.map.territory.Border
-import com.riskrieg.map.territory.Territory
+import com.riskrieg.map.edge.Border
+import com.riskrieg.map.territory.SeedPoint
+import com.riskrieg.map.territory.TerritoryId
+import com.riskrieg.map.vertex.Territory
 import com.riskrieg.mapeditor.Constants
 import com.riskrieg.mapeditor.fill.MilazzoFill
 import com.riskrieg.mapeditor.util.Extensions.toBitmap
@@ -101,19 +103,22 @@ class EditorModel(mapName: String = "") {
         g2d.dispose()
 
         for (territory in submittedTerritories) {
-            for (point in territory.seedPoints()) {
+            for (seedPoint in territory.seedPoints()) {
+                val point = Point(seedPoint.x(), seedPoint.y())
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SUBMITTED_COLOR).fill(point)
             }
         }
 
         for (territory in finishedTerritories) {
-            for (point in territory.seedPoints()) {
+            for (seedPoint in territory.seedPoints()) {
+                val point = Point(seedPoint.x(), seedPoint.y())
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.FINISHED_COLOR).fill(point)
             }
         }
 
         for (territory in neighbors) {
-            for (point in territory.seedPoints()) {
+            for (seedPoint in territory.seedPoints()) {
+                val point = Point(seedPoint.x(), seedPoint.y())
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.NEIGHBOR_SELECT_COLOR).fill(point)
             }
         }
@@ -123,7 +128,8 @@ class EditorModel(mapName: String = "") {
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SELECT_COLOR).fill(point)
             }
         } else if (selected != noTerritorySelected) {
-            for (point in selected.seedPoints()) {
+            for (seedPoint in selected.seedPoints()) {
+                val point = Point(seedPoint.x(), seedPoint.y())
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SELECT_COLOR).fill(point)
             }
         }
@@ -167,7 +173,11 @@ class EditorModel(mapName: String = "") {
 
     fun submitRegionsAsTerritory(name: String): Optional<Territory> {
         if (selectedRegions.isNotEmpty()) {
-            val result = Territory(name, selectedRegions.toSet())
+            val seedPoints = HashSet<SeedPoint>()
+            for (point in selectedRegions) {
+                seedPoints.add(SeedPoint(point.x, point.y))
+            }
+            val result = Territory(TerritoryId(name), seedPoints)
             if (selectedRegions.isNotEmpty()) {
                 graph.addVertex(result)
                 submittedTerritories.add(result)
@@ -187,7 +197,7 @@ class EditorModel(mapName: String = "") {
     }
 
     /* EditMode.EDIT_NEIGHBORS */
-    private val noTerritorySelected: Territory = Territory("UNSELECTED", Point(-1, -1))
+    private val noTerritorySelected: Territory = Territory(TerritoryId("UNSELECTED"), SeedPoint(-1, -1))
     private var selected: Territory = noTerritorySelected
     private val neighbors: MutableSet<Territory> = HashSet()
 
@@ -197,7 +207,7 @@ class EditorModel(mapName: String = "") {
 
     fun isSelected(point: Point): Boolean { // Might not need this but it's here for now just in case
         val root = ImageUtil.getRootPixel(base, point)
-        return selected.seedPoints().contains(root)
+        return selected.seedPoints().contains(SeedPoint(root.x, root.y))
     }
 
     fun select(point: Point) {
@@ -288,8 +298,13 @@ class EditorModel(mapName: String = "") {
                 for (border in map.graph.edges()) {
                     graph.addEdge(border.source(), border.target(), border)
                 }
+
                 submittedTerritories.addAll(graph.vertexSet())
-                finishedTerritories.addAll(graph.vertexSet())
+                for (territory in graph.vertexSet()) {
+                    if (Graphs.neighborSetOf(graph, territory).isNotEmpty()) {
+                        finishedTerritories.add(territory)
+                    }
+                }
                 update()
                 editMode = EditMode.EDIT_NEIGHBORS
             } catch (e: Exception) {
@@ -339,6 +354,7 @@ class EditorModel(mapName: String = "") {
                     writer.write(File(directory + "${fileName}.rkm"))
                     JOptionPane.showMessageDialog(null, "Map file successfully exported to the selected directory.")
                 } catch (e: Exception) {
+                    e.printStackTrace()
                     JOptionPane.showMessageDialog(null, "Unable to save map file due to an error.")
                 }
             }
@@ -446,7 +462,7 @@ class EditorModel(mapName: String = "") {
     private fun getTerritory(point: Point): Optional<Territory> {
         val root = ImageUtil.getRootPixel(base, point)
         for (territory in graph.vertexSet()) {
-            if (territory.seedPoints().contains(root)) {
+            if (territory.seedPoints().contains(SeedPoint(root.x, root.y))) {
                 return Optional.of(territory)
             }
         }
