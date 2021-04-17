@@ -218,6 +218,15 @@ class EditorModel(mapName: String = "") {
         }
     }
 
+    fun select(territory: Territory?) {
+        if (territory != null && territory != noTerritorySelected) {
+            this.selected = territory
+            neighbors.addAll(Graphs.neighborListOf(graph, selected)) // Add all existing neighbors
+        } else {
+            this.selected = noTerritorySelected
+        }
+    }
+
     fun deselect() {
         this.selected = noTerritorySelected
         neighbors.clear()
@@ -279,7 +288,7 @@ class EditorModel(mapName: String = "") {
         chooser.fileFilter = filter
         if (chooser.showDialog(null, "Import") == JFileChooser.APPROVE_OPTION) {
             try {
-                val reader = RkmReader(chooser.selectedFile)
+                val reader = RkmReader(chooser.selectedFile.toPath())
                 val map = reader.read()
                 reset()
                 base = map.mapImage.baseImage()
@@ -311,7 +320,11 @@ class EditorModel(mapName: String = "") {
                 update()
                 editMode = EditMode.EDIT_NEIGHBORS
             } catch (e: Exception) {
-                JOptionPane.showMessageDialog(null, "Invalid map file.")
+                if (e.message != null && e.message!!.contains("invalid checksum", true)) {
+                    JOptionPane.showMessageDialog(null, "Could not open .rkm map file: invalid checksum.")
+                } else {
+                    JOptionPane.showMessageDialog(null, "Invalid .rkm map file.")
+                }
                 return
             }
         }

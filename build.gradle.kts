@@ -21,7 +21,7 @@ dependencies {
     implementation("com.github.aaronjyoder:Json-Utilities:1.0.0a15")
     implementation("com.formdev:flatlaf:1.1.2")
     implementation("com.github.Dansoftowner:jSystemThemeDetector:2.1") // temporary until isSystemDarkTheme() implemented in Desktop
-    implementation("com.riskrieg:rkm:1.0.0")
+    implementation("com.riskrieg:rkm:1.0.1")
     implementation("org.jgrapht:jgrapht-io:1.5.1")
 
     testImplementation(kotlin("test-junit5"))
