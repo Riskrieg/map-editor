@@ -409,6 +409,48 @@ class EditorModel(mapName: String = "") {
         }
     }
 
+    fun replaceBaseImage() {
+        val chooser = JFileChooser()
+        chooser.isAcceptAllFileFilterUsed = false
+        val filter = FileNameExtensionFilter("Image (*.png)", "png")
+        chooser.fileFilter = filter
+        if (chooser.showDialog(null, "New Base Layer Image") == JFileChooser.APPROVE_OPTION) {
+            try {
+                val newBase = ImageIO.read(chooser.selectedFile)
+                clearSelectedRegions()
+                deselect()
+                base = newBase
+                baseBitmap = base.toBitmap().asImageBitmap()
+                update()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun replaceTextImage() {
+        val chooser = JFileChooser()
+        chooser.isAcceptAllFileFilterUsed = false
+        val filter = FileNameExtensionFilter("Image (*.png)", "png")
+        chooser.fileFilter = filter
+        if (chooser.showDialog(null, "New Text Layer Image") == JFileChooser.APPROVE_OPTION) {
+            try {
+                val newText = ImageIO.read(chooser.selectedFile)
+                if (newText.height == height() && newText.width == width()) {
+                    clearSelectedRegions()
+                    deselect()
+                    text = newText
+                    textBitmap = text.toBitmap().asImageBitmap()
+                    update()
+                } else {
+                    JOptionPane.showMessageDialog(null, "Your text layer must match the width and height of your base layer. Import your base layer first.")
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     fun importGraphFile() {
         val chooser = JFileChooser()
         chooser.isAcceptAllFileFilterUsed = false

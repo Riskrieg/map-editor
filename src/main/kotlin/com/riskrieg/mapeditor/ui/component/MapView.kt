@@ -6,10 +6,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusModifier
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.scale
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.unit.dp
 import com.riskrieg.mapeditor.model.EditMode
@@ -18,10 +22,24 @@ import java.awt.Point
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MapView(model: EditorModel, modifier: Modifier) { // TODO: At some point, they will make canvas pointerMoveFilter relative to the canvas instead of the window, so change code here whenever that happens.
+fun MapView(
+    model: EditorModel,
+    modifier: Modifier
+) { // TODO: At some point, they will make canvas pointerMoveFilter relative to the canvas instead of the window, so change code here whenever that happens.
     val stateVertical = rememberScrollState(0)
     val stateHorizontal = rememberScrollState(0)
-    var pointerPos: Offset? by remember { mutableStateOf(null) }
+    var pointerPos: Offset by remember { mutableStateOf(Offset(0f, 0f)) }
+
+    val scale: Float by remember { mutableStateOf(1.0f) }
+//    val maxScale = 2.5f
+//    val minScale = 0.5f
+
+//    var zooming: Boolean by remember { mutableStateOf(false) }
+
+    val focusRequester = remember(::FocusRequester)
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 
     Box(modifier = modifier) {
         Box(
@@ -31,11 +49,34 @@ fun MapView(model: EditorModel, modifier: Modifier) { // TODO: At some point, th
                 .padding(end = 12.dp, bottom = 12.dp)
                 .horizontalScroll(stateHorizontal)
         ) {
-            Canvas(modifier = androidx.compose.ui.Modifier.width(model.width().dp).height(model.height().dp)
+            Canvas(modifier = Modifier.width((model.width() * scale).dp).height((model.height() * scale).dp).align(Alignment.Center)
+                .focusable(true)
+                .focusRequester(focusRequester)
+                .focusModifier()
+//                .onPreviewKeyEvent { event ->
+//                    zooming = event.isCtrlPressed
+//                    if (event.isCtrlPressed && event.key == Key.Equals) {
+//                        scale = min(maxScale, scale * 1.01.pow(3.0).toFloat())
+//                    } else if (event.isCtrlPressed && event.key == Key.Minus) {
+//                        scale = max(minScale, scale * 1.01.pow(-3.0).toFloat())
+//                    } else if (event.isCtrlPressed && event.key == Key.Zero) {
+//                        scale = 1.0f
+//                    }
+//                    false
+//                }
+//                .mouseScrollFilter { event, _ ->
+//                    if (event.delta.toString().contains("-")) {
+//                        scale = min(maxScale, scale * 1.01.pow(3.0).toFloat())
+//                    } else {
+//                        scale = max(minScale, scale * 1.01.pow(-3.0).toFloat())
+//                    }
+//                    false
+//                }
                 .pointerMoveFilter(
                     onMove = { pointerPos = it; false },
-                    onExit = { pointerPos = null; false }
-                ).combinedClickable(
+                    onExit = { pointerPos = Offset(0f, 0f); false }
+                )
+                .combinedClickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
                     onClick = {
@@ -68,15 +109,14 @@ fun MapView(model: EditorModel, modifier: Modifier) { // TODO: At some point, th
                 )
             ) {
                 drawIntoCanvas { canvas ->
-                    if (pointerPos != null) {
-                        val scrollOffset = Offset(stateHorizontal.value.toFloat(), stateVertical.value.toFloat())
-                        model.mousePos = Point(
-                            scrollOffset.x.toInt() + pointerPos!!.x.toInt(),
-                            scrollOffset.y.toInt() + pointerPos!!.y.toInt()
-                        )
-                    }
-                    canvas.drawImageRect(model.base(), paint = Paint().apply { filterQuality = FilterQuality.None })
-                    canvas.drawImageRect(model.text(), paint = Paint().apply { filterQuality = FilterQuality.None })
+                    val scrollOffset = Offset(stateHorizontal.value.toFloat(), stateVertical.value.toFloat())
+                    val mouseX = ((scrollOffset.x + pointerPos.x).toInt() / scale).toInt()
+                    val mouseY = ((scrollOffset.y + pointerPos.y).toInt() / scale).toInt()
+                    model.mousePos = Point(mouseX, mouseY)
+
+                    canvas.scale(scale, scale, 0f, 0f)
+                    canvas.drawImageRect(image = model.base(), paint = Paint().apply { filterQuality = FilterQuality.High })
+                    canvas.drawImageRect(image = model.text(), paint = Paint().apply { filterQuality = FilterQuality.High })
                 }
             }
         }

@@ -68,6 +68,20 @@ fun MyMenuBar(model: EditorModel): MenuBar {
         Menu(
             name = "Debug",
             MenuItem(
+                name = "Replace Base Image...",
+                shortcut = KeyStroke(Key.P),
+                onClick = {
+                    model.replaceBaseImage()
+                }
+            ),
+            MenuItem(
+                name = "Replace Text Image...",
+                shortcut = KeyStroke(Key.Q),
+                onClick = {
+                    model.replaceTextImage()
+                }
+            ),
+            MenuItem(
                 name = "Import Graph...",
                 shortcut = KeyStroke(Key.G),
                 onClick = {
