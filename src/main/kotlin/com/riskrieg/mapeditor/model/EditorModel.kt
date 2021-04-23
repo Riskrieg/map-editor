@@ -8,7 +8,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.aaronjyoder.util.json.gson.GsonUtil
-import com.riskrieg.map.GameMap
+import com.riskrieg.map.RkmMap
 import com.riskrieg.map.data.MapAuthor
 import com.riskrieg.map.data.MapGraph
 import com.riskrieg.map.data.MapImage
@@ -365,8 +365,8 @@ class EditorModel(mapName: String = "") {
                 val directory = chooser.currentDirectory.path.replace('\\', '/') + "/"
                 val fileName = Regex("[^A-Za-z0-9_\\-]").replace(mapCodeName, "")
                 try {
-                    val gameMap = GameMap(MapName(mapCodeName, mapDisplayName), MapAuthor(mapAuthorName), MapGraph(graph), MapImage(base, text))
-                    val writer = RkmWriter(gameMap)
+                    val rkmMap = RkmMap(MapName(mapCodeName, mapDisplayName), MapAuthor(mapAuthorName), MapGraph(graph), MapImage(base, text))
+                    val writer = RkmWriter(rkmMap)
                     val fos = FileOutputStream(File(directory + "${fileName}.rkm"))
                     writer.write(fos)
                     fos.close()
