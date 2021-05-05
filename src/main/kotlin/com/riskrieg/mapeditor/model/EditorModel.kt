@@ -43,7 +43,7 @@ class EditorModel(mapName: String = "") {
 
     // Metadata that will be exported, and may also be used in the editor model
 
-    var mapCodeName: String by mutableStateOf("")
+    var mapSimpleName: String by mutableStateOf("")
     var mapDisplayName: String by mutableStateOf("")
     var mapAuthorName: String by mutableStateOf("")
 
@@ -76,7 +76,7 @@ class EditorModel(mapName: String = "") {
         text = BufferedImage(1, 1, 2)
         baseBitmap = Bitmap().asImageBitmap()
         textBitmap = Bitmap().asImageBitmap()
-        mapCodeName = ""
+        mapSimpleName = ""
         mapDisplayName = ""
         mapAuthorName = ""
     }
@@ -105,21 +105,21 @@ class EditorModel(mapName: String = "") {
 
         for (territory in submittedTerritories) {
             for (seedPoint in territory.seedPoints()) {
-                val point = Point(seedPoint.x(), seedPoint.y())
+                val point = seedPoint.asPoint()
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SUBMITTED_COLOR).fill(point)
             }
         }
 
         for (territory in finishedTerritories) {
             for (seedPoint in territory.seedPoints()) {
-                val point = Point(seedPoint.x(), seedPoint.y())
+                val point = seedPoint.asPoint()
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.FINISHED_COLOR).fill(point)
             }
         }
 
         for (territory in neighbors) {
             for (seedPoint in territory.seedPoints()) {
-                val point = Point(seedPoint.x(), seedPoint.y())
+                val point = seedPoint.asPoint()
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.NEIGHBOR_SELECT_COLOR).fill(point)
             }
         }
@@ -130,7 +130,7 @@ class EditorModel(mapName: String = "") {
             }
         } else if (selected != noTerritorySelected) {
             for (seedPoint in selected.seedPoints()) {
-                val point = Point(seedPoint.x(), seedPoint.y())
+                val point = seedPoint.asPoint()
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SELECT_COLOR).fill(point)
             }
         }
@@ -291,23 +291,23 @@ class EditorModel(mapName: String = "") {
                 val reader = RkmReader(chooser.selectedFile.toPath())
                 val map = reader.read()
                 reset()
-                base = map.mapImage.baseImage()
+                base = map.mapImage().baseImage()
                 baseBitmap = base.toBitmap().asImageBitmap()
-                text = map.mapImage.textImage()
+                text = map.mapImage().textImage()
                 textBitmap = text.toBitmap().asImageBitmap()
 
-                mapCodeName = map.mapName().name()
+                mapSimpleName = map.mapName().simpleName()
                 mapDisplayName = map.mapName().displayName()
                 mapAuthorName = map.author().name()
 
                 graph = SimpleGraph<Territory, Border>(Border::class.java)
 
-                for (territory in map.graph.vertices()) {
+                for (territory in map.graph().vertices()) {
                     graph.addVertex(territory)
                 }
-                for (border in map.graph.edges()) {
-                    val source = map.graph.vertices().find { it.id().equals(border.source()) }
-                    val target = map.graph.vertices().find { it.id().equals(border.target()) }
+                for (border in map.graph().edges()) {
+                    val source = map.graph().vertices().find { it.id().equals(border.source()) }
+                    val target = map.graph().vertices().find { it.id().equals(border.target()) }
                     graph.addEdge(source, target, border)
                 }
 
@@ -331,8 +331,8 @@ class EditorModel(mapName: String = "") {
     }
 
     fun exportAsRkm() {
-        if (mapCodeName.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Map code name cannot be empty.")
+        if (mapSimpleName.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Map simple name cannot be empty.")
             return
         }
         if (mapDisplayName.isEmpty()) {
@@ -357,15 +357,15 @@ class EditorModel(mapName: String = "") {
         val filter = FileNameExtensionFilter("${Constants.NAME} Map File (*.rkm)", "rkm")
         chooser.fileFilter = filter
 
-        chooser.selectedFile = File("$mapCodeName.rkm")
+        chooser.selectedFile = File("$mapSimpleName.rkm")
         if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
             if (chooser.selectedFile.name.isNullOrBlank()) {
                 JOptionPane.showMessageDialog(null, "Invalid file name.")
             } else {
                 val directory = chooser.currentDirectory.path.replace('\\', '/') + "/"
-                val fileName = Regex("[^A-Za-z0-9_\\-]").replace(mapCodeName, "")
+                val fileName = Regex("[^A-Za-z0-9_\\-]").replace(mapSimpleName, "")
                 try {
-                    val rkmMap = RkmMap(MapName(mapCodeName, mapDisplayName), MapAuthor(mapAuthorName), MapGraph(graph), MapImage(base, text))
+                    val rkmMap = RkmMap(MapName(mapSimpleName, mapDisplayName), MapAuthor(mapAuthorName), MapGraph(graph), MapImage(base, text))
                     val writer = RkmWriter(rkmMap)
                     val fos = FileOutputStream(File(directory + "${fileName}.rkm"))
                     writer.write(fos)

@@ -19,9 +19,9 @@ fun MetadataEditor(model: EditorModel, modifier: Modifier) {
     Column(modifier = modifier.padding(5.dp)) {
         val colors = TextFieldDefaults.textFieldColors(cursorColor = Color(Constants.BORDER_COLOR.rgb), focusedIndicatorColor = Color(Constants.BORDER_COLOR.rgb))
         Spacer(modifier = Modifier.height(2.dp))
-        Text("Map Code Name")
-        TextField(model.mapCodeName, colors = colors, onValueChange = {
-            model.mapCodeName = it
+        Text("Map Simple Name")
+        TextField(model.mapSimpleName, colors = colors, onValueChange = {
+            model.mapSimpleName = it
         })
         Spacer(modifier = Modifier.height(2.dp))
         Text("Map Display Name")
