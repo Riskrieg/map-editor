@@ -459,8 +459,8 @@ class EditorModel(mapName: String = "") {
         if (chooser.showDialog(null, "Import Graph File") == JFileChooser.APPROVE_OPTION) {
             try {
 
-                if (base.width != 1 && base.height != 1) {
-                    val mapGraph: MapGraph = GsonUtil.read(chooser.selectedFile.path, MapGraph::class.java)
+                val mapGraph: MapGraph? = GsonUtil.read(chooser.selectedFile.toPath(), MapGraph::class.java)
+                if (base.width != 1 && base.height != 1 && mapGraph != null) {
                     graph = SimpleGraph<Territory, Border>(Border::class.java)
 
                     for (territory in mapGraph.vertices()) {
@@ -476,7 +476,11 @@ class EditorModel(mapName: String = "") {
                     update()
                     editMode = EditMode.EDIT_NEIGHBORS
                 } else {
-                    JOptionPane.showMessageDialog(null, "Please import a base image layer and text image layer before importing a graph file.")
+                    if (mapGraph == null) {
+                        JOptionPane.showMessageDialog(null, "Error loading graph file.")
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Please import a base image layer and text image layer before importing a graph file.")
+                    }
                 }
 
             } catch (e: Exception) {
@@ -508,10 +512,9 @@ class EditorModel(mapName: String = "") {
             if (chooser.selectedFile.name.isNullOrBlank()) {
                 JOptionPane.showMessageDialog(null, "Invalid file name.")
             } else {
-                val directory = chooser.currentDirectory.path.replace('\\', '/') + "/"
                 val fileName = Regex("[^A-Za-z0-9_\\-]").replace(chooser.selectedFile.nameWithoutExtension, "")
                 try {
-                    GsonUtil.write(directory, "${fileName}.json", MapGraph::class.java, MapGraph(graph))
+                    GsonUtil.write(chooser.currentDirectory.toPath().resolve("$fileName.json"), MapGraph::class.java, MapGraph(graph))
                     JOptionPane.showMessageDialog(null, "Graph file successfully exported to the selected directory.")
                 } catch (e: Exception) {
                     JOptionPane.showMessageDialog(null, "Unable to save graph file due to an error.")
