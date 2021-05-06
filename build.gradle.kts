@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.riskrieg"
-version = "2.2.4"
+version = "2.2.5"
 
 repositories {
     jcenter()
@@ -48,7 +48,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Exe, TargetFormat.Deb, TargetFormat.Rpm)
             packageName = "Riskrieg Map Editor"
-            packageVersion = "2.2.4"
+            packageVersion = "2.2.5"
             description = "A map editor for Riskrieg."
 
             val iconsRoot = project.file("src/main/resources/icon/")
