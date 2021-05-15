@@ -173,6 +173,10 @@ class EditorModel(mapName: String = "") {
     }
 
     fun submitRegionsAsTerritory(name: String): Optional<Territory> {
+        if (submittedTerritories.stream().anyMatch { a -> a.name().equals(name, true) }) {
+            JOptionPane.showMessageDialog(null, "A territory with that name already exists.")
+            return Optional.empty()
+        }
         if (selectedRegions.isNotEmpty()) {
             val seedPoints = HashSet<SeedPoint>()
             for (point in selectedRegions) {
