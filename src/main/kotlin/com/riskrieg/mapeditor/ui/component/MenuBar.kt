@@ -1,10 +1,10 @@
 package com.riskrieg.mapeditor.ui.component
 
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.window.KeyStroke
-import androidx.compose.ui.window.Menu
-import androidx.compose.ui.window.MenuBar
-import androidx.compose.ui.window.MenuItem
+import androidx.compose.ui.window.v1.KeyStroke
+import androidx.compose.ui.window.v1.Menu
+import androidx.compose.ui.window.v1.MenuBar
+import androidx.compose.ui.window.v1.MenuItem
 import com.riskrieg.mapeditor.model.EditMode
 import com.riskrieg.mapeditor.model.EditorModel
 

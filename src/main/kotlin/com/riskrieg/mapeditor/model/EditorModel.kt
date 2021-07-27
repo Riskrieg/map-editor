@@ -43,6 +43,8 @@ class EditorModel(mapName: String = "") {
 
     // Metadata that will be exported, and may also be used in the editor model
 
+    val simpleNameRegex = Regex("[a-z0-9-]+")
+
     var mapSimpleName: String by mutableStateOf("")
     var mapDisplayName: String by mutableStateOf("")
     var mapAuthorName: String by mutableStateOf("")
@@ -363,15 +365,14 @@ class EditorModel(mapName: String = "") {
 
         chooser.selectedFile = File("$mapSimpleName.rkm")
         if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-            if (chooser.selectedFile.name.isNullOrBlank()) {
-                JOptionPane.showMessageDialog(null, "Invalid file name.")
+            if (chooser.selectedFile.name.isNullOrBlank() || !chooser.selectedFile.nameWithoutExtension.matches(simpleNameRegex)) {
+                JOptionPane.showMessageDialog(null, "Invalid file name. Use only lowercase letters, numbers, and hyphens/dashes.")
             } else {
                 val directory = chooser.currentDirectory.path.replace('\\', '/') + "/"
-                val fileName = Regex("[^A-Za-z0-9_\\-]").replace(mapSimpleName, "")
                 try {
                     val rkmMap = RkmMap(MapName(mapSimpleName, mapDisplayName), MapAuthor(mapAuthorName), MapGraph(graph), MapImage(base, text))
                     val writer = RkmWriter(rkmMap)
-                    val fos = FileOutputStream(File(directory + "${fileName}.rkm"))
+                    val fos = FileOutputStream(File(directory + "${mapSimpleName}.rkm"))
                     writer.write(fos)
                     fos.close()
                     JOptionPane.showMessageDialog(null, "Map file successfully exported to the selected directory.")
@@ -513,10 +514,10 @@ class EditorModel(mapName: String = "") {
         chooser.fileFilter = filter
 
         if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-            if (chooser.selectedFile.name.isNullOrBlank()) {
+            if (chooser.selectedFile.name.isNullOrBlank() || !chooser.selectedFile.nameWithoutExtension.matches(simpleNameRegex)) {
                 JOptionPane.showMessageDialog(null, "Invalid file name.")
             } else {
-                val fileName = Regex("[^A-Za-z0-9_\\-]").replace(chooser.selectedFile.nameWithoutExtension, "")
+                val fileName = chooser.selectedFile.nameWithoutExtension
                 try {
                     GsonUtil.write(chooser.currentDirectory.toPath().resolve("$fileName.json"), MapGraph::class.java, MapGraph(graph))
                     JOptionPane.showMessageDialog(null, "Graph file successfully exported to the selected directory.")
