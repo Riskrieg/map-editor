@@ -4,5 +4,3 @@
 # Riskrieg | Map Editor
 
 A map editor for Riskrieg.
-
-![Riskrieg Map Editor v2.0.0](https://i.imgur.com/UY1E1Hu.png)
