@@ -74,13 +74,13 @@ fun main() = application {
                     "Add as territory",
                     icon = painterResource("icons/$themeStr/add_as_territory.svg"),
                     onClick = { model.submitSelectedRegions() },
-                    shortcut = KeyShortcut(Key.Enter, ctrl = false)
+                    shortcut = KeyShortcut(Key.F1, ctrl = false)
                 )
                 Item(
                     "Submit selected neighbors",
                     icon = painterResource("icons/$themeStr/submit_selected_neighbors.svg"),
                     onClick = { model.submitSelectedNeighbors() },
-                    shortcut = KeyShortcut(Key.Backspace, ctrl = false)
+                    shortcut = KeyShortcut(Key.F2, ctrl = false)
                 )
                 Separator()
                 Item(
