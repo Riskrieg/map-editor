@@ -103,7 +103,7 @@ class EditorModel {
         val chooser = JFileChooser()
         chooser.isAcceptAllFileFilterUsed = false
         chooser.fileFilter = FileNameExtensionFilter("${Constants.NAME} Map (*.rkm)", "rkm")
-        if (chooser.showDialog(null, "Import") == JFileChooser.APPROVE_OPTION) {
+        if (chooser.showDialog(null, "Open") == JFileChooser.APPROVE_OPTION) {
             try {
                 val reader = RkmReader(chooser.selectedFile.toPath())
                 val map = reader.read()
