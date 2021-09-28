@@ -202,7 +202,7 @@ class EditorModel {
                 val successText = chooser.showDialog(null, "Import Text Layer")
                 if (successText == JFileChooser.APPROVE_OPTION) {
                     val newText = ImageIO.read(chooser.selectedFile)
-                    if (newText.height == mapImage().height && newText.width == mapImage().width) {
+                    if (newText.height == newBase.height && newText.width == newBase.width) {
                         text = newText
                         editView = true
                         update()

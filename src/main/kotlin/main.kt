@@ -46,9 +46,9 @@ fun main() = application {
                     onClick = { model.openRkm() },
                     shortcut = KeyShortcut(Key.O, ctrl = true)
                 )
-                Menu("Import", mnemonic = 'I') {
+                Menu("Import...", mnemonic = 'I') {
                     Item(
-                        "Image layers...",
+                        "Image Layers",
                         icon = painterResource("icons/$themeStr/import_image_layers.svg"),
                         onClick = { model.openImageLayers() },
                         shortcut = KeyShortcut(Key.I, ctrl = true)
