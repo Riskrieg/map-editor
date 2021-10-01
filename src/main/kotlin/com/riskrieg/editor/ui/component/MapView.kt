@@ -33,7 +33,7 @@ fun MapView(model: EditorModel, mapViewModifier: Modifier) {
     }
 
 
-    Box(modifier = mapViewModifier.background(color = Color(200,183,173))) {
+    Box(modifier = mapViewModifier.background(color = Color(255, 255, 255))) {
         Box(
             modifier = Modifier
                 .fillMaxSize()

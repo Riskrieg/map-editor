@@ -2,6 +2,7 @@ package com.riskrieg.editor.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,7 +15,7 @@ import com.riskrieg.editor.model.EditorModel
 @Composable
 fun Sidebar(model: EditorModel, modifier: Modifier) {
     if (model.editView) {
-        Column(modifier = modifier.background(color = Color(200, 183, 173))) {
+        Column(modifier = modifier.background(color = Color(255, 255, 255))) {
             val colors = TextFieldDefaults.textFieldColors(
                 cursorColor = Color(Constants.BORDER_COLOR.rgb),
                 focusedIndicatorColor = Color(Constants.BORDER_COLOR.rgb),
@@ -37,7 +38,8 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
             Spacer(modifier = Modifier.height(5.dp))
 
             Text("Territory Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp))
-            TextField(model.newTerritoryName, colors = colors,
+            TextField(
+                model.newTerritoryName, colors = colors,
                 enabled = !model.isSelectingTerritory(),
                 onValueChange = {
                     model.newTerritoryName = it
@@ -46,8 +48,8 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(Constants.BORDER_COLOR.rgb), contentColor = Color.White),
+            Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(54, 112, 180), contentColor = Color.White),
                 onClick = {
                     if (model.isSelectingTerritory()) {
                         model.submitSelectedNeighbors()
@@ -64,8 +66,8 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(Constants.BORDER_COLOR.rgb), contentColor = Color.White),
+            Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(190, 54, 54), contentColor = Color.White),
                 enabled = model.isSelectingTerritory(),
                 onClick = {
                     model.deleteSelectedTerritory()

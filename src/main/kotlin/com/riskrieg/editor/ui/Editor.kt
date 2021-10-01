@@ -35,8 +35,7 @@ class Editor(private val model: EditorModel) {
     fun mainView() {
         Column {
             Row(modifier = Modifier.weight(1f)) {
-                Sidebar(model,modifier = Modifier.fillMaxHeight().width(180.dp))
-//                TerritorySidebar(model = model, modifier = Modifier.fillMaxHeight().width(120.dp))
+                Sidebar(model, modifier = Modifier.fillMaxHeight().width(180.dp))
                 Column(Modifier.weight(1f)) {
                     if (model.editView) {
                         MapView(model, Modifier.fillMaxSize())
@@ -44,9 +43,6 @@ class Editor(private val model: EditorModel) {
                         NewProjectView()
                     }
                 }
-//                if (model.editMode != EditMode.NO_EDIT) {
-//                    MetadataEditor(model = model, modifier = Modifier.fillMaxHeight().width(180.dp))
-//                }
             }
             FooterView(model)
         }

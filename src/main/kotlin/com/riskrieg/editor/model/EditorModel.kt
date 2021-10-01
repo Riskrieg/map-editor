@@ -27,6 +27,7 @@ import java.awt.image.BufferedImage
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.text.Normalizer
 import java.util.*
 import javax.imageio.ImageIO
 import javax.swing.JFileChooser
@@ -166,7 +167,8 @@ class EditorModel {
         chooser.isAcceptAllFileFilterUsed = false
         chooser.fileFilter = FileNameExtensionFilter("${Constants.NAME} Map File (*.rkm)", "rkm")
 
-        val mapSimpleName = mapDisplayName.lowercase().replace("\\s+".toRegex(), "-").replace("[^a-z0-9-]".toRegex(), "")
+        val normalizedName = Normalizer.normalize(mapDisplayName, Normalizer.Form.NFD).replace("[^\\p{ASCII}]".toRegex(), "")
+        val mapSimpleName = normalizedName.lowercase().replace("\\s+".toRegex(), "-").replace("[^a-z0-9-]".toRegex(), "")
 
         chooser.selectedFile = File("$mapSimpleName.rkm")
         if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
