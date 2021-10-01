@@ -38,7 +38,6 @@ fun MapView(model: EditorModel, mapViewModifier: Modifier) {
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(stateVertical)
-//                .padding(end = 12.dp, bottom = 12.dp)
                 .horizontalScroll(stateHorizontal)
         ) {
             Canvas(modifier = Modifier.width((model.mapImage().width * scale).dp)
@@ -57,40 +56,11 @@ fun MapView(model: EditorModel, mapViewModifier: Modifier) {
                     interactionSource = remember { MutableInteractionSource() },
                     onClick = {
                         model.interact()
-//                        when (model.editMode) {
-//                            EditMode.NO_EDIT -> {
-//                            }
-//                            EditMode.EDIT_TERRITORY -> {
-//                                if (!model.isRegionSelected(model.mousePos)) {
-//                                    model.selectRegion(model.mousePos)
-//                                } else if (model.isRegionSelected(model.mousePos)) {
-//                                    model.deselectRegion(model.mousePos)
-//                                }
-//                            }
-//                            EditMode.EDIT_NEIGHBORS -> {
-//                                if (model.hasSelection()) {
-//                                    if (model.isSelected(model.mousePos)) {
-//                                        model.deselect()
-//                                    } else if (model.isNeighbor(model.mousePos)) {
-//                                        model.deselectNeighbor(model.mousePos)
-//                                    } else {
-//                                        model.selectNeighbor(model.mousePos)
-//                                    }
-//                                } else {
-//                                    model.select(model.mousePos)
-//                                }
-//                            }
-//                        }
-//                        model.update()
                     }
                 )
             ) {
                 drawIntoCanvas { canvas ->
-                    val scrollOffset =
-                        Offset(stateHorizontal.value.toFloat(), stateVertical.value.toFloat())
-                    val mouseX = ((scrollOffset.x + pointerPos.x).toInt() / scale).toInt()
-                    val mouseY = ((scrollOffset.y + pointerPos.y).toInt() / scale).toInt()
-                    model.mousePos = Point(mouseX, mouseY)
+                    model.mousePos = Point((pointerPos.x / scale).toInt(), (pointerPos.y / scale).toInt())
 
                     canvas.scale(scale, scale, 0f, 0f)
                     canvas.drawImageRect(
