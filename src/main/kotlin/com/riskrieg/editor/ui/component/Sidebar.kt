@@ -14,7 +14,7 @@ import com.riskrieg.editor.model.EditorModel
 
 @Composable
 fun Sidebar(model: EditorModel, modifier: Modifier) {
-    if (model.editView) {
+    if (model.editView) { // TODO: Fix focus stuff here
         Column(modifier = modifier.background(color = Color(255, 255, 255))) {
             val colors = TextFieldDefaults.textFieldColors(
                 cursorColor = Color(Constants.BORDER_COLOR.rgb),
@@ -24,16 +24,20 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
             Spacer(modifier = Modifier.height(2.dp))
 
             Text("Map Display Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp))
-            TextField(model.mapDisplayName, colors = colors, onValueChange = {
-                model.mapDisplayName = it
-            }, modifier = Modifier.padding(horizontal = 10.dp))
+            TextField(
+                model.mapDisplayName, colors = colors, onValueChange = {
+                    model.mapDisplayName = it
+                }, modifier = Modifier.padding(horizontal = 10.dp)
+            )
 
             Spacer(modifier = Modifier.height(5.dp))
 
             Text("Author Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp))
-            TextField(model.mapAuthorName, colors = colors, onValueChange = {
-                model.mapAuthorName = it
-            }, modifier = Modifier.padding(horizontal = 10.dp))
+            TextField(
+                model.mapAuthorName, colors = colors, onValueChange = {
+                    model.mapAuthorName = it
+                }, modifier = Modifier.padding(horizontal = 10.dp)
+            )
 
             Spacer(modifier = Modifier.height(5.dp))
 
