@@ -26,7 +26,7 @@ dependencies {
 
     implementation("com.riskrieg:rkm:1.0.8")
     implementation("org.jgrapht:jgrapht-io:1.5.1")
-    implementation("com.github.aaronjyoder:Json-Utilities:1.1.3")
+    implementation("com.github.aaronjyoder:json-utilities:1.1.2")
 
     testImplementation(kotlin("test"))
 }
