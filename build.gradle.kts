@@ -26,7 +26,7 @@ dependencies {
 
     implementation("com.riskrieg:rkm:1.0.8")
     implementation("org.jgrapht:jgrapht-io:1.5.1")
-    implementation("com.github.aaronjyoder:Json-Utilities:1.1.2")
+    implementation("com.github.aaronjyoder:Json-Utilities:1.1.3")
 
     testImplementation(kotlin("test"))
 }
@@ -43,7 +43,7 @@ compose.desktop {
     application {
         mainClass = "MainKt"
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm)
             packageName = "Riskrieg Map Editor"
             packageVersion = "2.5.5"
             description = "A map editor for Riskrieg."
