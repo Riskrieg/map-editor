@@ -24,12 +24,15 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      
-      - name: Build .deb
-        run: cd /home/runner/work/map-editor/map-editor
-
-      # Runs a single command using the runners shell
-      - name: Build .deb
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '16'
+          distribution: 'adopt'
+          
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
+      - name: Build with Gradle
         run: ./gradlew -Dkotlin.daemon.jvm.options=--illegal-access=permit packageDeb
 
       # Runs a set of commands using the runners shell
