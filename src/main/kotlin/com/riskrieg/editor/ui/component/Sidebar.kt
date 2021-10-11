@@ -25,7 +25,10 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
 
             Text("Map Display Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp))
             TextField(
-                model.mapDisplayName, colors = colors, onValueChange = {
+                model.mapDisplayName,
+                colors = colors,
+                singleLine = true,
+                onValueChange = {
                     model.mapDisplayName = it
                 }, modifier = Modifier.padding(horizontal = 10.dp)
             )
@@ -34,7 +37,10 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
 
             Text("Author Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp))
             TextField(
-                model.mapAuthorName, colors = colors, onValueChange = {
+                model.mapAuthorName,
+                colors = colors,
+                singleLine = true,
+                onValueChange = {
                     model.mapAuthorName = it
                 }, modifier = Modifier.padding(horizontal = 10.dp)
             )
@@ -43,7 +49,9 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
 
             Text("Territory Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp))
             TextField(
-                model.newTerritoryName, colors = colors,
+                model.newTerritoryName,
+                colors = colors,
+                singleLine = true,
                 enabled = !model.isSelectingTerritory(),
                 onValueChange = {
                     model.newTerritoryName = it
