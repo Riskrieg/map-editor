@@ -1,9 +1,6 @@
 package com.riskrieg.editor.model
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import com.aaronjyoder.util.json.gson.GsonUtil
 import com.riskrieg.editor.Constants
 import com.riskrieg.editor.algorithm.fill.MilazzoFill
@@ -77,6 +74,10 @@ class EditorModel {
 
     fun textImage(): BufferedImage {
         return text
+    }
+
+    fun isSelectingRegion(): Boolean {
+        return selectedRegions.size > 0
     }
 
     fun isSelectingTerritory(): Boolean {
@@ -398,6 +399,11 @@ class EditorModel {
             JOptionPane.showMessageDialog(null, "Please enter a valid territory name.")
             return
         }
+        // TODO: TEMP
+
+        // TODO: Draw territory name dynamically
+
+        // TODO: END TEMP
         if (selectedRegions.isNotEmpty()) {
             val seedPoints = HashSet<SeedPoint>()
             for (point in selectedRegions) {

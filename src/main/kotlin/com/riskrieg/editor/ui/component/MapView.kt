@@ -96,10 +96,10 @@ fun MapView(model: EditorModel, mapViewModifier: Modifier) {
                     canvas.scale(scale, scale, 0f, 0f)
 
                     canvas.drawImageRect(
-                        image = model.mapImage().toComposeBitmap(),
+                        image = model.mapImage().toComposeImageBitmap(),
                         paint = Paint().apply { filterQuality = FilterQuality.High })
                     canvas.drawImageRect(
-                        image = model.textImage().toComposeBitmap(),
+                        image = model.textImage().toComposeImageBitmap(),
                         paint = Paint().apply { filterQuality = FilterQuality.High })
                 }
             }

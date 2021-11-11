@@ -4,11 +4,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.5.31"
-    id("org.jetbrains.compose") version "1.0.0-alpha4-build366"
+    id("org.jetbrains.compose") version "1.0.0-beta5"
 }
 
 group = "com.riskrieg"
-version = "2.5.6"
+version = "2.5.7"
 
 repositories {
     google()
@@ -45,7 +45,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm)
             packageName = "Riskrieg Map Editor"
-            packageVersion = "2.5.6"
+            packageVersion = "2.5.7"
             description = "A map editor for Riskrieg."
 
             val iconsRoot = project.file("src/main/resources/icon/")

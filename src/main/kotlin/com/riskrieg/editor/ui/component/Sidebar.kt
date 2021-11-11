@@ -47,6 +47,12 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
 
             Spacer(modifier = Modifier.height(5.dp))
 
+            // TODO: Turn these invisible if not selecting anything
+
+            Spacer(modifier = Modifier.height(5.dp))
+            Divider(modifier = Modifier.padding(horizontal = 10.dp), color = Color.LightGray, thickness = 2.dp)
+            Spacer(modifier = Modifier.height(5.dp))
+
             Text("Territory Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp))
             TextField(
                 model.newTerritoryName,
@@ -65,7 +71,7 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
                 onClick = {
                     if (model.isSelectingTerritory()) {
                         model.submitSelectedNeighbors()
-                    } else {
+                    } else if (model.isSelectingRegion()) {
                         model.submitSelectedRegions()
                     }
                 }) {

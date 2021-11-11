@@ -1,12 +1,13 @@
 package com.riskrieg.editor.ui
 
-import androidx.compose.desktop.DesktopMaterialTheme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
@@ -26,7 +27,7 @@ class Editor(private val model: EditorModel) {
         } else {
             lightColors()
         }
-        DesktopMaterialTheme(colors = themeColors) {
+        MaterialTheme(colors = themeColors) {
             mainView()
         }
     }
