@@ -15,6 +15,7 @@ import com.riskrieg.editor.model.EditorModel
 @Composable
 fun Sidebar(model: EditorModel, modifier: Modifier) {
     if (model.editView) { // TODO: Fix focus stuff here
+
         Column(modifier = modifier.background(color = Color(255, 255, 255))) {
             val colors = TextFieldDefaults.textFieldColors(
                 cursorColor = Color(Constants.BORDER_COLOR.rgb),
@@ -49,48 +50,52 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
 
             // TODO: Turn these invisible if not selecting anything
 
-            Spacer(modifier = Modifier.height(5.dp))
-            Divider(modifier = Modifier.padding(horizontal = 10.dp), color = Color.LightGray, thickness = 2.dp)
-            Spacer(modifier = Modifier.height(5.dp))
+            if (model.showTerritoryEditView) {
 
-            Text("Territory Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp))
-            TextField(
-                model.newTerritoryName,
-                colors = colors,
-                singleLine = true,
-                enabled = !model.isSelectingTerritory(),
-                onValueChange = {
-                    model.newTerritoryName = it
-                }, modifier = Modifier.padding(horizontal = 10.dp)
-            )
+                Spacer(modifier = Modifier.height(5.dp))
+                Divider(modifier = Modifier.padding(horizontal = 10.dp), color = Color.LightGray, thickness = 2.dp)
+                Spacer(modifier = Modifier.height(5.dp))
 
-            Spacer(modifier = Modifier.height(5.dp))
+                Text("Territory Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp))
+                TextField(
+                    model.newTerritoryName,
+                    colors = colors,
+                    singleLine = true,
+                    enabled = !model.isSelectingTerritory(),
+                    onValueChange = {
+                        model.newTerritoryName = it
+                    }, modifier = Modifier.padding(horizontal = 10.dp)
+                )
 
-            Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(54, 112, 180), contentColor = Color.White),
-                onClick = {
+                Spacer(modifier = Modifier.height(5.dp))
+
+                Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(54, 112, 180), contentColor = Color.White),
+                    onClick = {
+                        if (model.isSelectingTerritory()) {
+                            model.submitSelectedNeighbors()
+                        } else if (model.isSelectingRegion()) {
+                            model.submitSelectedRegions()
+                        }
+                    }) {
                     if (model.isSelectingTerritory()) {
-                        model.submitSelectedNeighbors()
-                    } else if (model.isSelectingRegion()) {
-                        model.submitSelectedRegions()
+                        Text("Submit", fontSize = 14.sp)
+                    } else {
+                        Text("Add", fontSize = 14.sp)
                     }
-                }) {
-                if (model.isSelectingTerritory()) {
-                    Text("Submit", fontSize = 14.sp)
-                } else {
-                    Text("Add", fontSize = 14.sp)
                 }
-            }
 
-            Spacer(modifier = Modifier.height(5.dp))
+                Spacer(modifier = Modifier.height(5.dp))
 
-            Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(190, 54, 54), contentColor = Color.White),
-                enabled = model.isSelectingTerritory(),
-                onClick = {
-                    model.deleteSelectedTerritory()
-                }) {
-                Text("Delete", fontSize = 14.sp)
+                Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(190, 54, 54), contentColor = Color.White),
+                    enabled = model.isSelectingTerritory(),
+                    onClick = {
+                        model.deleteSelectedTerritory()
+                    }) {
+                    Text("Delete", fontSize = 14.sp)
+                }
+
             }
 
         }

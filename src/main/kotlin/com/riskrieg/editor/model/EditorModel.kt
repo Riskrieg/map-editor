@@ -50,6 +50,8 @@ class EditorModel {
 
     var editView by mutableStateOf(false)
 
+    var showTerritoryEditView by mutableStateOf(false) // Doing it this way because using the selectedRegions/selectedTerritories lists requires too many changes
+
     var mousePos by mutableStateOf(Point(0, 0))
 
     var newTerritoryName by mutableStateOf("")
@@ -336,10 +338,12 @@ class EditorModel {
         if (selectedTerritory.isPresent) { // Territory or Neighbor
             if (selectedRegions.isNotEmpty()) { // Deselect region
                 deselectRegions()
+                showTerritoryEditView = false
             }
             if (selectedTerritories.isNotEmpty()) { // Territory already selected
                 if (selectedTerritories.contains(selectedTerritory.get())) { // Deselect territory
                     deselectTerritory()
+                    showTerritoryEditView = false
                 } else { // Neighbor
                     if (selectedNeighbors.contains(selectedTerritory.get())) { // Deselect neighbor
                         selectedNeighbors.remove(selectedTerritory.get())
@@ -353,17 +357,21 @@ class EditorModel {
                 for (selected in selectedTerritories) {
                     selectedNeighbors.addAll(Graphs.neighborListOf(graph, selected))
                 }
+                showTerritoryEditView = true
             }
         } else { // Region
             val root = ImageUtil.getRootPixel(base, mousePos)
             if (base.getRGB(root.x, root.y) == Constants.TERRITORY_COLOR.rgb) {
                 if (selectedTerritories.isNotEmpty() || selectedNeighbors.isNotEmpty()) { // Deselect territory
                     deselectTerritory()
+                    showTerritoryEditView = false
                 }
                 if (selectedRegions.contains(root)) { // Deselect region
                     selectedRegions.remove(root)
+                    showTerritoryEditView = false
                 } else { // Select region
                     selectedRegions.add(root)
+                    showTerritoryEditView = true
                 }
             }
         }
@@ -372,12 +380,14 @@ class EditorModel {
 
     private fun deselectRegions() {
         selectedRegions.clear()
+        showTerritoryEditView = false
     }
 
     private fun deselectTerritory() {
         selectedTerritories.clear()
         selectedNeighbors.clear()
         newTerritoryName = ""
+        showTerritoryEditView = false
     }
 
     fun deselectAll() {
