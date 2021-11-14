@@ -50,7 +50,9 @@ class EditorModel {
 
     var editView by mutableStateOf(false)
 
-    var showTerritoryEditView by mutableStateOf(false) // Doing it this way because using the selectedRegions/selectedTerritories lists requires too many changes
+    // Doing it this way because using the selectedRegions/selectedTerritories lists requires too many changes
+    var isSelectingTerritory by mutableStateOf(false)
+    var isSelectingRegion by mutableStateOf(false)
 
     var mousePos by mutableStateOf(Point(0, 0))
 
@@ -78,13 +80,13 @@ class EditorModel {
         return text
     }
 
-    fun isSelectingRegion(): Boolean {
-        return selectedRegions.size > 0
-    }
-
-    fun isSelectingTerritory(): Boolean {
-        return selectedTerritories.size > 0
-    }
+//    fun isSelectingRegion(): Boolean {
+//        return selectedRegions.size > 0
+//    }
+//
+//    fun isSelectingTerritory(): Boolean {
+//        return selectedTerritories.size > 0
+//    }
 
     /** Methods **/
 
@@ -338,12 +340,12 @@ class EditorModel {
         if (selectedTerritory.isPresent) { // Territory or Neighbor
             if (selectedRegions.isNotEmpty()) { // Deselect region
                 deselectRegions()
-                showTerritoryEditView = false
+                isSelectingRegion = false
             }
             if (selectedTerritories.isNotEmpty()) { // Territory already selected
                 if (selectedTerritories.contains(selectedTerritory.get())) { // Deselect territory
                     deselectTerritory()
-                    showTerritoryEditView = false
+                    isSelectingTerritory = false
                 } else { // Neighbor
                     if (selectedNeighbors.contains(selectedTerritory.get())) { // Deselect neighbor
                         selectedNeighbors.remove(selectedTerritory.get())
@@ -357,21 +359,21 @@ class EditorModel {
                 for (selected in selectedTerritories) {
                     selectedNeighbors.addAll(Graphs.neighborListOf(graph, selected))
                 }
-                showTerritoryEditView = true
+                isSelectingTerritory = true
             }
         } else { // Region
             val root = ImageUtil.getRootPixel(base, mousePos)
             if (base.getRGB(root.x, root.y) == Constants.TERRITORY_COLOR.rgb) {
                 if (selectedTerritories.isNotEmpty() || selectedNeighbors.isNotEmpty()) { // Deselect territory
                     deselectTerritory()
-                    showTerritoryEditView = false
+                    isSelectingTerritory = false
                 }
                 if (selectedRegions.contains(root)) { // Deselect region
                     selectedRegions.remove(root)
-                    showTerritoryEditView = false
+                    isSelectingRegion = false
                 } else { // Select region
                     selectedRegions.add(root)
-                    showTerritoryEditView = true
+                    isSelectingRegion = true
                 }
             }
         }
@@ -380,14 +382,14 @@ class EditorModel {
 
     private fun deselectRegions() {
         selectedRegions.clear()
-        showTerritoryEditView = false
+        isSelectingRegion = false
     }
 
     private fun deselectTerritory() {
         selectedTerritories.clear()
         selectedNeighbors.clear()
         newTerritoryName = ""
-        showTerritoryEditView = false
+        isSelectingTerritory = false
     }
 
     fun deselectAll() {

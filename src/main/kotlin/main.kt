@@ -38,7 +38,8 @@ fun main() = application {
                     "New",
                     icon = painterResource("icons/$themeStr/new.svg"),
                     onClick = { model.newFile() },
-                    shortcut = KeyShortcut(Key.N, ctrl = true)
+                    shortcut = KeyShortcut(Key.N, ctrl = true),
+                    enabled = model.editView
                 )
                 Item(
                     "Open...",
@@ -59,7 +60,8 @@ fun main() = application {
                     "Save...",
                     icon = painterResource("icons/$themeStr/save.svg"),
                     onClick = { model.saveRkm() },
-                    shortcut = KeyShortcut(Key.S, ctrl = true)
+                    shortcut = KeyShortcut(Key.S, ctrl = true),
+                    enabled = model.editView
                 )
                 Separator()
                 Item(
@@ -74,33 +76,38 @@ fun main() = application {
                     "Add as territory",
                     icon = painterResource("icons/$themeStr/add_as_territory.svg"),
                     onClick = { model.submitSelectedRegions() },
-                    shortcut = KeyShortcut(Key.F1, ctrl = false)
+                    shortcut = KeyShortcut(Key.F1, ctrl = false),
+                    enabled = model.editView && model.isSelectingRegion
                 )
                 Item(
                     "Submit selected neighbors",
                     icon = painterResource("icons/$themeStr/submit_selected_neighbors.svg"),
                     onClick = { model.submitSelectedNeighbors() },
-                    shortcut = KeyShortcut(Key.F2, ctrl = false)
+                    shortcut = KeyShortcut(Key.F2, ctrl = false),
+                    enabled = model.editView && model.isSelectingTerritory
                 )
                 Separator()
                 Item(
                     "Delete selected territory",
                     icon = painterResource("icons/$themeStr/delete_selected_territory.svg"),
                     onClick = { model.deleteSelectedTerritory() },
-                    shortcut = KeyShortcut(Key.Delete, ctrl = false)
+                    shortcut = KeyShortcut(Key.Delete, ctrl = false),
+                    enabled = model.editView && model.isSelectingTerritory
                 )
                 Item(
                     "Delete all",
                     icon = painterResource("icons/$themeStr/delete_all.svg"),
                     onClick = { model.deleteAll() },
-                    shortcut = KeyShortcut(Key.Delete, alt = true)
+                    shortcut = KeyShortcut(Key.Delete, alt = true),
+                    enabled = model.editView
                 )
                 Separator()
                 Item(
                     "Deselect",
                     icon = painterResource("icons/$themeStr/deselect.svg"),
                     onClick = { model.deselectAll() },
-                    shortcut = KeyShortcut(Key.D, ctrl = true)
+                    shortcut = KeyShortcut(Key.D, ctrl = true),
+                    enabled = model.editView && (model.isSelectingRegion || model.isSelectingTerritory)
                 )
             }
             Menu("Debug", mnemonic = 'D') {
@@ -108,26 +115,30 @@ fun main() = application {
                     "Replace map image...",
                     icon = painterResource("icons/$themeStr/replace_map_image.svg"),
                     onClick = { model.replaceMapImage() },
-                    shortcut = KeyShortcut(Key.B, alt = true)
+                    shortcut = KeyShortcut(Key.B, alt = true),
+                    enabled = model.editView
                 )
                 Item(
                     "Replace text image...",
                     icon = painterResource("icons/$themeStr/replace_text_image.svg"),
                     onClick = { model.replaceTextImage() },
-                    shortcut = KeyShortcut(Key.T, alt = true)
+                    shortcut = KeyShortcut(Key.T, alt = true),
+                    enabled = model.editView
                 )
                 Separator()
                 Item(
                     "Import graph...",
                     icon = painterResource("icons/$themeStr/import_graph.svg"),
                     onClick = { model.importGraph() },
-                    shortcut = KeyShortcut(Key.G, alt = true)
+                    shortcut = KeyShortcut(Key.G, alt = true),
+                    enabled = model.editView
                 )
                 Item(
                     "Export graph...",
                     icon = painterResource("icons/$themeStr/export_graph.svg"),
                     onClick = { model.exportGraph() },
-                    shortcut = KeyShortcut(Key.R, alt = true)
+                    shortcut = KeyShortcut(Key.R, alt = true),
+                    enabled = model.editView
                 )
             }
             Menu("Help", mnemonic = 'H') {

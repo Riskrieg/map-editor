@@ -49,9 +49,7 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            // TODO: Turn these invisible if not selecting anything
-
-            AnimatedVisibility(visible = model.showTerritoryEditView) {
+            AnimatedVisibility(visible = model.isSelectingTerritory || model.isSelectingRegion) {
                 Column {
                     Spacer(modifier = Modifier.height(5.dp))
                     Divider(modifier = Modifier.padding(horizontal = 10.dp), color = Color.LightGray, thickness = 2.dp)
@@ -62,7 +60,7 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
                         model.newTerritoryName,
                         colors = colors,
                         singleLine = true,
-                        enabled = !model.isSelectingTerritory(),
+                        enabled = !model.isSelectingTerritory,
                         onValueChange = {
                             model.newTerritoryName = it
                         }, modifier = Modifier.padding(horizontal = 10.dp)
@@ -73,13 +71,13 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
                     Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color(54, 112, 180), contentColor = Color.White),
                         onClick = {
-                            if (model.isSelectingTerritory()) {
+                            if (model.isSelectingTerritory) {
                                 model.submitSelectedNeighbors()
-                            } else if (model.isSelectingRegion()) {
+                            } else if (model.isSelectingRegion) {
                                 model.submitSelectedRegions()
                             }
                         }) {
-                        if (model.isSelectingTerritory()) {
+                        if (model.isSelectingTerritory) {
                             Text("Submit", fontSize = 14.sp)
                         } else {
                             Text("Add", fontSize = 14.sp)
@@ -90,7 +88,7 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
 
                     Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color(190, 54, 54), contentColor = Color.White),
-                        enabled = model.isSelectingTerritory(),
+                        enabled = model.isSelectingTerritory,
                         onClick = {
                             model.deleteSelectedTerritory()
                         }) {
