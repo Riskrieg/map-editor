@@ -243,7 +243,7 @@ class EditorModel {
         }
     }
 
-    fun replaceMapImage() {
+    fun reimportBaseImage() {
         val chooser = JFileChooser()
         chooser.isAcceptAllFileFilterUsed = false
         chooser.fileFilter = FileNameExtensionFilter("Image (*.png)", "png")
@@ -259,7 +259,7 @@ class EditorModel {
         }
     }
 
-    fun replaceTextImage() {
+    fun reimportTextImage() {
         if (!editView) {
             JOptionPane.showMessageDialog(null, "Please import a map or map images before doing this.")
             return
