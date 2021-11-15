@@ -2,17 +2,33 @@ package com.riskrieg.editor.algorithm.label
 
 import com.monst.polylabel.PolyLabel
 import com.riskrieg.editor.Constants
+import com.riskrieg.editor.util.ImageUtil
 import java.awt.Color
+import java.awt.Font
 import java.awt.Point
+import java.awt.Rectangle
 import java.awt.image.BufferedImage
 
-class LabelPosition(private val base: BufferedImage, private val regionSeeds: Set<Point>) {
+class LabelPosition(private val base: BufferedImage, private val regionSeeds: Set<Point>, private val precision: Double) {
 
-    fun calculatePosition(precision: Double): Point {
-        val shape = createShape(createOutlinePointMap(createInnerPointMap(regionSeeds.toMutableSet())))
+    private var mInnerPointMap: HashMap<Point, HashSet<Point>>? = null
+    private var mLabelPosition: Point? = null
+
+    fun canLabelFit(label: String, fontSize: Int): Boolean {
+        return testLabelFit(
+            base, mInnerPointMap ?: createInnerPointMap(regionSeeds.toMutableSet()), mLabelPosition ?: calculatePosition(),
+            label, fontSize
+        )
+    }
+
+    fun calculatePosition(): Point { // TODO: Return mLabelPosition if it's not null
+        val innerPointMap = mInnerPointMap ?: createInnerPointMap(regionSeeds.toMutableSet())
+        val shape = createShape(createOutlinePointMap(innerPointMap))
 
         val polyPoint = PolyLabel.polyLabel(shape, precision)
-        return Point(polyPoint.x.toInt(), polyPoint.y.toInt())
+        val result = Point(polyPoint.x.toInt(), polyPoint.y.toInt())
+        mLabelPosition = result
+        return result
     }
 
     private fun createInnerPointMap(seedPoints: MutableSet<Point>): HashMap<Point, HashSet<Point>> { // Get the inner point map
@@ -31,6 +47,7 @@ class LabelPosition(private val base: BufferedImage, private val regionSeeds: Se
             innerPointMap[seedPoint] = innerPoints
         }
 
+        mInnerPointMap = innerPointMap
         return innerPointMap
     }
 
@@ -125,6 +142,43 @@ class LabelPosition(private val base: BufferedImage, private val regionSeeds: Se
             }
         }
         return nearestIndex
+    }
+
+    // New
+
+    private fun testLabelFit(base: BufferedImage, innerPointMap: HashMap<Point, HashSet<Point>>, labelPosition: Point, label: String, fontSize: Int): Boolean {
+        val temp = BufferedImage(base.width, base.height, BufferedImage.TYPE_INT_ARGB)
+        val g2d = temp.createGraphics()
+
+        // Fill in the territory
+        for ((seed, innerPoints) in innerPointMap) {
+            for (point in innerPoints) {
+                temp.setRGB(point.x, point.y, Color.BLACK.rgb)
+            }
+        }
+
+        // Draw the label
+        g2d.paint = Color.PINK
+        ImageUtil.drawCenteredString(g2d, label.trim(), Rectangle(labelPosition.x, labelPosition.y, 1, 1), Font("Spectral", Font.PLAIN, fontSize))
+        g2d.dispose()
+
+        // Fill the territory areas in with transparency
+        for ((seed, innerPoints) in innerPointMap) {
+            for (point in innerPoints) {
+                temp.setRGB(point.x, point.y, Color(0, 0, 0, 0).rgb)
+            }
+        }
+
+        // Check if any pixels are not transparent. If there are any, the label doesn't fit.
+        for (y in 0 until temp.height) {
+            for (x in 0 until temp.width) {
+                if (temp.getRGB(x, y) != Color(0, 0, 0, 0).rgb) {
+                    return false
+                }
+            }
+        }
+
+        return true
     }
 
 }

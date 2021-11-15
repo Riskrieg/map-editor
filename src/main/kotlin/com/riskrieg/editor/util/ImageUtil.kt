@@ -1,7 +1,6 @@
 package com.riskrieg.editor.util
 
-import java.awt.Color
-import java.awt.Point
+import java.awt.*
 import java.awt.image.BufferedImage
 import kotlin.math.sqrt
 
@@ -37,6 +36,14 @@ object ImageUtil {
         val dx = two.x - one.x
         val dy = two.y - one.y
         return sqrt((dx * dx + dy * dy).toDouble())
+    }
+
+    fun drawCenteredString(g: Graphics, text: String, rect: Rectangle, font: Font) {
+        val metrics: FontMetrics = g.getFontMetrics(font)
+        val x: Int = rect.x + (rect.width - metrics.stringWidth(text)) / 2
+        val y: Int = rect.y + (rect.height - metrics.height) / 2 + metrics.ascent
+        g.font = font
+        g.drawString(text, x, y)
     }
 
 }

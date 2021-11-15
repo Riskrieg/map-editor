@@ -23,7 +23,10 @@ import com.riskrieg.rkm.RkmReader
 import com.riskrieg.rkm.RkmWriter
 import org.jgrapht.Graphs
 import org.jgrapht.graph.SimpleGraph
-import java.awt.*
+import java.awt.Color
+import java.awt.Font
+import java.awt.Point
+import java.awt.Rectangle
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.FileOutputStream
@@ -431,22 +434,34 @@ class EditorModel {
         }
 
         if (drawLabel) {
-            val labelPosition = LabelPosition(base, selectedRegions.toMutableSet()).calculatePosition(0.001)
 
-            val convertedText = BufferedImage(text.width, text.height, BufferedImage.TYPE_INT_ARGB)
-            convertedText.graphics.drawImage(text, 0, 0, null)
-            convertedText.graphics.dispose()
+//            val labelPosition = LabelPosition(base, selectedRegions.toMutableSet()).calculatePosition(0.001)
 
-            val textGraphics = convertedText.createGraphics()
+            val lp = LabelPosition(base, selectedRegions.toMutableSet(), 0.001)
 
-            textGraphics.paint = Constants.BORDER_COLOR
+            if (lp.canLabelFit(newTerritoryName.trim(), 20)) { // Only draw label if it can fit
+                val labelPosition = lp.calculatePosition()
 
-            // TODO: Set size based on whether it can fit inside territory bounds
-            // TODO: Don't draw the string if it can't fit within the bounds of the territory
-            drawCenteredString(textGraphics, newTerritoryName.trim(), Rectangle(labelPosition.x, labelPosition.y, 1, 1), Font("Spectral", Font.PLAIN, 20))
+                val convertedText = BufferedImage(text.width, text.height, BufferedImage.TYPE_INT_ARGB)
+                convertedText.graphics.drawImage(text, 0, 0, null)
+                convertedText.graphics.dispose()
 
-            textGraphics.dispose()
-            text = convertedText
+                val textGraphics = convertedText.createGraphics()
+
+                textGraphics.paint = Constants.BORDER_COLOR
+
+                // TODO: Set size based on whether it can fit inside territory bounds, to a minimum, with 20 as the maximum and default
+                ImageUtil.drawCenteredString(textGraphics, newTerritoryName.trim(), Rectangle(labelPosition.x, labelPosition.y, 1, 1), Font("Spectral", Font.PLAIN, 20))
+
+                textGraphics.dispose()
+                text = convertedText
+            } else {
+                JOptionPane.showMessageDialog(
+                    null,
+                    "A label will not fit in that territory. You will need to label it manually in an image editor and then import it as the new text layer."
+                )
+                return
+            }
         }
 
         if (selectedRegions.isNotEmpty()) {
@@ -584,14 +599,6 @@ class EditorModel {
             }
         }
         return Optional.empty()
-    }
-
-    private fun drawCenteredString(g: Graphics, text: String, rect: Rectangle, font: Font) { // TODO: Temporary or move to a utility class or something
-        val metrics: FontMetrics = g.getFontMetrics(font)
-        val x: Int = rect.x + (rect.width - metrics.stringWidth(text)) / 2
-        val y: Int = rect.y + (rect.height - metrics.height) / 2 + metrics.ascent
-        g.font = font
-        g.drawString(text, x, y)
     }
 
 }
