@@ -45,7 +45,7 @@ fun main() = application {
         icon = painterResource("icon/icon.png")
     ) {
         MenuBar {
-            Menu("File", mnemonic = 'F') { // TODO: Set enabled= when it's fixed to work with icons
+            Menu("File", mnemonic = 'F') {
                 Item(
                     "New",
                     icon = painterResource("icons/$themeStr/new.svg"),

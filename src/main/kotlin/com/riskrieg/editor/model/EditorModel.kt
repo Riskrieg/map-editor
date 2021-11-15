@@ -516,7 +516,7 @@ class EditorModel {
         }
         for (territory in selectedTerritories) {
 
-            // Delete territory label, TODO: This won't delete text that isn't inside of a territory, so make sure text can't be placed if it isn't fully contained
+            // Delete territory label
             val seedPoints = HashSet<Point>()
             for (sp in territory.seedPoints()) {
                 seedPoints.add(Point(sp.x(), sp.y()))
