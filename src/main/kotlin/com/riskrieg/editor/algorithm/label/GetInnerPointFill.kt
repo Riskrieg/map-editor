@@ -1,11 +1,11 @@
-package com.riskrieg.editor.algorithm.fill
+package com.riskrieg.editor.algorithm.label
 
-import com.riskrieg.map.territory.SeedPoint
+import com.riskrieg.editor.algorithm.fill.Fill
 import java.awt.Color
 import java.awt.Point
 import java.awt.image.BufferedImage
 
-class ModifiedMilazzoFill( // TODO: Rename this and make it more efficient
+class GetInnerPointFill( // TODO: Make this more efficient
     private var image: BufferedImage,
     private val original: Color,
     private val fill: Color

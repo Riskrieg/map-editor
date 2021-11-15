@@ -5,11 +5,11 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.aaronjyoder.util.json.gson.GsonUtil
-import com.monst.polylabel.PolyLabel
 import com.riskrieg.editor.Constants
 import com.riskrieg.editor.algorithm.fill.MilazzoFill
-import com.riskrieg.editor.algorithm.fill.ModifiedMilazzoFill
+import com.riskrieg.editor.algorithm.label.LabelPosition
 import com.riskrieg.editor.util.ImageUtil
+import com.riskrieg.editor.util.TerritoryUtil
 import com.riskrieg.map.RkmMap
 import com.riskrieg.map.data.MapAuthor
 import com.riskrieg.map.data.MapGraph
@@ -431,12 +431,7 @@ class EditorModel {
         }
 
         if (drawLabel) {
-            val innerPointMap = getInnerPointMap(selectedRegions.toMutableSet())
-            val outlinePointMap = getOutlinePointMap(innerPointMap)
-            val shape = createShape(outlinePointMap)
-
-            val polyPoint = PolyLabel.polyLabel(shape, 0.001)
-            val labelPoint = Point(polyPoint.x.toInt(), polyPoint.y.toInt())
+            val labelPosition = LabelPosition(base, selectedRegions.toMutableSet()).calculatePosition(0.001)
 
             val convertedText = BufferedImage(text.width, text.height, BufferedImage.TYPE_INT_ARGB)
             convertedText.graphics.drawImage(text, 0, 0, null)
@@ -448,7 +443,7 @@ class EditorModel {
 
             // TODO: Set size based on whether it can fit inside territory bounds
             // TODO: Don't draw the string if it can't fit within the bounds of the territory
-            drawCenteredString(textGraphics, newTerritoryName.trim(), Rectangle(labelPoint.x, labelPoint.y, 1, 1), Font("Spectral", Font.PLAIN, 20))
+            drawCenteredString(textGraphics, newTerritoryName.trim(), Rectangle(labelPosition.x, labelPosition.y, 1, 1), Font("Spectral", Font.PLAIN, 20))
 
             textGraphics.dispose()
             text = convertedText
@@ -511,7 +506,7 @@ class EditorModel {
             for (sp in territory.seedPoints()) {
                 seedPoints.add(Point(sp.x(), sp.y()))
             }
-            val innerPointsMap = getInnerPointMap(seedPoints)
+            val innerPointsMap = TerritoryUtil.createInnerPointMap(seedPoints, base)
 
             for ((seed, innerPoints) in innerPointsMap) {
                 for (point in innerPoints) {
@@ -591,124 +586,12 @@ class EditorModel {
         return Optional.empty()
     }
 
-    /* Territory name drawing code */
-
     private fun drawCenteredString(g: Graphics, text: String, rect: Rectangle, font: Font) { // TODO: Temporary or move to a utility class or something
         val metrics: FontMetrics = g.getFontMetrics(font)
         val x: Int = rect.x + (rect.width - metrics.stringWidth(text)) / 2
         val y: Int = rect.y + (rect.height - metrics.height) / 2 + metrics.ascent
         g.font = font
         g.drawString(text, x, y)
-    }
-
-    private fun getInnerPointMap(seedPoints: MutableSet<Point>): HashMap<Point, HashSet<Point>> { // TODO: Move to its own class
-        val innerPointMap = HashMap<Point, HashSet<Point>>()
-
-        val temp = BufferedImage(base.width, base.height, BufferedImage.TYPE_INT_ARGB)
-        val g2d = temp.createGraphics()
-        g2d.drawImage(base, 0, 0, null)
-        g2d.dispose()
-
-        for (seedPoint in seedPoints) {
-            val innerPoints = HashSet<Point>()
-            val fill = ModifiedMilazzoFill(temp, Color(temp.getRGB(seedPoint.x, seedPoint.y)), Constants.SELECT_COLOR) // TODO: Change this so it doesn't actually need to fill?
-            fill.fill(seedPoint)
-            innerPoints.addAll(fill.allPoints)
-            innerPointMap[seedPoint] = innerPoints
-        }
-
-        return innerPointMap
-    }
-
-    private fun getOutlinePointMap(innerPointMap: HashMap<Point, HashSet<Point>>): HashMap<Point, HashSet<Point>> { // TODO: Move to its own class
-        val outlinePointMap = HashMap<Point, HashSet<Point>>()
-        for ((seed, innerPoints) in innerPointMap) {
-            val outlinePoints = getOutlinePoints(innerPoints)
-            outlinePointMap[seed] = outlinePoints
-        }
-        return outlinePointMap
-    }
-
-    private fun createShape(outlinePointMap: HashMap<Point, HashSet<Point>>): Array<Array<Array<Number>>> { // TODO: Move to its own class
-        val shape: MutableList<Array<Array<Number>>> = ArrayList()
-
-        for ((seed, outlinePoints) in outlinePointMap) {
-
-            // Sort the coordinates so they link up like a chain
-            // TODO: This sorting algorithm seems to sometimes cut lines across the shape, so might need to be changed eventually. Works well enough for now.
-            val sortedOutlinePoints = sortByClosest(outlinePoints)
-
-            val pointList: ArrayList<Array<Number>> = ArrayList()
-            for (point in sortedOutlinePoints) {
-                val pointAsArray: Array<Number> = arrayOf(point.x, point.y)
-                pointList.add(pointAsArray)
-            }
-
-            val firstPoint = sortedOutlinePoints.first() // Have to add the first point to the end to make it a ring
-            val firstPointAsArray: Array<Number> = arrayOf(firstPoint.x, firstPoint.y)
-            pointList.add(firstPointAsArray)
-
-            shape.add(pointList.toTypedArray())
-        }
-
-        return shape.toTypedArray()
-    }
-
-    private fun getOutlinePoints(innerPoints: HashSet<Point>): HashSet<Point> { // TODO: Move to its own class
-        val outlinePoints = HashSet<Point>()
-
-        for (y in 0 until base.height) {
-            for (x in 0 until base.width) {
-
-                if (innerPoints.contains(Point(x, y))) {
-
-                    val north = y - 1
-                    val south = y + 1
-                    val west = x - 1
-                    val east = x + 1
-
-                    if (north >= 0 && !innerPoints.contains(Point(x, north)) && !outlinePoints.contains(Point(x, north))) {
-                        outlinePoints.add(Point(x, north))
-                    } else if (south < base.height && !innerPoints.contains(Point(x, south)) && !outlinePoints.contains(Point(x, south))) {
-                        outlinePoints.add(Point(x, south))
-                    } else if (west >= 0 && !innerPoints.contains(Point(west, y)) && !outlinePoints.contains(Point(west, y))) {
-                        outlinePoints.add(Point(west, y))
-                    } else if (east < base.width && !innerPoints.contains(Point(east, y)) && !outlinePoints.contains(Point(east, y))) {
-                        outlinePoints.add(Point(east, y))
-                    }
-
-                }
-
-            }
-        }
-        return outlinePoints
-    }
-
-    private fun sortByClosest(points: HashSet<Point>): List<Point> { // TODO: Move to its own class
-        val startingList = points.toMutableList()
-        val result = mutableListOf(startingList.removeAt(0))
-
-        while (startingList.size > 0) {
-            val nearestIndex = findNearestIndex(result[result.size - 1], startingList)
-            result.add(startingList.removeAt(nearestIndex))
-        }
-
-        return result.toList()
-    }
-
-    private fun findNearestIndex(point: Point, points: List<Point>): Int { // TODO: Move to its own class
-        var nearestDistance = Integer.MAX_VALUE
-        var nearestIndex = 0;
-
-        for (i in points.indices) {
-            val p = points[i]
-            val d = (point.x - p.x) * (point.x - p.x) + (point.y - p.y) * (point.y - p.y)
-            if (d < nearestDistance) {
-                nearestDistance = d
-                nearestIndex = i
-            }
-        }
-        return nearestIndex
     }
 
 }
