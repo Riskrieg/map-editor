@@ -74,7 +74,7 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
                             if (model.isSelectingTerritory) {
                                 model.submitSelectedNeighbors()
                             } else if (model.isSelectingRegion) {
-                                model.submitSelectedRegions()
+                                model.submitSelectedRegions(false)
                             }
                         }) {
                         if (model.isSelectingTerritory) {
@@ -85,6 +85,18 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
                     }
 
                     Spacer(modifier = Modifier.height(5.dp))
+
+                    if (model.isSelectingRegion) {
+                        Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
+                            colors = ButtonDefaults.buttonColors(backgroundColor = Color(180, 112, 54), contentColor = Color.White),
+                            onClick = {
+                                model.submitSelectedRegions(true)
+                            }) {
+                            Text("Add & Label", fontSize = 14.sp)
+                        }
+
+                        Spacer(modifier = Modifier.height(5.dp))
+                    }
 
                     Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color(190, 54, 54), contentColor = Color.White),

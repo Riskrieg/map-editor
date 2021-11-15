@@ -1,4 +1,5 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,12 +17,23 @@ import com.formdev.flatlaf.FlatDarkLaf
 import com.riskrieg.editor.model.EditorModel
 import com.riskrieg.editor.ui.Editor
 import java.awt.Desktop
+import java.awt.Font
+import java.awt.GraphicsEnvironment
 import java.net.URL
 import kotlin.system.exitProcess
 
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() = application {
+
+    val ge = GraphicsEnvironment.getLocalGraphicsEnvironment()
+    try {
+        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, javaClass.getResourceAsStream("/font/spectral/Spectral-Regular.ttf")))
+        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, javaClass.getResourceAsStream("/font/spectral/Spectral-Medium.ttf")))
+    } catch (e: java.lang.Exception) {
+        e.printStackTrace()
+    }
+
     val model by remember { mutableStateOf(EditorModel()) }
     var themeStr by remember { mutableStateOf("dark") }
     FlatDarkLaf.setup()
@@ -49,10 +61,16 @@ fun main() = application {
                 )
                 Menu("Import...", mnemonic = 'I') {
                     Item(
+                        "Base Image",
+                        icon = painterResource("icons/$themeStr/import_image.svg"),
+                        onClick = { model.openBaseImageOnly() },
+                        shortcut = KeyShortcut(Key.I, ctrl = true)
+                    )
+                    Item(
                         "Image Layers",
                         icon = painterResource("icons/$themeStr/import_image_layers.svg"),
                         onClick = { model.openImageLayers() },
-                        shortcut = KeyShortcut(Key.I, ctrl = true)
+                        shortcut = KeyShortcut(Key.I, alt = true)
                     )
                 }
                 Separator()
@@ -75,7 +93,7 @@ fun main() = application {
                 Item(
                     "Add as territory",
                     icon = painterResource("icons/$themeStr/add_as_territory.svg"),
-                    onClick = { model.submitSelectedRegions() },
+                    onClick = { model.submitSelectedRegions(false) },
                     shortcut = KeyShortcut(Key.F1, ctrl = false),
                     enabled = model.editView && model.isSelectingRegion
                 )

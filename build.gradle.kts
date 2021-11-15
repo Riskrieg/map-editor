@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.riskrieg"
-version = "2.6.0"
+version = "2.6.1"
 
 repositories {
     google()
@@ -23,6 +23,9 @@ dependencies {
     implementation("com.formdev:flatlaf:1.6")
     implementation("com.formdev:flatlaf-intellij-themes:1.6")
     implementation(compose.materialIconsExtended)
+
+    implementation("com.github.aaronjyoder:polylabel-java-mirror:1.3.0")
+
 
     implementation("com.riskrieg:rkm:1.0.8")
     implementation("org.jgrapht:jgrapht-io:1.5.1")
@@ -45,7 +48,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm)
             packageName = "Riskrieg Map Editor"
-            packageVersion = "2.6.0"
+            packageVersion = "2.6.1"
             description = "A map editor for Riskrieg."
 
             val iconsRoot = project.file("src/main/resources/icon/")
