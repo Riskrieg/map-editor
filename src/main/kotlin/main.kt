@@ -145,6 +145,14 @@ fun main() = application {
                 )
                 Separator()
                 Item(
+                    "Export text image...",
+                    icon = painterResource("icons/$themeStr/export_graph.svg"),
+                    onClick = { model.exportTextImage() },
+                    shortcut = KeyShortcut(Key.Y, alt = true),
+                    enabled = model.editView
+                )
+                Separator()
+                Item(
                     "Import graph...",
                     icon = painterResource("icons/$themeStr/import_graph.svg"),
                     onClick = { model.importGraph() },

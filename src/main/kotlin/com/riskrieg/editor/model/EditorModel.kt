@@ -261,7 +261,7 @@ class EditorModel {
 
     fun reimportTextImage() {
         if (!editView) {
-            JOptionPane.showMessageDialog(null, "Please import a map or map images before doing this.")
+            JOptionPane.showMessageDialog(null, "Please import a map or base image before doing this.")
             return
         }
         val chooser = JFileChooser()
@@ -279,6 +279,28 @@ class EditorModel {
                 }
             } catch (e: IOException) {
                 JOptionPane.showMessageDialog(null, "Error loading image.")
+            }
+        }
+    }
+
+    fun exportTextImage() {
+        val chooser = JFileChooser()
+        chooser.currentDirectory = File(".")
+        chooser.dialogTitle = "Save ${Constants.NAME} Text Image"
+        chooser.isAcceptAllFileFilterUsed = false
+        chooser.fileFilter = FileNameExtensionFilter("Image (*.png)", "png")
+
+        if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+            if (chooser.selectedFile.name.isNullOrBlank() || !chooser.selectedFile.nameWithoutExtension.matches(mapSimpleNameRegex)) {
+                JOptionPane.showMessageDialog(null, "Invalid file name.")
+            } else {
+                val fileName = chooser.selectedFile.nameWithoutExtension
+                try {
+                    ImageIO.write(text, "png", chooser.currentDirectory.toPath().resolve("$fileName.png").toFile())
+                    JOptionPane.showMessageDialog(null, "Text image successfully exported to the selected directory.")
+                } catch (e: Exception) {
+                    JOptionPane.showMessageDialog(null, "Unable to text image due to an error.")
+                }
             }
         }
     }
@@ -458,7 +480,7 @@ class EditorModel {
             } else {
                 JOptionPane.showMessageDialog(
                     null,
-                    "A label will not fit in that territory. You will need to label it manually in an image editor and then import it as the new text layer."
+                    "A label will not fit in that territory. You will need to export the current text image using the debug menu, manually apply your label in an image editor, and then re-import the text image using the debug menu. You should save your work first."
                 )
                 return
             }
