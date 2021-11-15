@@ -131,14 +131,14 @@ fun main() = application {
             Menu("Debug", mnemonic = 'D') {
                 Item(
                     "Re-import base image...",
-                    icon = painterResource("icons/$themeStr/replace_map_image.svg"),
+                    icon = painterResource("icons/$themeStr/reimport_base_image.svg"),
                     onClick = { model.reimportBaseImage() },
                     shortcut = KeyShortcut(Key.B, alt = true),
                     enabled = model.editView
                 )
                 Item(
                     "Re-import text image...",
-                    icon = painterResource("icons/$themeStr/replace_text_image.svg"),
+                    icon = painterResource("icons/$themeStr/reimport_text_image.svg"),
                     onClick = { model.reimportTextImage() },
                     shortcut = KeyShortcut(Key.T, alt = true),
                     enabled = model.editView
