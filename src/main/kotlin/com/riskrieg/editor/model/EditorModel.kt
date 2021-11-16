@@ -23,10 +23,7 @@ import com.riskrieg.rkm.RkmReader
 import com.riskrieg.rkm.RkmWriter
 import org.jgrapht.Graphs
 import org.jgrapht.graph.SimpleGraph
-import java.awt.Color
-import java.awt.Font
-import java.awt.Point
-import java.awt.Rectangle
+import java.awt.*
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.FileOutputStream
@@ -470,10 +467,14 @@ class EditorModel {
 
                 val textGraphics = convertedText.createGraphics()
 
+                val desktopHints = Toolkit.getDefaultToolkit().getDesktopProperty("awt.font.desktophints") as Map<*, *>
+                textGraphics.setRenderingHints(desktopHints)
+                textGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF)
+
                 textGraphics.paint = Constants.BORDER_COLOR
 
                 // TODO: Set size based on whether it can fit inside territory bounds, to a minimum, with 20 as the maximum and default
-                ImageUtil.drawCenteredString(textGraphics, newTerritoryName.trim(), Rectangle(labelPosition.x, labelPosition.y, 1, 1), Font("Spectral", Font.PLAIN, 20))
+                ImageUtil.drawCenteredString(textGraphics, newTerritoryName.trim(), Rectangle(labelPosition.x, labelPosition.y, 1, 1), Font("Spectral Medium", Font.PLAIN, 20))
 
                 textGraphics.dispose()
                 text = convertedText

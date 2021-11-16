@@ -38,11 +38,11 @@ object ImageUtil {
         return sqrt((dx * dx + dy * dy).toDouble())
     }
 
-    fun drawCenteredString(g: Graphics, text: String, rect: Rectangle, font: Font) {
+    fun drawCenteredString(g: Graphics2D, text: String, rect: Rectangle, font: Font) {
+        g.font = font
         val metrics: FontMetrics = g.getFontMetrics(font)
         val x: Int = rect.x + (rect.width - metrics.stringWidth(text)) / 2
         val y: Int = rect.y + (rect.height - metrics.height) / 2 + metrics.ascent
-        g.font = font
         g.drawString(text, x, y)
     }
 
