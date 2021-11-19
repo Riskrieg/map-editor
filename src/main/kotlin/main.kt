@@ -36,7 +36,6 @@ fun main() = application {
         e.printStackTrace()
     }
 
-    val model by remember { mutableStateOf(EditorModel()) }
     var themeStr by remember { mutableStateOf("dark") }
     FlatDarkLaf.setup()
 
@@ -46,6 +45,7 @@ fun main() = application {
         state = rememberWindowState(width = Constants.DEFAULT_WINDOW_WIDTH.dp, height = Constants.DEFAULT_WINDOW_HEIGHT.dp),
         icon = painterResource("icon/icon.png")
     ) {
+        val model by remember { mutableStateOf(EditorModel(window)) }
         MenuBar {
             Menu("File", mnemonic = 'F') {
                 Item(
