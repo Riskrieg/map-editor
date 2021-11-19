@@ -469,7 +469,7 @@ class EditorModel {
 
                 val desktopHints = Toolkit.getDefaultToolkit().getDesktopProperty("awt.font.desktophints") as Map<*, *>
                 textGraphics.setRenderingHints(desktopHints)
-                textGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF)
+                textGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
 
                 textGraphics.paint = Constants.BORDER_COLOR
 
@@ -546,7 +546,7 @@ class EditorModel {
             }
             val innerPointsMap = TerritoryUtil.createInnerPointMap(seedPoints, base)
 
-            for ((seed, innerPoints) in innerPointsMap) {
+            for ((_, innerPoints) in innerPointsMap) {
                 for (point in innerPoints) {
                     text.setRGB(point.x, point.y, Color(0, 0, 0, 0).rgb)
                 }

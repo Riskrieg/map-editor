@@ -14,6 +14,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.formdev.flatlaf.FlatDarkLaf
+import com.riskrieg.editor.Constants
 import com.riskrieg.editor.model.EditorModel
 import com.riskrieg.editor.ui.Editor
 import java.awt.Desktop
@@ -40,8 +41,8 @@ fun main() = application {
 
     Window(
         onCloseRequest = ::exitApplication,
-        title = "${com.riskrieg.editor.Constants.NAME} Map Editor v${com.riskrieg.editor.Constants.VERSION}",
-        state = rememberWindowState(width = 1280.dp, height = 720.dp),
+        title = "${Constants.NAME} Map Editor v${Constants.VERSION}",
+        state = rememberWindowState(width = Constants.DEFAULT_WINDOW_WIDTH.dp, height = Constants.DEFAULT_WINDOW_HEIGHT.dp),
         icon = painterResource("icon/icon.png")
     ) {
         MenuBar {

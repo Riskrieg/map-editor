@@ -4,11 +4,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.5.31"
-    id("org.jetbrains.compose") version "1.0.0-beta6-dev455"
+    id("org.jetbrains.compose") version "1.0.0-beta6-dev464"
 }
 
 group = "com.riskrieg"
-version = "2.6.2"
+version = "2.6.3"
 
 repositories {
     google()
@@ -20,8 +20,8 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
 
-    implementation("com.formdev:flatlaf:1.6")
-    implementation("com.formdev:flatlaf-intellij-themes:1.6")
+    implementation("com.formdev:flatlaf:1.6.3")
+    implementation("com.formdev:flatlaf-intellij-themes:1.6.3")
     implementation(compose.materialIconsExtended)
 
     implementation("com.github.aaronjyoder:polylabel-java-mirror:1.3.0")
@@ -48,8 +48,9 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm)
             packageName = "Riskrieg Map Editor"
-            packageVersion = "2.6.2"
-            description = "A map editor for Riskrieg."
+            packageVersion = version.toString()
+            description = "The official map editor for Riskrieg."
+            vendor = "Riskrieg"
 
             val iconsRoot = project.file("src/main/resources/icon/")
 

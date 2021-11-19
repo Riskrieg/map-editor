@@ -63,7 +63,7 @@ class LabelPosition(private val base: BufferedImage, private val regionSeeds: Se
     private fun createShape(outlinePointMap: HashMap<Point, HashSet<Point>>): Array<Array<Array<Number>>> { // Form the data to be compatible with PolyLabel
         val shape: MutableList<Array<Array<Number>>> = ArrayList()
 
-        for ((seed, outlinePoints) in outlinePointMap) {
+        for ((_, outlinePoints) in outlinePointMap) {
 
             // Sort the coordinates so they link up like a chain
             // TODO: This sorting algorithm seems to sometimes cut lines across the shape, so might need to be changed eventually. Works well enough for now.
@@ -151,7 +151,7 @@ class LabelPosition(private val base: BufferedImage, private val regionSeeds: Se
         val g2d = temp.createGraphics()
 
         // Fill in the territory
-        for ((seed, innerPoints) in innerPointMap) {
+        for ((_, innerPoints) in innerPointMap) {
             for (point in innerPoints) {
                 temp.setRGB(point.x, point.y, Color.BLACK.rgb)
             }
@@ -163,7 +163,7 @@ class LabelPosition(private val base: BufferedImage, private val regionSeeds: Se
         g2d.dispose()
 
         // Fill the territory areas in with transparency
-        for ((seed, innerPoints) in innerPointMap) {
+        for ((_, innerPoints) in innerPointMap) {
             for (point in innerPoints) {
                 temp.setRGB(point.x, point.y, Color(0, 0, 0, 0).rgb)
             }
