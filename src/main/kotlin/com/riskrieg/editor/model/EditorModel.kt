@@ -155,44 +155,6 @@ class EditorModel(private val window: ComposeWindow) {
         chooser.currentDirectory = File(System.getProperty("user.home"))
         if (chooser.showDialog(window, "Open") == JFileChooser.APPROVE_OPTION) {
             openFile(chooser.selectedFile)
-//            try {
-//                val reader = RkmReader(chooser.selectedFile.toPath())
-//                val map = reader.read()
-//                newFile()
-//                base = map.mapImage().baseImage()
-//                text = map.mapImage().textImage()
-//
-//                mapDisplayName = map.mapName().displayName()
-//                mapAuthorName = map.author().name()
-//
-//                graph = SimpleGraph<Territory, Border>(Border::class.java)
-//
-//                for (territory in map.graph().vertices()) {
-//                    graph.addVertex(territory)
-//                }
-//                for (border in map.graph().edges()) {
-//                    val source = map.graph().vertices().find { it.id().equals(border.source()) }
-//                    val target = map.graph().vertices().find { it.id().equals(border.target()) }
-//                    graph.addEdge(source, target, border)
-//                }
-//
-//                submittedTerritories.addAll(graph.vertexSet())
-//                for (territory in graph.vertexSet()) {
-//                    if (Graphs.neighborSetOf(graph, territory).isNotEmpty()) {
-//                        finishedTerritories.add(territory)
-//                    }
-//                }
-//                isDragAndDropping = false
-//                editView = true
-//                update()
-//            } catch (e: Exception) {
-//                if (e.message != null && e.message!!.contains("invalid checksum", true)) {
-//                    JOptionPane.showMessageDialog(window, "Could not open .rkm map file: invalid checksum.", "Error", JOptionPane.ERROR_MESSAGE)
-//                } else {
-//                    JOptionPane.showMessageDialog(window, "Invalid .rkm map file.", "Error", JOptionPane.ERROR_MESSAGE)
-//                }
-//                return
-//            }
         }
     }
 
