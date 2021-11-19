@@ -45,6 +45,7 @@ fun main() = application {
         state = rememberWindowState(width = Constants.DEFAULT_WINDOW_WIDTH.dp, height = Constants.DEFAULT_WINDOW_HEIGHT.dp),
         icon = painterResource("icon/icon.png")
     ) {
+        window.setLocationRelativeTo(null)
         val model by remember { mutableStateOf(EditorModel(window)) }
         MenuBar {
             Menu("File", mnemonic = 'F') {
