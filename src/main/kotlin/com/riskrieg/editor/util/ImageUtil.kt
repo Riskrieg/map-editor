@@ -1,8 +1,11 @@
 package com.riskrieg.editor.util
 
 import java.awt.*
+import java.awt.font.TextAttribute
 import java.awt.image.BufferedImage
+import java.text.AttributedString
 import kotlin.math.sqrt
+
 
 object ImageUtil {
     /**
@@ -43,7 +46,24 @@ object ImageUtil {
         val metrics: FontMetrics = g.getFontMetrics(font)
         val x: Int = rect.x + (rect.width - metrics.stringWidth(text)) / 2
         val y: Int = rect.y + (rect.height - metrics.height) / 2 + metrics.ascent
-        g.drawString(text, x, y)
+        val result = AttributedString(text)
+        result.addAttribute(TextAttribute.FONT, font, 0, text.length)
+        g.drawString(result.iterator, x, y)
+    }
+
+    fun convert(image: BufferedImage, imageType: Int): BufferedImage {
+        val result = BufferedImage(image.width, image.height, imageType)
+        val g = result.graphics
+        g.drawImage(image, 0, 0, null)
+        return result
+    }
+
+    fun createCopy(source: BufferedImage): BufferedImage {
+        val result = BufferedImage(source.width, source.height, source.type)
+        val g2 = result.createGraphics()
+        g2.drawImage(source, 0, 0, null)
+        g2.dispose()
+        return result
     }
 
 }

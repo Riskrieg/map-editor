@@ -14,11 +14,8 @@ class LabelPosition(private val base: BufferedImage, private val regionSeeds: Se
     private var mInnerPointMap: HashMap<Point, HashSet<Point>>? = null
     private var mLabelPosition: Point? = null
 
-    fun canLabelFit(label: String, fontSize: Int): Boolean {
-        return testLabelFit(
-            base, mInnerPointMap ?: createInnerPointMap(regionSeeds.toMutableSet()), mLabelPosition ?: calculatePosition(),
-            label, fontSize
-        )
+    fun canLabelFit(label: String, font: Font): Boolean {
+        return testLabelFit(base, mInnerPointMap ?: createInnerPointMap(regionSeeds.toMutableSet()), mLabelPosition ?: calculatePosition(), label, font)
     }
 
     fun calculatePosition(): Point { // TODO: Return mLabelPosition if it's not null
@@ -146,7 +143,7 @@ class LabelPosition(private val base: BufferedImage, private val regionSeeds: Se
 
     // New
 
-    private fun testLabelFit(base: BufferedImage, innerPointMap: HashMap<Point, HashSet<Point>>, labelPosition: Point, label: String, fontSize: Int): Boolean {
+    private fun testLabelFit(base: BufferedImage, innerPointMap: HashMap<Point, HashSet<Point>>, labelPosition: Point, label: String, font: Font): Boolean {
         val temp = BufferedImage(base.width, base.height, BufferedImage.TYPE_INT_ARGB)
         val g2d = temp.createGraphics()
 
@@ -159,7 +156,7 @@ class LabelPosition(private val base: BufferedImage, private val regionSeeds: Se
 
         // Draw the label
         g2d.paint = Color.PINK
-        ImageUtil.drawCenteredString(g2d, label.trim(), Rectangle(labelPosition.x, labelPosition.y, 1, 1), Font("Spectral", Font.PLAIN, fontSize))
+        ImageUtil.drawCenteredString(g2d, label.trim(), Rectangle(labelPosition.x, labelPosition.y, 1, 1), font)
         g2d.dispose()
 
         // Fill the territory areas in with transparency
