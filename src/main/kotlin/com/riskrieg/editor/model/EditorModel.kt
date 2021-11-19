@@ -454,8 +454,6 @@ class EditorModel {
 
         if (drawLabel) {
 
-//            val labelPosition = LabelPosition(base, selectedRegions.toMutableSet()).calculatePosition(0.001)
-
             val lp = LabelPosition(base, selectedRegions.toMutableSet(), 0.001)
 
             if (lp.canLabelFit(newTerritoryName.trim(), 20)) { // Only draw label if it can fit
