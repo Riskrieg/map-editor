@@ -58,6 +58,7 @@ class EditorModel(private val window: ComposeWindow) {
     /* Internal Model Data */
 
     var editView by mutableStateOf(false)
+    var isDragAndDropping by mutableStateOf(false)
 
     // Doing it this way because using the selectedRegions/selectedTerritories lists requires too many changes
     var isSelectingTerritory by mutableStateOf(false)
@@ -106,49 +107,92 @@ class EditorModel(private val window: ComposeWindow) {
         currentBase = base
     }
 
+    fun openFile(rkmFile: File) {
+        isDragAndDropping = false
+        try {
+            val reader = RkmReader(rkmFile.toPath())
+            val map = reader.read()
+            newFile()
+            base = map.mapImage().baseImage()
+            text = map.mapImage().textImage()
+
+            mapDisplayName = map.mapName().displayName()
+            mapAuthorName = map.author().name()
+
+            graph = SimpleGraph<Territory, Border>(Border::class.java)
+
+            for (territory in map.graph().vertices()) {
+                graph.addVertex(territory)
+            }
+            for (border in map.graph().edges()) {
+                val source = map.graph().vertices().find { it.id().equals(border.source()) }
+                val target = map.graph().vertices().find { it.id().equals(border.target()) }
+                graph.addEdge(source, target, border)
+            }
+
+            submittedTerritories.addAll(graph.vertexSet())
+            for (territory in graph.vertexSet()) {
+                if (Graphs.neighborSetOf(graph, territory).isNotEmpty()) {
+                    finishedTerritories.add(territory)
+                }
+            }
+            editView = true
+            update()
+        } catch (e: Exception) {
+            if (e.message != null && e.message!!.contains("invalid checksum", true)) {
+                JOptionPane.showMessageDialog(window, "Could not open .rkm map file: invalid checksum.", "Error", JOptionPane.ERROR_MESSAGE)
+            } else {
+                JOptionPane.showMessageDialog(window, "Invalid .rkm map file.", "Error", JOptionPane.ERROR_MESSAGE)
+            }
+            return
+        }
+    }
+
     fun openRkm() {
         val chooser = JFileChooser()
         chooser.isAcceptAllFileFilterUsed = false
         chooser.fileFilter = FileNameExtensionFilter("${Constants.NAME} Map (*.rkm)", "rkm")
         chooser.currentDirectory = File(System.getProperty("user.home"))
         if (chooser.showDialog(window, "Open") == JFileChooser.APPROVE_OPTION) {
-            try {
-                val reader = RkmReader(chooser.selectedFile.toPath())
-                val map = reader.read()
-                newFile()
-                base = map.mapImage().baseImage()
-                text = map.mapImage().textImage()
-
-                mapDisplayName = map.mapName().displayName()
-                mapAuthorName = map.author().name()
-
-                graph = SimpleGraph<Territory, Border>(Border::class.java)
-
-                for (territory in map.graph().vertices()) {
-                    graph.addVertex(territory)
-                }
-                for (border in map.graph().edges()) {
-                    val source = map.graph().vertices().find { it.id().equals(border.source()) }
-                    val target = map.graph().vertices().find { it.id().equals(border.target()) }
-                    graph.addEdge(source, target, border)
-                }
-
-                submittedTerritories.addAll(graph.vertexSet())
-                for (territory in graph.vertexSet()) {
-                    if (Graphs.neighborSetOf(graph, territory).isNotEmpty()) {
-                        finishedTerritories.add(territory)
-                    }
-                }
-                editView = true
-                update()
-            } catch (e: Exception) {
-                if (e.message != null && e.message!!.contains("invalid checksum", true)) {
-                    JOptionPane.showMessageDialog(window, "Could not open .rkm map file: invalid checksum.", "Error", JOptionPane.ERROR_MESSAGE)
-                } else {
-                    JOptionPane.showMessageDialog(window, "Invalid .rkm map file.", "Error", JOptionPane.ERROR_MESSAGE)
-                }
-                return
-            }
+            openFile(chooser.selectedFile)
+//            try {
+//                val reader = RkmReader(chooser.selectedFile.toPath())
+//                val map = reader.read()
+//                newFile()
+//                base = map.mapImage().baseImage()
+//                text = map.mapImage().textImage()
+//
+//                mapDisplayName = map.mapName().displayName()
+//                mapAuthorName = map.author().name()
+//
+//                graph = SimpleGraph<Territory, Border>(Border::class.java)
+//
+//                for (territory in map.graph().vertices()) {
+//                    graph.addVertex(territory)
+//                }
+//                for (border in map.graph().edges()) {
+//                    val source = map.graph().vertices().find { it.id().equals(border.source()) }
+//                    val target = map.graph().vertices().find { it.id().equals(border.target()) }
+//                    graph.addEdge(source, target, border)
+//                }
+//
+//                submittedTerritories.addAll(graph.vertexSet())
+//                for (territory in graph.vertexSet()) {
+//                    if (Graphs.neighborSetOf(graph, territory).isNotEmpty()) {
+//                        finishedTerritories.add(territory)
+//                    }
+//                }
+//                isDragAndDropping = false
+//                editView = true
+//                update()
+//            } catch (e: Exception) {
+//                if (e.message != null && e.message!!.contains("invalid checksum", true)) {
+//                    JOptionPane.showMessageDialog(window, "Could not open .rkm map file: invalid checksum.", "Error", JOptionPane.ERROR_MESSAGE)
+//                } else {
+//                    JOptionPane.showMessageDialog(window, "Invalid .rkm map file.", "Error", JOptionPane.ERROR_MESSAGE)
+//                }
+//                return
+//            }
         }
     }
 
@@ -210,6 +254,7 @@ class EditorModel(private val window: ComposeWindow) {
                 base = newBase
                 text = BufferedImage(base.width, base.height, BufferedImage.TYPE_INT_ARGB)
 
+                isDragAndDropping = false
                 editView = true
                 update()
             } catch (e: IOException) {
@@ -234,6 +279,7 @@ class EditorModel(private val window: ComposeWindow) {
                     val newText = ImageIO.read(chooser.selectedFile)
                     if (newText.height == newBase.height && newText.width == newBase.width) {
                         text = newText
+                        isDragAndDropping = false
                         editView = true
                         update()
                     } else {

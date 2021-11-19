@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.res.painterResource
@@ -20,7 +21,11 @@ import com.riskrieg.editor.ui.Editor
 import java.awt.Desktop
 import java.awt.Font
 import java.awt.GraphicsEnvironment
+import java.awt.datatransfer.DataFlavor
+import java.awt.dnd.*
+import java.io.File
 import java.net.URL
+import javax.swing.JOptionPane
 import kotlin.system.exitProcess
 
 
@@ -189,6 +194,8 @@ fun main() = application {
             }
         }
         Editor(model).build()
+
+        window.contentPane.dropTarget = makeDropTarget(model, window)
     }
 }
 
@@ -197,5 +204,40 @@ private fun openLink(linkStr: String) {
         Desktop.getDesktop().browse(URL(linkStr).toURI())
     } catch (e: Exception) {
         // TODO: Open dialog popup?
+    }
+}
+
+private fun makeDropTarget(model: EditorModel, window: ComposeWindow): DropTarget {
+    return object : DropTarget() {
+        override fun dragEnter(event: DropTargetDragEvent?) {
+            if (!model.editView) {
+                model.isDragAndDropping = true
+            }
+        }
+
+        override fun dragExit(dte: DropTargetEvent?) {
+            if (!model.editView) {
+                model.isDragAndDropping = false
+            }
+        }
+
+        override fun drop(event: DropTargetDropEvent) {
+            try {
+                if (!model.editView) {
+                    event.acceptDrop(DnDConstants.ACTION_REFERENCE)
+                    val droppedFiles = event.transferable.getTransferData(DataFlavor.javaFileListFlavor) as List<*>
+
+                    if (droppedFiles.size == 1) {
+                        model.openFile(droppedFiles[0] as File)
+                    } else {
+                        JOptionPane.showMessageDialog(window, "You can only drag in one file at a time.", "Error", JOptionPane.ERROR_MESSAGE)
+                    }
+                }
+            } catch (e: Exception) {
+                model.isDragAndDropping = false
+                JOptionPane.showMessageDialog(window, "Error opening file.", "Error", JOptionPane.ERROR_MESSAGE)
+                e.printStackTrace()
+            }
+        }
     }
 }
