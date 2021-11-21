@@ -15,9 +15,9 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.formdev.flatlaf.FlatDarkLaf
-import com.riskrieg.editor.Constants
+import com.riskrieg.editor.core.Constants
 import com.riskrieg.editor.model.EditorModel
-import com.riskrieg.editor.ui.Editor
+import com.riskrieg.editor.view.Editor
 import java.awt.Desktop
 import java.awt.Font
 import java.awt.GraphicsEnvironment

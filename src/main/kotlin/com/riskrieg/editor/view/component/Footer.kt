@@ -1,4 +1,4 @@
-package com.riskrieg.editor.ui.component
+package com.riskrieg.editor.view.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row

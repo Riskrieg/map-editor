@@ -1,17 +1,14 @@
-package com.riskrieg.editor.algorithm.label
+package com.riskrieg.editor.core.algorithm.fill
 
-import com.riskrieg.editor.algorithm.fill.Fill
 import java.awt.Color
 import java.awt.Point
 import java.awt.image.BufferedImage
 
-class GetInnerPointFill( // TODO: Make this more efficient
+class MilazzoFill(
     private var image: BufferedImage,
     private val original: Color,
     private val fill: Color
 ) : Fill {
-
-    val allPoints: HashSet<Point> = HashSet()
 
     private val width: Int = image.width
     private val height: Int = image.height
@@ -114,7 +111,6 @@ class GetInnerPointFill( // TODO: Make this more efficient
 
     private fun setPixel(x: Int, y: Int) {
         image.setRGB(x, y, fill.rgb)
-        allPoints.add(Point(x, y))
     }
 
 }

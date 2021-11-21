@@ -1,7 +1,7 @@
 package com.riskrieg.editor.util
 
-import com.riskrieg.editor.Constants
-import com.riskrieg.editor.algorithm.label.GetInnerPointFill
+import com.riskrieg.editor.core.Constants
+import com.riskrieg.editor.core.algorithm.label.GetInnerPointFill
 import java.awt.Color
 import java.awt.Point
 import java.awt.image.BufferedImage

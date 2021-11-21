@@ -1,4 +1,4 @@
-package com.riskrieg.editor.algorithm.fill
+package com.riskrieg.editor.core.algorithm.fill
 
 import java.awt.Point
 import java.awt.image.BufferedImage

@@ -6,9 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.awt.ComposeWindow
 import com.aaronjyoder.util.json.gson.GsonUtil
-import com.riskrieg.editor.Constants
-import com.riskrieg.editor.algorithm.fill.MilazzoFill
-import com.riskrieg.editor.algorithm.label.LabelPosition
+import com.riskrieg.editor.core.Constants
+import com.riskrieg.editor.core.algorithm.fill.MilazzoFill
+import com.riskrieg.editor.core.algorithm.label.LabelPosition
 import com.riskrieg.editor.util.ImageUtil
 import com.riskrieg.editor.util.TerritoryUtil
 import com.riskrieg.map.RkmMap

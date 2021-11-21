@@ -1,4 +1,4 @@
-package com.riskrieg.editor.ui
+package com.riskrieg.editor.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -15,9 +15,9 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.riskrieg.editor.model.EditorModel
-import com.riskrieg.editor.ui.component.FooterView
-import com.riskrieg.editor.ui.component.MapView
-import com.riskrieg.editor.ui.component.Sidebar
+import com.riskrieg.editor.view.component.FooterView
+import com.riskrieg.editor.view.component.MapView
+import com.riskrieg.editor.view.component.Sidebar
 
 class Editor(private val model: EditorModel) {
 
