@@ -4,11 +4,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.5.31"
-    id("org.jetbrains.compose") version "1.0.0-beta6-dev464"
+    id("org.jetbrains.compose") version "1.0.0-rc3"
 }
 
 group = "com.riskrieg"
-version = "2.6.6"
+version = "2.6.7"
 
 repositories {
     google()
@@ -20,8 +20,8 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
 
-    implementation("com.formdev:flatlaf:1.6.3")
-    implementation("com.formdev:flatlaf-intellij-themes:1.6.3")
+    implementation("com.formdev:flatlaf:1.6.4")
+    implementation("com.formdev:flatlaf-intellij-themes:1.6.4")
     implementation(compose.materialIconsExtended)
 
     implementation("com.github.aaronjyoder:polylabel-java-mirror:1.3.0")
@@ -31,7 +31,7 @@ dependencies {
     implementation("org.jgrapht:jgrapht-io:1.5.1")
     implementation("com.github.aaronjyoder:json-utilities:1.1.2")
 
-    testImplementation(kotlin("test"))
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.0")
 }
 
 tasks.test {
