@@ -4,11 +4,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.5.31"
-    id("org.jetbrains.compose") version "1.0.0-rc4"
+    id("org.jetbrains.compose") version "1.0.0"
 }
 
 group = "com.riskrieg"
-version = "2.6.7"
+version = "2.7.0"
 
 repositories {
     google()
