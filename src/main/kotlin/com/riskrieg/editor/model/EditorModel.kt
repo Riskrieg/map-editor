@@ -314,7 +314,7 @@ class EditorModel(private val window: ComposeWindow) {
         chooser.fileFilter = FileNameExtensionFilter("Image (*.png)", "png")
         chooser.currentDirectory = File(System.getProperty("user.home"))
         if (chooser.showSaveDialog(window) == JFileChooser.APPROVE_OPTION) {
-            if (chooser.selectedFile.name.isNullOrBlank() || !chooser.selectedFile.nameWithoutExtension.matches(mapSimpleNameRegex)) {
+            if (chooser.selectedFile.name.isNullOrBlank()) {
                 JOptionPane.showMessageDialog(window, "Invalid file name.", "Error", JOptionPane.ERROR_MESSAGE)
             } else {
                 val fileName = chooser.selectedFile.nameWithoutExtension
