@@ -369,7 +369,7 @@ class EditorModel(private val window: ComposeWindow) {
         }
     }
 
-    fun exportGraph() {
+    fun exportGraph() { // TODO: This doesn't work outside of the IDE for some reason.
         if (graph.vertexSet().size == 0) {
             JOptionPane.showMessageDialog(window, "Nothing to export.", "Error", JOptionPane.ERROR_MESSAGE)
             return
@@ -388,6 +388,7 @@ class EditorModel(private val window: ComposeWindow) {
                 JOptionPane.showMessageDialog(window, "Invalid file name. Use only lowercase letters, numbers, and hyphens/dashes.", "Error", JOptionPane.ERROR_MESSAGE)
             } else {
                 try {
+                    // Potentially the issue lies here?
                     GsonUtil.write(chooser.currentDirectory.toPath().resolve("${chooser.selectedFile.nameWithoutExtension}.json"), MapGraph::class.java, MapGraph(graph))
                     JOptionPane.showMessageDialog(window, "Graph file successfully exported to the selected directory.", "Success", JOptionPane.PLAIN_MESSAGE)
                 } catch (e: Exception) {
