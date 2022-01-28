@@ -382,15 +382,16 @@ class EditorModel(private val window: ComposeWindow) {
         chooser.isAcceptAllFileFilterUsed = false
         chooser.fileFilter = FileNameExtensionFilter("${Constants.NAME} Graph (*.json)", "json")
         chooser.currentDirectory = File(System.getProperty("user.home"))
+
         if (chooser.showSaveDialog(window) == JFileChooser.APPROVE_OPTION) {
             if (chooser.selectedFile.name.isNullOrBlank() || !chooser.selectedFile.nameWithoutExtension.matches(mapSimpleNameRegex)) {
-                JOptionPane.showMessageDialog(window, "Invalid file name.", "Error", JOptionPane.ERROR_MESSAGE)
+                JOptionPane.showMessageDialog(window, "Invalid file name. Use only lowercase letters, numbers, and hyphens/dashes.", "Error", JOptionPane.ERROR_MESSAGE)
             } else {
-                val fileName = chooser.selectedFile.nameWithoutExtension
                 try {
-                    GsonUtil.write(chooser.currentDirectory.toPath().resolve("$fileName.json"), MapGraph::class.java, MapGraph(graph))
+                    GsonUtil.write(chooser.currentDirectory.toPath().resolve("${chooser.selectedFile.nameWithoutExtension}.json"), MapGraph::class.java, MapGraph(graph))
                     JOptionPane.showMessageDialog(window, "Graph file successfully exported to the selected directory.", "Success", JOptionPane.PLAIN_MESSAGE)
                 } catch (e: Exception) {
+                    e.printStackTrace()
                     JOptionPane.showMessageDialog(window, "Unable to save graph file due to an error.", "Error", JOptionPane.ERROR_MESSAGE)
                 }
             }
