@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.riskrieg"
-version = "2.7.1"
+version = "2.7.2"
 
 repositories {
     google()

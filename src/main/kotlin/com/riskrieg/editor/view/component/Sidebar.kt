@@ -8,6 +8,8 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.riskrieg.editor.core.Constants
@@ -62,7 +64,7 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
                         singleLine = true,
                         enabled = !model.isSelectingTerritory,
                         onValueChange = {
-                            model.newTerritoryName = it
+                            model.newTerritoryName = it.replace("[^\\p{IsAlphabetic}\\p{IsDigit}]".toRegex(), "").toUpperCase(Locale.current)
                         }, modifier = Modifier.padding(horizontal = 10.dp)
                     )
 
