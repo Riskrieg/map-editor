@@ -1,9 +1,9 @@
-package com.riskrieg.editor.view.component
+package com.riskrieg.editor.view.component.palette
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.riskrieg.editor.model.PaletteViewModel
+import com.riskrieg.editor.viewmodel.PaletteViewModel
 
 @OptIn(ExperimentalFoundationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable

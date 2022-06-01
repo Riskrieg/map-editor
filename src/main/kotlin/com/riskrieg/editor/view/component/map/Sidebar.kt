@@ -1,4 +1,4 @@
-package com.riskrieg.editor.view.component
+package com.riskrieg.editor.view.component.map
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -13,7 +13,7 @@ import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.riskrieg.core.api.game.map.GameMap
-import com.riskrieg.editor.model.MapViewModel
+import com.riskrieg.editor.viewmodel.MapViewModel
 
 @Composable
 fun Sidebar(model: MapViewModel, modifier: Modifier) {
