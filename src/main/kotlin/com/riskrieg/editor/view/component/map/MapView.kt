@@ -5,6 +5,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -19,17 +20,29 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.mouse.MouseScrollOrientation
 import androidx.compose.ui.input.mouse.MouseScrollUnit
 import androidx.compose.ui.input.mouse.mouseScrollFilter
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.unit.dp
-import com.riskrieg.editor.model.EditorModel
+import com.riskrieg.editor.model.MapViewModel
 import java.awt.Point
 import kotlin.math.pow
 
 @OptIn(ExperimentalFoundationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
-fun MapView(model: EditorModel, mapViewModifier: Modifier) {
+fun MapView(model: MapViewModel, viewModifier: Modifier) {
+    Column {
+        Row(modifier = Modifier.weight(1f)) {
+            Sidebar(model, modifier = Modifier.fillMaxHeight().width(180.dp))
+            Column(Modifier.weight(1f)) {
+                MapViewport(model, viewModifier)
+            }
+        }
+        FooterView(model)
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@Composable
+private fun MapViewport(model: MapViewModel, modifier: Modifier) {
     val stateVertical = rememberScrollState(0)
     val stateHorizontal = rememberScrollState(0)
 
@@ -47,7 +60,7 @@ fun MapView(model: EditorModel, mapViewModifier: Modifier) {
         focusRequester.requestFocus() // TODO: Fix focus stuff after entering territory name
     }
 
-    Box(modifier = mapViewModifier.background(color = Color(255, 255, 255))) {
+    Box(modifier = modifier.background(color = Color(255, 255, 255))) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -64,28 +77,13 @@ fun MapView(model: EditorModel, mapViewModifier: Modifier) {
                 .pointerMoveFilter(
                     onMove = { pointerPos = it; false },
                     onExit = { pointerPos = Offset(0f, 0f); false }
-                )
-                .onKeyEvent { keyEvent ->
+                ).onKeyEvent { keyEvent ->
                     canZoom = keyEvent.isCtrlPressed
                     if (keyEvent.isCtrlPressed && keyEvent.key == Key.Zero) {
                         scale = 1.0f
                     }
                     false
-                }
-                    // TODO: Update mouseScrollFilter to whatever replaces it
-//                .pointerInput(Unit) {
-//                    awaitPointerEventScope {
-//                        while(true) {
-//                            val event = awaitPointerEvent()
-//                            if(event.type == PointerEventType.Scroll && canZoom) {
-//                                val scrollDelta = event.changes.first().scrollDelta
-//                                scale *= 1.02.pow(scrollDelta.y.toDouble()).toFloat()
-//                                scale = minScale.coerceAtLeast(maxScale.coerceAtMost(scale))
-//                            }
-//                        }
-//                    }
-//                }
-                .mouseScrollFilter(onMouseScroll = { event, _ ->
+                }.mouseScrollFilter(onMouseScroll = { event, _ -> // TODO: Update mouseScrollFilter to whatever replaces it
                     if (event.orientation == MouseScrollOrientation.Vertical && canZoom) {
                         val deltaY = when (val delta = event.delta) {
                             is MouseScrollUnit.Line -> -delta.value
@@ -95,9 +93,7 @@ fun MapView(model: EditorModel, mapViewModifier: Modifier) {
                         scale = minScale.coerceAtLeast(maxScale.coerceAtMost(scale))
                     }
                     canZoom // If false, scroll is enabled, if true, scroll is disabled.
-                })
-
-                .combinedClickable(
+                }).combinedClickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
                     onClick = {
@@ -107,7 +103,7 @@ fun MapView(model: EditorModel, mapViewModifier: Modifier) {
                 )
             ) {
                 drawIntoCanvas { canvas ->
-                    model.mousePos = Point((pointerPos.x / scale).toInt(), (pointerPos.y / scale).toInt())
+                    model.mousePosition = Point((pointerPos.x / scale).toInt(), (pointerPos.y / scale).toInt()) // TODO: Make sure this works as expected
 
                     canvas.scale(scale, scale, 0f, 0f)
 
@@ -129,5 +125,4 @@ fun MapView(model: EditorModel, mapViewModifier: Modifier) {
             adapter = rememberScrollbarAdapter(stateHorizontal)
         )
     }
-
 }

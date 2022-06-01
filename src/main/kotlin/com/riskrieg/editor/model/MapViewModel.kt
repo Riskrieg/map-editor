@@ -7,17 +7,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.awt.ComposeWindow
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
+import com.riskrieg.core.api.Riskrieg
 import com.riskrieg.core.api.game.map.GameMap
 import com.riskrieg.core.api.game.map.Territory
 import com.riskrieg.core.api.game.map.territory.Border
 import com.riskrieg.core.api.game.map.territory.Nucleus
 import com.riskrieg.core.api.identifier.TerritoryIdentifier
-import com.riskrieg.core.decode.RkmDecoder
 import com.riskrieg.core.encode.RkmEncoder
 import com.riskrieg.core.util.io.RkJsonUtil
 import com.riskrieg.editor.core.Constants
 import com.riskrieg.editor.core.algorithm.fill.MilazzoFill
 import com.riskrieg.editor.core.algorithm.label.LabelPosition
+import com.riskrieg.editor.model.internal.MapGraph
 import com.riskrieg.editor.util.ImageUtil
 import com.riskrieg.editor.util.TerritoryUtil
 import org.jgrapht.Graphs
@@ -40,7 +41,7 @@ import javax.swing.filechooser.FileNameExtensionFilter
 import kotlin.collections.ArrayDeque
 
 
-class EditorModel(private val window: ComposeWindow) {
+class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) {
 
     /* Exported Data */
 
@@ -52,22 +53,16 @@ class EditorModel(private val window: ComposeWindow) {
     private var baseLayer: BufferedImage by mutableStateOf(BufferedImage(1, 1, 2))
     private var textLayer: BufferedImage by mutableStateOf(BufferedImage(1, 1, 2))
 
-    private var currentBaseLayer: BufferedImage by mutableStateOf(baseLayer)
-
     /* Internal Model Data */
 
-    var editView by mutableStateOf(false)
-    var isDragAndDropping by mutableStateOf(false)
+    private var currentBaseLayer: BufferedImage by mutableStateOf(baseLayer)
+    var newTerritoryName by mutableStateOf("")
 
     // Doing it this way because using the selectedRegions/selectedTerritories lists requires too many changes
     var isSelectingTerritory by mutableStateOf(false)
     var isSelectingRegion by mutableStateOf(false)
     var selectedRegionsHaveLabel by mutableStateOf(false)
     var selectedTerritoryHasLabel by mutableStateOf(false)
-
-    var mousePos by mutableStateOf(Point(0, 0))
-
-    var newTerritoryName by mutableStateOf("")
 
     // Unfortunately necessary for now
     private val submittedTerritories = mutableStateListOf<Territory>()
@@ -93,92 +88,77 @@ class EditorModel(private val window: ComposeWindow) {
 
     /** Methods **/
 
-    /* Menu Bar Functions */
+    fun init(map: GameMap) {
+        reset()
 
-    fun newFile() {
-        editView = false
+        mapDisplayName = map.displayName
+        mapAuthorName = map.author
+
+        // Load image data
+        baseLayer = map.baseLayer()
+        textLayer = map.textLayer()
+
+        // Load graph data
+        graph = SimpleGraph<Territory, Border>(Border::class.java)
+
+        for (territory in map.graph().vertexSet()) {
+            graph.addVertex(territory)
+        }
+        for (border in map.graph().edgeSet()) {
+            val source = map.graph().vertexSet().find { t -> t.identifier.id == border.sourceId }
+            val target = map.graph().vertexSet().find { t -> t.identifier.id == border.targetId }
+            graph.addEdge(source, target, border)
+        }
+
+        submittedTerritories.addAll(graph.vertexSet())
+        for (territory in graph.vertexSet()) {
+            if (Graphs.neighborSetOf(graph, territory).isNotEmpty()) {
+                finishedTerritories.add(territory)
+            }
+        }
+
+        // Update view
+        update()
+
+    }
+
+    fun reset() {
+        // Exported data
         mapDisplayName = ""
         mapAuthorName = ""
-        deselectAll()
-        submittedTerritories.clear()
-        finishedTerritories.clear()
         graph = SimpleGraph<Territory, Border>(Border::class.java)
         baseLayer = BufferedImage(1, 1, 2)
         textLayer = BufferedImage(1, 1, 2)
+
+        // Internal model data
+
         currentBaseLayer = baseLayer
+        newTerritoryName = ""
+
+        submittedTerritories.clear()
+        finishedTerritories.clear()
+        selectedRegionsHaveLabel = false
+        selectedTerritoryHasLabel = false
+        deselectAll()
     }
 
-    fun openFile(rkmFile: File) {
-        isDragAndDropping = false
-        try {
-            val decoder = RkmDecoder()
-            val map = decoder.decode(rkmFile.toPath())
-            newFile()
-            baseLayer = map.baseLayer()
-            textLayer = map.textLayer()
-
-            mapDisplayName = map.displayName()
-            mapAuthorName = map.author()
-
-            graph = SimpleGraph<Territory, Border>(Border::class.java)
-
-            for (territory in map.graph().vertexSet()) {
-                graph.addVertex(territory)
-            }
-            for (border in map.graph().edgeSet()) {
-                val source = map.graph().vertexSet().find { t -> t.identifier.id == border.sourceId }
-                val target = map.graph().vertexSet().find { t -> t.identifier.id == border.targetId }
-                graph.addEdge(source, target, border)
-            }
-
-            submittedTerritories.addAll(graph.vertexSet())
-            for (territory in graph.vertexSet()) {
-                if (Graphs.neighborSetOf(graph, territory).isNotEmpty()) {
-                    finishedTerritories.add(territory)
-                }
-            }
-            editView = true
-            update()
-        } catch (e: Exception) {
-            if (e.message != null && e.message!!.contains("invalid checksum", true)) {
-                JOptionPane.showMessageDialog(window, "Could not open .rkm map file: invalid checksum.", "Error", JOptionPane.ERROR_MESSAGE)
-            } else {
-                JOptionPane.showMessageDialog(window, "Invalid .rkm map file.", "Error", JOptionPane.ERROR_MESSAGE)
-            }
-            return
-        }
-    }
-
-    fun openRkm() {
-        val chooser = JFileChooser()
-        chooser.isAcceptAllFileFilterUsed = false
-        chooser.fileFilter = FileNameExtensionFilter("${Constants.NAME} Map (*.rkm)", "rkm")
-        chooser.currentDirectory = File(System.getProperty("user.home"))
-        if (chooser.showDialog(window, "Open") == JFileChooser.APPROVE_OPTION) {
-            openFile(chooser.selectedFile)
-        }
-    }
-
-    fun saveRkm() {
+    fun save() {
         if (mapDisplayName.isEmpty()) {
-            JOptionPane.showMessageDialog(window, "Map display name cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE)
-            return
+            throw IllegalStateException("Map display name cannot be empty.")
         }
         if (mapAuthorName.isEmpty()) {
-            JOptionPane.showMessageDialog(window, "Map author name cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE)
-            return
+            throw IllegalStateException("Map author name cannot be empty.")
         }
         if (graph.vertexSet().size == 0) {
-            JOptionPane.showMessageDialog(window, "Nothing to export.", "Error", JOptionPane.ERROR_MESSAGE)
-            return
+            throw IllegalStateException("No territories to export.")
         } else if (graph.edgeSet().size == 0) {
-            JOptionPane.showMessageDialog(window, "Please finish adding territory neighbors before exporting.", "Error", JOptionPane.ERROR_MESSAGE)
-            return
+            throw IllegalStateException("Please add some territory neighbors before exporting.")
         }
+
         val chooser = JFileChooser()
-        chooser.dialogTitle = "Save ${Constants.NAME} Map File"
+        chooser.dialogTitle = "Save ${Riskrieg.NAME} Map File"
         chooser.isAcceptAllFileFilterUsed = false
-        chooser.fileFilter = FileNameExtensionFilter("${Constants.NAME} Map File (*.rkm)", "rkm")
+        chooser.fileFilter = FileNameExtensionFilter("${Riskrieg.NAME} Map File (*.rkm)", "rkm")
         chooser.currentDirectory = File(System.getProperty("user.home"))
 
         val normalizedName = Normalizer.normalize(mapDisplayName, Normalizer.Form.NFD).replace("[^\\p{ASCII}]".toRegex(), "")
@@ -187,7 +167,7 @@ class EditorModel(private val window: ComposeWindow) {
         chooser.selectedFile = File("$mapCodename.rkm")
         if (chooser.showSaveDialog(window) == JFileChooser.APPROVE_OPTION) {
             if (chooser.selectedFile.name.isNullOrBlank() || !chooser.selectedFile.nameWithoutExtension.matches(mapSimpleNameRegex)) {
-                JOptionPane.showMessageDialog(window, "Invalid file name. Use only lowercase letters, numbers, and hyphens/dashes.", "Error", JOptionPane.ERROR_MESSAGE)
+                throw IllegalStateException("Invalid file name. Use only lowercase letters, numbers, and hyphens/dashes.")
             } else {
                 val directory = chooser.currentDirectory.path.replace('\\', '/') + "/"
                 try {
@@ -198,12 +178,13 @@ class EditorModel(private val window: ComposeWindow) {
                     fos.close()
                     JOptionPane.showMessageDialog(window, "Map file successfully exported to the selected directory.", "Success", JOptionPane.PLAIN_MESSAGE)
                 } catch (e: Exception) {
-                    e.printStackTrace()
-                    JOptionPane.showMessageDialog(window, "Unable to save map file due to an error.", "Error", JOptionPane.ERROR_MESSAGE)
+                    throw IllegalStateException("Unable to save map file due to an unexpected error.")
                 }
             }
         }
     }
+
+    /* Menu Bar Functions */
 
     fun openBaseImageOnly() {
         val chooser = JFileChooser()
@@ -213,12 +194,10 @@ class EditorModel(private val window: ComposeWindow) {
         if (chooser.showDialog(window, "Import Base Layer") == JFileChooser.APPROVE_OPTION) {
             try {
                 val newBaseLayer = ImageIO.read(chooser.selectedFile)
-                newFile()
+                reset()
                 baseLayer = newBaseLayer
                 textLayer = BufferedImage(baseLayer.width, baseLayer.height, BufferedImage.TYPE_INT_ARGB)
 
-                isDragAndDropping = false
-                editView = true
                 update()
             } catch (e: IOException) {
                 JOptionPane.showMessageDialog(window, "Error loading image.", "Error", JOptionPane.ERROR_MESSAGE)
@@ -234,7 +213,7 @@ class EditorModel(private val window: ComposeWindow) {
         if (chooser.showDialog(window, "Import Base Layer") == JFileChooser.APPROVE_OPTION) {
             try {
                 val newBaseLayer = ImageIO.read(chooser.selectedFile)
-                newFile()
+                reset()
                 baseLayer = newBaseLayer
 
                 val successText = chooser.showDialog(window, "Import Text Layer")
@@ -242,8 +221,6 @@ class EditorModel(private val window: ComposeWindow) {
                     val newTextLayer = ImageIO.read(chooser.selectedFile)
                     if (newTextLayer.height == newBaseLayer.height && newTextLayer.width == newBaseLayer.width) {
                         textLayer = newTextLayer
-                        isDragAndDropping = false
-                        editView = true
                         update()
                     } else {
                         JOptionPane.showMessageDialog(
@@ -279,10 +256,6 @@ class EditorModel(private val window: ComposeWindow) {
     }
 
     fun reimportTextImage() {
-        if (!editView) {
-            JOptionPane.showMessageDialog(window, "Please import a map or base image before doing this.", "Error", JOptionPane.ERROR_MESSAGE)
-            return
-        }
         val chooser = JFileChooser()
         chooser.isAcceptAllFileFilterUsed = false
         chooser.fileFilter = FileNameExtensionFilter("Image (*.png)", "png")
@@ -310,7 +283,7 @@ class EditorModel(private val window: ComposeWindow) {
 
     fun exportTextImage() {
         val chooser = JFileChooser()
-        chooser.dialogTitle = "Save ${Constants.NAME} Text Image"
+        chooser.dialogTitle = "Save ${Riskrieg.NAME} Text Image"
         chooser.isAcceptAllFileFilterUsed = false
         chooser.fileFilter = FileNameExtensionFilter("Image (*.png)", "png")
         chooser.currentDirectory = File(System.getProperty("user.home"))
@@ -330,13 +303,9 @@ class EditorModel(private val window: ComposeWindow) {
     }
 
     fun importGraph() {
-        if (!editView) {
-            JOptionPane.showMessageDialog(window, "Please import a map or map images before doing this.", "Error", JOptionPane.ERROR_MESSAGE)
-            return
-        }
         val chooser = JFileChooser()
         chooser.isAcceptAllFileFilterUsed = false
-        chooser.fileFilter = FileNameExtensionFilter("${Constants.NAME} Graph (*.json)", "json")
+        chooser.fileFilter = FileNameExtensionFilter("${Riskrieg.NAME} Graph (*.json)", "json")
         chooser.currentDirectory = File(System.getProperty("user.home"))
         if (chooser.showDialog(window, "Import Graph File") == JFileChooser.APPROVE_OPTION) {
             try {
@@ -379,7 +348,7 @@ class EditorModel(private val window: ComposeWindow) {
         }
     }
 
-    fun exportGraph() { // TODO: This doesn't work outside of the IDE for some reason.
+    fun exportGraph() {
         if (graph.vertexSet().size == 0) {
             JOptionPane.showMessageDialog(window, "Nothing to export.", "Error", JOptionPane.ERROR_MESSAGE)
             return
@@ -388,9 +357,9 @@ class EditorModel(private val window: ComposeWindow) {
             return
         }
         val chooser = JFileChooser()
-        chooser.dialogTitle = "Save ${Constants.NAME} Graph File"
+        chooser.dialogTitle = "Save ${Riskrieg.NAME} Graph File"
         chooser.isAcceptAllFileFilterUsed = false
-        chooser.fileFilter = FileNameExtensionFilter("${Constants.NAME} Graph (*.json)", "json")
+        chooser.fileFilter = FileNameExtensionFilter("${Riskrieg.NAME} Graph (*.json)", "json")
         chooser.currentDirectory = File(System.getProperty("user.home"))
 
         if (chooser.showSaveDialog(window) == JFileChooser.APPROVE_OPTION) {
@@ -411,7 +380,7 @@ class EditorModel(private val window: ComposeWindow) {
     /* Selection */
 
     fun interact() {
-        val selectedTerritory = getTerritory(mousePos, graph.vertexSet())
+        val selectedTerritory = getTerritory(mousePosition, graph.vertexSet())
         if (selectedTerritory.isPresent) { // Territory or Neighbor
             if (selectedRegions.isNotEmpty()) { // Deselect region
                 deselectRegions()
@@ -438,8 +407,8 @@ class EditorModel(private val window: ComposeWindow) {
                 this.selectedTerritoryHasLabel = checkSelectedTerritoryHasLabel()
             }
         } else { // Region
-            val root = ImageUtil.getRootPixel(baseLayer, mousePos)
-            if (baseLayer.getRGB(root.x, root.y) == Constants.TERRITORY_COLOR.rgb) {
+            val root = ImageUtil.getRootPixel(baseLayer, mousePosition)
+            if (baseLayer.getRGB(root.x, root.y) == GameMap.TERRITORY_COLOR.rgb) {
                 if (selectedTerritories.isNotEmpty() || selectedNeighbors.isNotEmpty()) { // Deselect territory
                     deselectTerritory()
                     isSelectingTerritory = false
@@ -507,7 +476,7 @@ class EditorModel(private val window: ComposeWindow) {
 
                 val textGraphics = convertedText.createGraphics()
 
-                textGraphics.paint = Constants.TEXT_COLOR
+                textGraphics.paint = GameMap.TEXT_COLOR
 
                 // TODO: Set size based on whether it can fit inside territory bounds, to a minimum, with 20 as the maximum and default
                 ImageUtil.drawCenteredString(textGraphics, newTerritoryName.trim(), Rectangle(labelPosition.x, labelPosition.y, 1, 1), territoryFont)
@@ -626,7 +595,7 @@ class EditorModel(private val window: ComposeWindow) {
 
                 val textGraphics = convertedText.createGraphics()
 
-                textGraphics.paint = Constants.TEXT_COLOR
+                textGraphics.paint = GameMap.TEXT_COLOR
 
                 // TODO: Set size based on whether it can fit inside territory bounds, to a minimum, with 20 as the maximum and default
                 ImageUtil.drawCenteredString(textGraphics, territory.identifier.id.trim(), Rectangle(labelPosition.x, labelPosition.y, 1, 1), territoryFont)

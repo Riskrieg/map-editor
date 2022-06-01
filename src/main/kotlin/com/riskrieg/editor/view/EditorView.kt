@@ -2,7 +2,8 @@ package com.riskrieg.editor.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.darkColors
@@ -13,13 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import com.riskrieg.editor.model.EditorModel
-import com.riskrieg.editor.view.component.FooterView
+import com.riskrieg.editor.model.EditorViewModel
+import com.riskrieg.editor.model.internal.EditorType
 import com.riskrieg.editor.view.component.MapView
-import com.riskrieg.editor.view.component.Sidebar
+import com.riskrieg.editor.view.component.PaletteView
 
-class Editor(private val model: EditorModel) {
+class EditorView(val model: EditorViewModel) {
 
     @Composable
     fun build() {
@@ -35,34 +35,25 @@ class Editor(private val model: EditorModel) {
 
     @Composable
     fun mainView() {
-        Column {
-            Row(modifier = Modifier.weight(1f)) {
-                Sidebar(model, modifier = Modifier.fillMaxHeight().width(180.dp))
-                Column(Modifier.weight(1f)) {
-                    if (model.editView) {
-                        MapView(model, Modifier.fillMaxSize())
-                    } else {
-                        NewProjectView()
-                    }
-                }
-            }
-            FooterView(model)
+        when (model.editorType) {
+            EditorType.RKM_MAP -> MapView(model.mapViewModel, Modifier.fillMaxSize())
+            EditorType.RKP_PALETTE -> PaletteView(model.paletteViewModel, Modifier.fillMaxSize())
+            else -> DefaultEditorView()
         }
     }
 
     @Composable
-    fun NewProjectView() {
+    fun DefaultEditorView() {
         Box(modifier = Modifier.fillMaxSize()) {
-            if (!model.editView && model.isDragAndDropping) {
+            if (model.editorType == EditorType.NONE && model.isDragAndDropping) {
                 Box(modifier = Modifier.fillMaxSize().background(color = Color(0, 0, 0, 0xB4)))
             }
             Text(
-                "Drag a map file (.rkm) into this window or import your map image using the menu in order to get started.",
+                "Drag a map file (.rkm) or palette file (.rkp) into this window in order to get started.\n\nYou can also go to File -> Import to get started.",
                 fontStyle = FontStyle.Italic, textAlign = TextAlign.Center,
                 modifier = Modifier.align(Alignment.Center)
             )
         }
     }
-
 
 }
