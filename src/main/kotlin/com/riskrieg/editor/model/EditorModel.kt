@@ -5,23 +5,19 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.awt.ComposeWindow
-import com.aaronjyoder.util.json.gson.GsonUtil
+import com.riskrieg.core.api.game.map.GameMap
+import com.riskrieg.core.api.game.map.Territory
+import com.riskrieg.core.api.game.map.territory.Border
+import com.riskrieg.core.api.game.map.territory.Nucleus
+import com.riskrieg.core.api.identifier.TerritoryIdentifier
+import com.riskrieg.core.decode.RkmDecoder
+import com.riskrieg.core.encode.RkmEncoder
+import com.riskrieg.core.util.io.RkJsonUtil
 import com.riskrieg.editor.core.Constants
 import com.riskrieg.editor.core.algorithm.fill.MilazzoFill
 import com.riskrieg.editor.core.algorithm.label.LabelPosition
 import com.riskrieg.editor.util.ImageUtil
 import com.riskrieg.editor.util.TerritoryUtil
-import com.riskrieg.map.RkmMap
-import com.riskrieg.map.data.MapAuthor
-import com.riskrieg.map.data.MapGraph
-import com.riskrieg.map.data.MapImage
-import com.riskrieg.map.data.MapName
-import com.riskrieg.map.edge.Border
-import com.riskrieg.map.territory.SeedPoint
-import com.riskrieg.map.territory.TerritoryId
-import com.riskrieg.map.vertex.Territory
-import com.riskrieg.rkm.RkmReader
-import com.riskrieg.rkm.RkmWriter
 import org.jgrapht.Graphs
 import org.jgrapht.graph.SimpleGraph
 import java.awt.Color
@@ -50,10 +46,10 @@ class EditorModel(private val window: ComposeWindow) {
 
     private var graph = SimpleGraph<Territory, Border>(Border::class.java)
 
-    private var base: BufferedImage by mutableStateOf(BufferedImage(1, 1, 2))
-    private var text: BufferedImage by mutableStateOf(BufferedImage(1, 1, 2))
+    private var baseLayer: BufferedImage by mutableStateOf(BufferedImage(1, 1, 2))
+    private var textLayer: BufferedImage by mutableStateOf(BufferedImage(1, 1, 2))
 
-    private var currentBase: BufferedImage by mutableStateOf(base)
+    private var currentBaseLayer: BufferedImage by mutableStateOf(baseLayer)
 
     /* Internal Model Data */
 
@@ -83,11 +79,11 @@ class EditorModel(private val window: ComposeWindow) {
     /* Getters */
 
     fun mapImage(): BufferedImage {
-        return currentBase
+        return currentBaseLayer
     }
 
     fun textImage(): BufferedImage {
-        return text
+        return textLayer
     }
 
     /** Methods **/
@@ -102,31 +98,31 @@ class EditorModel(private val window: ComposeWindow) {
         submittedTerritories.clear()
         finishedTerritories.clear()
         graph = SimpleGraph<Territory, Border>(Border::class.java)
-        base = BufferedImage(1, 1, 2)
-        text = BufferedImage(1, 1, 2)
-        currentBase = base
+        baseLayer = BufferedImage(1, 1, 2)
+        textLayer = BufferedImage(1, 1, 2)
+        currentBaseLayer = baseLayer
     }
 
     fun openFile(rkmFile: File) {
         isDragAndDropping = false
         try {
-            val reader = RkmReader(rkmFile.toPath())
-            val map = reader.read()
+            val decoder = RkmDecoder()
+            val map = decoder.decode(rkmFile.toPath())
             newFile()
-            base = map.mapImage().baseImage()
-            text = map.mapImage().textImage()
+            baseLayer = map.baseLayer()
+            textLayer = map.textLayer()
 
-            mapDisplayName = map.mapName().displayName()
-            mapAuthorName = map.author().name()
+            mapDisplayName = map.displayName()
+            mapAuthorName = map.author()
 
             graph = SimpleGraph<Territory, Border>(Border::class.java)
 
-            for (territory in map.graph().vertices()) {
+            for (territory in map.graph().vertexSet()) {
                 graph.addVertex(territory)
             }
-            for (border in map.graph().edges()) {
-                val source = map.graph().vertices().find { it.id().equals(border.source()) }
-                val target = map.graph().vertices().find { it.id().equals(border.target()) }
+            for (border in map.graph().edgeSet()) {
+                val source = map.graph().vertexSet().find { t -> t.identifier.id == border.sourceId }
+                val target = map.graph().vertexSet().find { t -> t.identifier.id == border.targetId }
                 graph.addEdge(source, target, border)
             }
 
@@ -181,19 +177,19 @@ class EditorModel(private val window: ComposeWindow) {
         chooser.currentDirectory = File(System.getProperty("user.home"))
 
         val normalizedName = Normalizer.normalize(mapDisplayName, Normalizer.Form.NFD).replace("[^\\p{ASCII}]".toRegex(), "")
-        val mapSimpleName = normalizedName.lowercase().replace("\\s+".toRegex(), "-").replace("[^a-z0-9-]".toRegex(), "")
+        val mapCodename = normalizedName.lowercase().replace("\\s+".toRegex(), "-").replace("[^a-z0-9-]".toRegex(), "")
 
-        chooser.selectedFile = File("$mapSimpleName.rkm")
+        chooser.selectedFile = File("$mapCodename.rkm")
         if (chooser.showSaveDialog(window) == JFileChooser.APPROVE_OPTION) {
             if (chooser.selectedFile.name.isNullOrBlank() || !chooser.selectedFile.nameWithoutExtension.matches(mapSimpleNameRegex)) {
                 JOptionPane.showMessageDialog(window, "Invalid file name. Use only lowercase letters, numbers, and hyphens/dashes.", "Error", JOptionPane.ERROR_MESSAGE)
             } else {
                 val directory = chooser.currentDirectory.path.replace('\\', '/') + "/"
                 try {
-                    val rkmMap = RkmMap(MapName(mapSimpleName, mapDisplayName), MapAuthor(mapAuthorName), MapGraph(graph), MapImage(base, text))
-                    val writer = RkmWriter(rkmMap)
-                    val fos = FileOutputStream(File(directory + "${mapSimpleName}.rkm"))
-                    writer.write(fos)
+                    val rkmMap = GameMap(mapCodename, mapDisplayName, mapAuthorName, graph.vertexSet(), graph.edgeSet(), baseLayer, textLayer)
+                    val encoder = RkmEncoder()
+                    val fos = FileOutputStream(File(directory + "${mapCodename}.rkm"))
+                    encoder.encode(rkmMap, fos)
                     fos.close()
                     JOptionPane.showMessageDialog(window, "Map file successfully exported to the selected directory.", "Success", JOptionPane.PLAIN_MESSAGE)
                 } catch (e: Exception) {
@@ -211,10 +207,10 @@ class EditorModel(private val window: ComposeWindow) {
         chooser.currentDirectory = File(System.getProperty("user.home"))
         if (chooser.showDialog(window, "Import Base Layer") == JFileChooser.APPROVE_OPTION) {
             try {
-                val newBase = ImageIO.read(chooser.selectedFile)
+                val newBaseLayer = ImageIO.read(chooser.selectedFile)
                 newFile()
-                base = newBase
-                text = BufferedImage(base.width, base.height, BufferedImage.TYPE_INT_ARGB)
+                baseLayer = newBaseLayer
+                textLayer = BufferedImage(baseLayer.width, baseLayer.height, BufferedImage.TYPE_INT_ARGB)
 
                 isDragAndDropping = false
                 editView = true
@@ -232,15 +228,15 @@ class EditorModel(private val window: ComposeWindow) {
         chooser.currentDirectory = File(System.getProperty("user.home"))
         if (chooser.showDialog(window, "Import Base Layer") == JFileChooser.APPROVE_OPTION) {
             try {
-                val newBase = ImageIO.read(chooser.selectedFile)
+                val newBaseLayer = ImageIO.read(chooser.selectedFile)
                 newFile()
-                base = newBase
+                baseLayer = newBaseLayer
 
                 val successText = chooser.showDialog(window, "Import Text Layer")
                 if (successText == JFileChooser.APPROVE_OPTION) {
-                    val newText = ImageIO.read(chooser.selectedFile)
-                    if (newText.height == newBase.height && newText.width == newBase.width) {
-                        text = newText
+                    val newTextLayer = ImageIO.read(chooser.selectedFile)
+                    if (newTextLayer.height == newBaseLayer.height && newTextLayer.width == newBaseLayer.width) {
+                        textLayer = newTextLayer
                         isDragAndDropping = false
                         editView = true
                         update()
@@ -267,9 +263,9 @@ class EditorModel(private val window: ComposeWindow) {
         chooser.currentDirectory = File(System.getProperty("user.home"))
         if (chooser.showDialog(window, "New Base Layer Image") == JFileChooser.APPROVE_OPTION) {
             try {
-                val newBase = ImageIO.read(chooser.selectedFile)
+                val newBaseLayer = ImageIO.read(chooser.selectedFile)
                 deselectAll()
-                base = newBase
+                baseLayer = newBaseLayer
                 update()
             } catch (e: IOException) {
                 JOptionPane.showMessageDialog(window, "Error loading image.", "Error", JOptionPane.ERROR_MESSAGE)
@@ -288,10 +284,10 @@ class EditorModel(private val window: ComposeWindow) {
         chooser.currentDirectory = File(System.getProperty("user.home"))
         if (chooser.showDialog(window, "New Text Layer Image") == JFileChooser.APPROVE_OPTION) {
             try {
-                val newText = ImageIO.read(chooser.selectedFile)
-                if (newText.height == mapImage().height && newText.width == mapImage().width) {
+                val newTextLayer = ImageIO.read(chooser.selectedFile)
+                if (newTextLayer.height == mapImage().height && newTextLayer.width == mapImage().width) {
                     deselectAll()
-                    text = newText
+                    textLayer = newTextLayer
                     update()
                 } else {
                     JOptionPane.showMessageDialog(
@@ -319,7 +315,7 @@ class EditorModel(private val window: ComposeWindow) {
             } else {
                 val fileName = chooser.selectedFile.nameWithoutExtension
                 try {
-                    ImageIO.write(text, "png", chooser.currentDirectory.toPath().resolve("$fileName.png").toFile())
+                    ImageIO.write(textLayer, "png", chooser.currentDirectory.toPath().resolve("$fileName.png").toFile())
                     JOptionPane.showMessageDialog(window, "Text image successfully exported to the selected directory.", "Success", JOptionPane.PLAIN_MESSAGE)
                 } catch (e: Exception) {
                     JOptionPane.showMessageDialog(window, "Unable to text image due to an error.", "Error", JOptionPane.ERROR_MESSAGE)
@@ -339,19 +335,19 @@ class EditorModel(private val window: ComposeWindow) {
         chooser.currentDirectory = File(System.getProperty("user.home"))
         if (chooser.showDialog(window, "Import Graph File") == JFileChooser.APPROVE_OPTION) {
             try {
-                val mapGraph: MapGraph? = GsonUtil.read(chooser.selectedFile.toPath(), MapGraph::class.java)
+                val mapGraph: MapGraph? = RkJsonUtil.read(chooser.selectedFile.toPath(), MapGraph::class.java)
                 if (mapGraph != null) {
                     deselectAll()
                     graph = SimpleGraph<Territory, Border>(Border::class.java)
                     submittedTerritories.clear()
                     finishedTerritories.clear()
 
-                    for (territory in mapGraph.vertices()) {
+                    for (territory in mapGraph.vertexSet) {
                         graph.addVertex(territory)
                     }
-                    for (border in mapGraph.edges()) {
-                        val source = graph.vertexSet().find { it.id().equals(border.source()) }
-                        val target = graph.vertexSet().find { it.id().equals(border.target()) }
+                    for (border in mapGraph.edgeSet) {
+                        val source = graph.vertexSet().find { t -> t.identifier.id == border.sourceId }
+                        val target = graph.vertexSet().find { t -> t.identifier.id == border.targetId }
                         graph.addEdge(source, target, border)
                     }
                     submittedTerritories.addAll(graph.vertexSet())
@@ -389,7 +385,7 @@ class EditorModel(private val window: ComposeWindow) {
             } else {
                 try {
                     // Potentially the issue lies here?
-                    GsonUtil.write(chooser.currentDirectory.toPath().resolve("${chooser.selectedFile.nameWithoutExtension}.json"), MapGraph::class.java, MapGraph(graph))
+                    RkJsonUtil.write(chooser.currentDirectory.toPath().resolve("${chooser.selectedFile.nameWithoutExtension}.json"), MapGraph::class.java, MapGraph(graph))
                     JOptionPane.showMessageDialog(window, "Graph file successfully exported to the selected directory.", "Success", JOptionPane.PLAIN_MESSAGE)
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -428,8 +424,8 @@ class EditorModel(private val window: ComposeWindow) {
                 isSelectingTerritory = true
             }
         } else { // Region
-            val root = ImageUtil.getRootPixel(base, mousePos)
-            if (base.getRGB(root.x, root.y) == Constants.TERRITORY_COLOR.rgb) {
+            val root = ImageUtil.getRootPixel(baseLayer, mousePos)
+            if (baseLayer.getRGB(root.x, root.y) == Constants.TERRITORY_COLOR.rgb) {
                 if (selectedTerritories.isNotEmpty() || selectedNeighbors.isNotEmpty()) { // Deselect territory
                     deselectTerritory()
                     isSelectingTerritory = false
@@ -482,14 +478,14 @@ class EditorModel(private val window: ComposeWindow) {
 
         if (drawLabel) {
 
-            val lp = LabelPosition(base, selectedRegions.toMutableSet(), 0.001)
+            val lp = LabelPosition(baseLayer, selectedRegions.toMutableSet(), 0.001)
 
             val territoryFont = Font("Spectral Medium", Font.PLAIN, 20)
 
             if (lp.canLabelFit(newTerritoryName.trim(), territoryFont)) { // Only draw label if it can fit
                 val labelPosition = lp.calculatePosition()
 
-                val convertedText = ImageUtil.createCopy(ImageUtil.convert(text, BufferedImage.TYPE_INT_ARGB))
+                val convertedText = ImageUtil.createCopy(ImageUtil.convert(textLayer, BufferedImage.TYPE_INT_ARGB))
 
                 val textGraphics = convertedText.createGraphics()
 
@@ -499,7 +495,7 @@ class EditorModel(private val window: ComposeWindow) {
                 ImageUtil.drawCenteredString(textGraphics, newTerritoryName.trim(), Rectangle(labelPosition.x, labelPosition.y, 1, 1), territoryFont)
 
                 textGraphics.dispose()
-                text = convertedText
+                textLayer = convertedText
             } else {
                 JOptionPane.showMessageDialog(
                     window,
@@ -511,11 +507,11 @@ class EditorModel(private val window: ComposeWindow) {
         }
 
         if (selectedRegions.isNotEmpty()) {
-            val seedPoints = HashSet<SeedPoint>()
+            val nuclei = HashSet<Nucleus>()
             for (point in selectedRegions) {
-                seedPoints.add(SeedPoint(point.x, point.y))
+                nuclei.add(Nucleus(point.x, point.y))
             }
-            val result = Territory(TerritoryId(newTerritoryName.trim()), seedPoints)
+            val result = Territory(TerritoryIdentifier.of(newTerritoryName.trim()), nuclei)
             graph.addVertex(result)
             submittedTerritories.add(result)
             deselectRegions()
@@ -542,7 +538,7 @@ class EditorModel(private val window: ComposeWindow) {
             }
 
             for (neighbor in selectedNeighbors) {
-                val border = Border(selected.id(), neighbor.id())
+                val border = Border(selected.identifier.id, neighbor.identifier.id)
                 graph.addEdge(selected, neighbor, border)
             }
             if (Graphs.neighborListOf(graph, selected).size == 0) {
@@ -563,15 +559,15 @@ class EditorModel(private val window: ComposeWindow) {
         for (territory in selectedTerritories) {
 
             // Delete territory label
-            val seedPoints = HashSet<Point>()
-            for (sp in territory.seedPoints()) {
-                seedPoints.add(Point(sp.x(), sp.y()))
+            val nuclei = HashSet<Point>()
+            for (sp in territory.nuclei()) {
+                nuclei.add(Point(sp.x(), sp.y()))
             }
-            val innerPointsMap = TerritoryUtil.createInnerPointMap(seedPoints, base)
+            val innerPointsMap = TerritoryUtil.createInnerPointMap(nuclei, baseLayer)
 
             for ((_, innerPoints) in innerPointsMap) {
                 for (point in innerPoints) {
-                    text.setRGB(point.x, point.y, Color(0, 0, 0, 0).rgb)
+                    textLayer.setRGB(point.x, point.y, Color(0, 0, 0, 0).rgb)
                 }
             }
 
@@ -588,7 +584,7 @@ class EditorModel(private val window: ComposeWindow) {
         deselectAll()
         submittedTerritories.clear()
         finishedTerritories.clear()
-        currentBase = base
+        currentBaseLayer = baseLayer
         graph = SimpleGraph<Territory, Border>(Border::class.java)
         update()
     }
@@ -596,28 +592,28 @@ class EditorModel(private val window: ComposeWindow) {
     /* Private */
 
     private fun update() {
-        val copy = BufferedImage(base.width, base.height, BufferedImage.TYPE_INT_ARGB)
+        val copy = BufferedImage(baseLayer.width, baseLayer.height, BufferedImage.TYPE_INT_ARGB)
         val g2d = copy.createGraphics()
-        g2d.drawImage(base, 0, 0, null)
+        g2d.drawImage(baseLayer, 0, 0, null)
         g2d.dispose()
 
         for (territory in submittedTerritories) {
-            for (seedPoint in territory.seedPoints()) {
-                val point = seedPoint.asPoint()
+            for (seedPoint in territory.nuclei()) {
+                val point = seedPoint.toPoint()
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SUBMITTED_COLOR).fill(point)
             }
         }
 
         for (territory in finishedTerritories) {
-            for (seedPoint in territory.seedPoints()) {
-                val point = seedPoint.asPoint()
+            for (seedPoint in territory.nuclei()) {
+                val point = seedPoint.toPoint()
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.FINISHED_COLOR).fill(point)
             }
         }
 
         for (territory in selectedNeighbors) {
-            for (seedPoint in territory.seedPoints()) {
-                val point = seedPoint.asPoint()
+            for (seedPoint in territory.nuclei()) {
+                val point = seedPoint.toPoint()
                 MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.NEIGHBOR_SELECT_COLOR).fill(point)
             }
         }
@@ -628,19 +624,19 @@ class EditorModel(private val window: ComposeWindow) {
             }
         } else if (selectedTerritories.isNotEmpty()) {
             for (territory in selectedTerritories) {
-                for (seedPoint in territory.seedPoints()) {
-                    val point = seedPoint.asPoint()
+                for (seedPoint in territory.nuclei()) {
+                    val point = seedPoint.toPoint()
                     MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SELECT_COLOR).fill(point)
                 }
             }
         }
-        currentBase = copy
+        currentBaseLayer = copy
     }
 
     private fun getTerritory(point: Point, territorySet: Set<Territory>): Optional<Territory> {
-        val root = ImageUtil.getRootPixel(base, point)
+        val root = ImageUtil.getRootPixel(baseLayer, point)
         for (territory in territorySet) {
-            if (territory.seedPoints().contains(SeedPoint(root.x, root.y))) {
+            if (territory.nuclei().contains(Nucleus(root.x, root.y))) {
                 return Optional.of(territory)
             }
         }

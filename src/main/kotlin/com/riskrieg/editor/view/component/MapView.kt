@@ -19,6 +19,8 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.mouse.MouseScrollOrientation
 import androidx.compose.ui.input.mouse.MouseScrollUnit
 import androidx.compose.ui.input.mouse.mouseScrollFilter
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.unit.dp
 import com.riskrieg.editor.model.EditorModel
@@ -70,6 +72,19 @@ fun MapView(model: EditorModel, mapViewModifier: Modifier) {
                     }
                     false
                 }
+                    // TODO: Update mouseScrollFilter to whatever replaces it
+//                .pointerInput(Unit) {
+//                    awaitPointerEventScope {
+//                        while(true) {
+//                            val event = awaitPointerEvent()
+//                            if(event.type == PointerEventType.Scroll && canZoom) {
+//                                val scrollDelta = event.changes.first().scrollDelta
+//                                scale *= 1.02.pow(scrollDelta.y.toDouble()).toFloat()
+//                                scale = minScale.coerceAtLeast(maxScale.coerceAtMost(scale))
+//                            }
+//                        }
+//                    }
+//                }
                 .mouseScrollFilter(onMouseScroll = { event, _ ->
                     if (event.orientation == MouseScrollOrientation.Vertical && canZoom) {
                         val deltaY = when (val delta = event.delta) {
@@ -81,6 +96,7 @@ fun MapView(model: EditorModel, mapViewModifier: Modifier) {
                     }
                     canZoom // If false, scroll is enabled, if true, scroll is disabled.
                 })
+
                 .combinedClickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },

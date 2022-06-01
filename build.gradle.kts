@@ -4,12 +4,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.6.10"
-    id("org.jetbrains.compose") version "1.0.1"
+    id("org.jetbrains.compose") version "1.1.1"
 }
 
 group = "com.riskrieg"
-version = "2.7.2"
-
+version = "2.7.3"
 repositories {
     google()
     mavenCentral()
@@ -20,16 +19,17 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
 
-    implementation("com.formdev:flatlaf:1.6.5")
-    implementation("com.formdev:flatlaf-intellij-themes:1.6.5")
+    implementation("com.formdev:flatlaf:2.2")
+    implementation("com.formdev:flatlaf-intellij-themes:2.2")
     implementation(compose.materialIconsExtended)
 
     implementation("com.github.aaronjyoder:polylabel-java-mirror:1.3.0")
 
+    implementation("com.riskrieg:core:3.0.0-2205.0-alpha")
 
-    implementation("com.riskrieg:rkm:1.0.8")
+//    implementation("com.riskrieg:rkm:1.0.8")
     implementation("org.jgrapht:jgrapht-io:1.5.1")
-    implementation("com.github.aaronjyoder:json-utilities:1.1.2")
+//    implementation("com.github.aaronjyoder:json-utilities:1.1.2")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.0")
 }
@@ -39,7 +39,7 @@ tasks.test {
 }
 
 tasks.withType<KotlinCompile>() {
-    kotlinOptions.jvmTarget = "11"
+    kotlinOptions.jvmTarget = "17"
 }
 
 compose.desktop {
@@ -64,6 +64,7 @@ compose.desktop {
                 menuGroup = "Riskrieg"
                 dirChooser = true
                 perUserInstall = true
+                upgradeUuid = "eb7036b9-4a1d-439e-89dd-9575560086d4"
             }
 
             macOS { // Requires a Mac in order to notarize

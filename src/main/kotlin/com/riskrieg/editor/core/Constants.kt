@@ -4,7 +4,7 @@ import java.awt.Color
 
 object Constants {
     var NAME = "Riskrieg"
-    var VERSION = "2.7.2"
+    var VERSION = "2.7.3"
     var MAP_PATH = "maps/"
     var SELECT_COLOR = Color(255, 250, 165)
     var NEIGHBOR_SELECT_COLOR = Color(255, 165, 255)
