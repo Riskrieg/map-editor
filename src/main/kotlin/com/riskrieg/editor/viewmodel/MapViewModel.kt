@@ -1,4 +1,4 @@
-package com.riskrieg.editor.model
+package com.riskrieg.editor.viewmodel
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -18,7 +18,7 @@ import com.riskrieg.core.util.io.RkJsonUtil
 import com.riskrieg.editor.core.Constants
 import com.riskrieg.editor.core.algorithm.fill.MilazzoFill
 import com.riskrieg.editor.core.algorithm.label.LabelPosition
-import com.riskrieg.editor.model.internal.MapGraph
+import com.riskrieg.editor.viewmodel.internal.MapGraph
 import com.riskrieg.editor.util.ImageUtil
 import com.riskrieg.editor.util.TerritoryUtil
 import org.jgrapht.Graphs

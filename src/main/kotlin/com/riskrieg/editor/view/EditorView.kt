@@ -14,10 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
-import com.riskrieg.editor.model.EditorViewModel
-import com.riskrieg.editor.model.internal.EditorType
-import com.riskrieg.editor.view.component.MapView
-import com.riskrieg.editor.view.component.PaletteView
+import com.riskrieg.editor.viewmodel.EditorViewModel
+import com.riskrieg.editor.viewmodel.internal.EditorType
+import com.riskrieg.editor.view.component.map.MapView
+import com.riskrieg.editor.view.component.palette.PaletteView
 
 class EditorView(val model: EditorViewModel) {
 

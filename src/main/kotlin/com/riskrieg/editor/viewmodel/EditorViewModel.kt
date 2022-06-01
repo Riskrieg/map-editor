@@ -1,4 +1,4 @@
-package com.riskrieg.editor.model
+package com.riskrieg.editor.viewmodel
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -7,7 +7,7 @@ import androidx.compose.ui.awt.ComposeWindow
 import com.riskrieg.core.api.Riskrieg
 import com.riskrieg.core.decode.RkmDecoder
 import com.riskrieg.core.decode.RkpDecoder
-import com.riskrieg.editor.model.internal.EditorType
+import com.riskrieg.editor.viewmodel.internal.EditorType
 import java.awt.Point
 import java.io.File
 import javax.swing.JFileChooser

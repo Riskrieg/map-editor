@@ -1,4 +1,4 @@
-package com.riskrieg.editor.model
+package com.riskrieg.editor.viewmodel
 
 import androidx.compose.ui.awt.ComposeWindow
 import com.riskrieg.core.api.color.ColorPalette

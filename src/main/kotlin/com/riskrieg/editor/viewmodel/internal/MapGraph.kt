@@ -1,4 +1,4 @@
-package com.riskrieg.editor.model.internal
+package com.riskrieg.editor.viewmodel.internal
 
 import com.riskrieg.core.api.game.map.Territory
 import com.riskrieg.core.api.game.map.territory.Border

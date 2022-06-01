@@ -1,4 +1,4 @@
-package com.riskrieg.editor.view.component
+package com.riskrieg.editor.view.component.map
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -22,7 +22,7 @@ import androidx.compose.ui.input.mouse.MouseScrollUnit
 import androidx.compose.ui.input.mouse.mouseScrollFilter
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.unit.dp
-import com.riskrieg.editor.model.MapViewModel
+import com.riskrieg.editor.viewmodel.MapViewModel
 import java.awt.Point
 import kotlin.math.pow
 
@@ -103,7 +103,7 @@ private fun MapViewport(model: MapViewModel, modifier: Modifier) {
                 )
             ) {
                 drawIntoCanvas { canvas ->
-                    model.mousePosition = Point((pointerPos.x / scale).toInt(), (pointerPos.y / scale).toInt()) // TODO: Make sure this works as expected
+                    model.mousePosition = Point((pointerPos.x / scale).toInt(), (pointerPos.y / scale).toInt()) // TODO: Works fine but doesn't live-update in the footer
 
                     canvas.scale(scale, scale, 0f, 0f)
 

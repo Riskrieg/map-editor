@@ -1,4 +1,4 @@
-package com.riskrieg.editor.view.component
+package com.riskrieg.editor.view.component.map
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.riskrieg.editor.model.MapViewModel
+import com.riskrieg.editor.viewmodel.MapViewModel
 
 @Composable
 fun FooterView(model: MapViewModel) {

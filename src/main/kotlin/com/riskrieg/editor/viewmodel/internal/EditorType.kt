@@ -1,4 +1,4 @@
-package com.riskrieg.editor.model.internal
+package com.riskrieg.editor.viewmodel.internal
 
 enum class EditorType {
 
