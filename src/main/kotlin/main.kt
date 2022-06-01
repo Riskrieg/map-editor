@@ -165,14 +165,14 @@ fun main() = application {
                     icon = painterResource("icons/$themeStr/import_graph.svg"),
                     onClick = { model.importGraph() },
                     shortcut = KeyShortcut(Key.G, alt = true),
-                    enabled = model.editView // TODO: Re-enable once a fix for exporting is implemented.
+                    enabled = model.editView
                 )
                 Item(
                     "Export graph...",
                     icon = painterResource("icons/$themeStr/export_graph.svg"),
                     onClick = { model.exportGraph() },
                     shortcut = KeyShortcut(Key.R, alt = true),
-                    enabled = model.editView // TODO: Re-enable once a fix for it working outside IDE is implemented.
+                    enabled = model.editView
                 )
             }
             Menu("Help", mnemonic = 'H') {

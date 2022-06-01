@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.awt.ComposeWindow
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.riskrieg.core.api.game.map.GameMap
 import com.riskrieg.core.api.game.map.Territory
 import com.riskrieg.core.api.game.map.territory.Border
@@ -28,6 +30,7 @@ import java.awt.image.BufferedImage
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.nio.file.Files
 import java.text.Normalizer
 import java.util.*
 import javax.imageio.ImageIO
@@ -337,7 +340,15 @@ class EditorModel(private val window: ComposeWindow) {
         chooser.currentDirectory = File(System.getProperty("user.home"))
         if (chooser.showDialog(window, "Import Graph File") == JFileChooser.APPROVE_OPTION) {
             try {
-                val mapGraph: MapGraph? = RkJsonUtil.read(chooser.selectedFile.toPath(), MapGraph::class.java)
+                // Workaround for RkJsonUtil not supporting Kotlin super well atm
+                val jsonMapper = jacksonMapperBuilder().addModule(KotlinModule.Builder().build()).build()
+                val path = chooser.selectedFile.toPath()
+                var mapGraph: MapGraph? = null
+                if (Files.isRegularFile(path) && Files.isReadable(path)) {
+                    mapGraph = jsonMapper.readValue(Files.newBufferedReader(path), jsonMapper.constructType(MapGraph::class.java))
+                }
+                // End workaround
+                // val mapGraph: MapGraph? = RkJsonUtil.read(chooser.selectedFile.toPath(), MapGraph::class.java) <- This would be preferable
                 if (mapGraph != null) {
                     deselectAll()
                     graph = SimpleGraph<Territory, Border>(Border::class.java)
@@ -359,6 +370,7 @@ class EditorModel(private val window: ComposeWindow) {
                     JOptionPane.showMessageDialog(window, "Error loading graph file.", "Error", JOptionPane.ERROR_MESSAGE)
                 }
             } catch (e: Exception) {
+                e.printStackTrace()
                 graph = SimpleGraph<Territory, Border>(Border::class.java)
                 submittedTerritories.clear()
                 finishedTerritories.clear()
@@ -386,7 +398,6 @@ class EditorModel(private val window: ComposeWindow) {
                 JOptionPane.showMessageDialog(window, "Invalid file name. Use only lowercase letters, numbers, and hyphens/dashes.", "Error", JOptionPane.ERROR_MESSAGE)
             } else {
                 try {
-                    // Potentially the issue lies here?
                     RkJsonUtil.write(chooser.currentDirectory.toPath().resolve("${chooser.selectedFile.nameWithoutExtension}.json"), MapGraph::class.java, MapGraph(graph))
                     JOptionPane.showMessageDialog(window, "Graph file successfully exported to the selected directory.", "Success", JOptionPane.PLAIN_MESSAGE)
                 } catch (e: Exception) {
