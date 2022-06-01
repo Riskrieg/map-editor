@@ -59,6 +59,8 @@ class EditorModel(private val window: ComposeWindow) {
     // Doing it this way because using the selectedRegions/selectedTerritories lists requires too many changes
     var isSelectingTerritory by mutableStateOf(false)
     var isSelectingRegion by mutableStateOf(false)
+    var selectedRegionsHaveLabel by mutableStateOf(false)
+    var selectedTerritoryHasLabel by mutableStateOf(false)
 
     var mousePos by mutableStateOf(Point(0, 0))
 
@@ -422,6 +424,7 @@ class EditorModel(private val window: ComposeWindow) {
                     selectedNeighbors.addAll(Graphs.neighborListOf(graph, selected))
                 }
                 isSelectingTerritory = true
+                this.selectedTerritoryHasLabel = checkSelectedTerritoryHasLabel()
             }
         } else { // Region
             val root = ImageUtil.getRootPixel(baseLayer, mousePos)
@@ -435,9 +438,11 @@ class EditorModel(private val window: ComposeWindow) {
                     if (selectedRegions.isEmpty()) {
                         isSelectingRegion = false
                     }
+                    this.selectedRegionsHaveLabel = checkSelectedRegionsHaveLabel()
                 } else { // Select region
                     selectedRegions.add(root)
                     isSelectingRegion = true
+                    this.selectedRegionsHaveLabel = checkSelectedRegionsHaveLabel()
                 }
             }
         }
@@ -447,6 +452,7 @@ class EditorModel(private val window: ComposeWindow) {
     private fun deselectRegions() {
         selectedRegions.clear()
         isSelectingRegion = false
+        this.selectedRegionsHaveLabel = false
     }
 
     private fun deselectTerritory() {
@@ -454,6 +460,7 @@ class EditorModel(private val window: ComposeWindow) {
         selectedNeighbors.clear()
         newTerritoryName = ""
         isSelectingTerritory = false
+        this.selectedTerritoryHasLabel = false
     }
 
     fun deselectAll() {
@@ -551,14 +558,90 @@ class EditorModel(private val window: ComposeWindow) {
         update()
     }
 
-    fun deleteSelectedTerritory() {
+    private fun checkSelectedTerritoryHasLabel(): Boolean {
+        for (territory in selectedTerritories) {
+            val nuclei = HashSet<Point>()
+            for (sp in territory.nuclei()) {
+                nuclei.add(Point(sp.x(), sp.y()))
+            }
+            val innerPointsMap = TerritoryUtil.createInnerPointMap(nuclei, baseLayer)
+
+            for ((_, innerPoints) in innerPointsMap) {
+                for (point in innerPoints) {
+                    if (textLayer.getRGB(point.x, point.y) != Color(0, 0, 0, 0).rgb) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
+
+    private fun checkSelectedRegionsHaveLabel(): Boolean {
+        for (region in selectedRegions) {
+            val innerPointsMap = TerritoryUtil.createInnerPointMap(mutableSetOf(region), baseLayer)
+            for ((_, innerPoints) in innerPointsMap) {
+                for (point in innerPoints) {
+                    if (textLayer.getRGB(point.x, point.y) != Color(0, 0, 0, 0).rgb) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
+
+    fun addTerritoryLabel() {
+        if (selectedTerritories.isEmpty()) {
+            JOptionPane.showMessageDialog(window, "You have not selected a territory to add a label to.", "Warning", JOptionPane.WARNING_MESSAGE)
+            return
+        }
+        if (selectedTerritories.size > 1) {
+            JOptionPane.showMessageDialog(window, "You can only add a label to one territory at a time.", "Warning", JOptionPane.WARNING_MESSAGE)
+            return
+        }
+        if (this.selectedTerritoryHasLabel) {
+            JOptionPane.showMessageDialog(window, "This territory is already labelled.", "Warning", JOptionPane.WARNING_MESSAGE)
+            return
+        }
+        for (territory in selectedTerritories) {
+            val lp = LabelPosition(baseLayer, territory.nuclei.map { nucleus -> nucleus.toPoint() }.toMutableSet(), 0.001)
+
+            val territoryFont = Font("Spectral Medium", Font.PLAIN, 20)
+            if (lp.canLabelFit(territory.identifier.id.trim(), territoryFont)) { // Only draw label if it can fit
+                val labelPosition = lp.calculatePosition()
+
+                val convertedText = ImageUtil.createCopy(ImageUtil.convert(textLayer, BufferedImage.TYPE_INT_ARGB))
+
+                val textGraphics = convertedText.createGraphics()
+
+                textGraphics.paint = Constants.TEXT_COLOR
+
+                // TODO: Set size based on whether it can fit inside territory bounds, to a minimum, with 20 as the maximum and default
+                ImageUtil.drawCenteredString(textGraphics, territory.identifier.id.trim(), Rectangle(labelPosition.x, labelPosition.y, 1, 1), territoryFont)
+
+                textGraphics.dispose()
+                textLayer = convertedText
+                update()
+                this.selectedTerritoryHasLabel = true
+            } else {
+                JOptionPane.showMessageDialog(
+                    window,
+                    "A label will not fit in that territory. You will need to export the current text image using the debug menu, manually apply your label in an image editor, and then re-import the text image using the debug menu. You should save your work first.",
+                    "Warning", JOptionPane.WARNING_MESSAGE
+                )
+                return
+            }
+        }
+    }
+
+    fun clearTerritoryLabel() {
         if (selectedTerritories.isEmpty()) {
             JOptionPane.showMessageDialog(window, "You have not selected a territory to delete.", "Warning", JOptionPane.WARNING_MESSAGE)
             return
         }
         for (territory in selectedTerritories) {
-
-            // Delete territory label
+            // Clear territory label
             val nuclei = HashSet<Point>()
             for (sp in territory.nuclei()) {
                 nuclei.add(Point(sp.x(), sp.y()))
@@ -570,8 +653,18 @@ class EditorModel(private val window: ComposeWindow) {
                     textLayer.setRGB(point.x, point.y, Color(0, 0, 0, 0).rgb)
                 }
             }
+        }
+        update()
+        this.selectedTerritoryHasLabel = false
+    }
 
-            // Delete territory
+    fun deleteSelectedTerritory() {
+        if (selectedTerritories.isEmpty()) {
+            JOptionPane.showMessageDialog(window, "You have not selected a territory to delete.", "Warning", JOptionPane.WARNING_MESSAGE)
+            return
+        }
+        for (territory in selectedTerritories) {
+            // Delete territory data
             finishedTerritories.remove(territory)
             submittedTerritories.remove(territory)
             graph.removeVertex(territory)

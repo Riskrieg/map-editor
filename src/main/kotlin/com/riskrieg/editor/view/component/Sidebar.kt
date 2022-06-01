@@ -91,6 +91,7 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
                     if (model.isSelectingRegion) {
                         Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
                             colors = ButtonDefaults.buttonColors(backgroundColor = Color(180, 112, 54), contentColor = Color.White),
+                            enabled = !model.selectedRegionsHaveLabel,
                             onClick = {
                                 model.submitSelectedRegions(true)
                             }) {
@@ -100,14 +101,28 @@ fun Sidebar(model: EditorModel, modifier: Modifier) {
                         Spacer(modifier = Modifier.height(5.dp))
                     }
 
-                    Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(190, 54, 54), contentColor = Color.White),
-                        enabled = model.isSelectingTerritory,
-                        onClick = {
-                            model.deleteSelectedTerritory()
-                        }) {
-                        Text("Delete", fontSize = 14.sp)
+                    if (model.isSelectingTerritory) {
+                        Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
+                            colors = ButtonDefaults.buttonColors(backgroundColor = Color(190, 98, 54), contentColor = Color.White),
+                            enabled = model.isSelectingTerritory,
+                            onClick = {
+                                if (model.selectedTerritoryHasLabel) model.clearTerritoryLabel() else model.addTerritoryLabel()
+                            }) {
+                            Text(if (model.selectedTerritoryHasLabel) "Clear Label" else "Add Label", fontSize = 14.sp)
+                        }
+
+                        Spacer(modifier = Modifier.height(5.dp))
+
+                        Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
+                            colors = ButtonDefaults.buttonColors(backgroundColor = Color(190, 54, 54), contentColor = Color.White),
+                            enabled = model.isSelectingTerritory,
+                            onClick = {
+                                model.deleteSelectedTerritory()
+                            }) {
+                            Text("Delete", fontSize = 14.sp)
+                        }
                     }
+
                 }
             }
 
