@@ -16,7 +16,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.riskrieg.core.api.color.ColorPalette
 import com.riskrieg.core.api.color.GameColor
 import com.riskrieg.core.api.game.map.GameMap
 import com.riskrieg.editor.util.ColorUtil
@@ -91,7 +90,7 @@ fun PaletteSidebarView(model: PaletteViewModel, modifier: Modifier) {
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 10.dp, bottom = 0.dp),
                 model = model
             )
-            ReorderView(
+            AdjustmentButtonsView(
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 10.dp, bottom = 0.dp),
                 selected = selected,
                 index = selectedIndex,
@@ -99,7 +98,7 @@ fun PaletteSidebarView(model: PaletteViewModel, modifier: Modifier) {
                 onMoveSelection = onMoveSelection,
                 canUpdate = selected && model.isNewColorNameValid() && model.isNewColorHexStringValid()
                         && (model.newColorName != model.activeColorName() || model.newColorHexString != model.activeColorHexString()),
-                canAdd = !selected && model.colorSet.size < ColorPalette.MAXIMUM_SIZE && !model.colorSetContainsNewColor()
+                canAdd = !selected && !model.colorSetContainsNewColor()
                         && model.isNewColorNameValid() && model.isNewColorHexStringValid(),
                 canDelete = selected,
                 onUpdate = onUpdate,
@@ -170,7 +169,7 @@ private fun ColorEditorView(
 }
 
 @Composable
-private fun ReorderView(
+private fun AdjustmentButtonsView(
     modifier: Modifier,
     selected: Boolean,
     index: Int,
@@ -192,8 +191,10 @@ private fun ReorderView(
                         Color(180, 112, 54)
                     } else if (canAdd) { // Add
                         Color(54, 190, 54)
-                    } else { // Delete
+                    } else if (canDelete) { // Delete
                         Color(190, 54, 54)
+                    } else {
+                        Color(54, 190, 54)
                     },
                     contentColor = Color.White
                 ),
@@ -203,7 +204,7 @@ private fun ReorderView(
                         onUpdate.invoke()
                     } else if (canAdd) { // Add
                         onAdd.invoke()
-                    } else { // Delete
+                    } else if (canDelete) { // Delete
                         onDelete.invoke()
                     }
                 }) {
@@ -212,8 +213,10 @@ private fun ReorderView(
                     Text("Update", fontSize = 14.sp)
                 } else if (canAdd) { // Add
                     Text("Add", fontSize = 14.sp)
-                } else { // Delete
+                } else if (canDelete) { // Delete
                     Text("Delete", fontSize = 14.sp)
+                } else {
+                    Text("Add", fontSize = 14.sp)
                 }
             }
             Row {

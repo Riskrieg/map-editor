@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.awt.ComposeWindow
 import com.riskrieg.core.api.Riskrieg
+import com.riskrieg.core.api.color.ColorPalette
+import com.riskrieg.core.api.color.GameColor
 import com.riskrieg.core.decode.RkmDecoder
 import com.riskrieg.core.decode.RkpDecoder
 import com.riskrieg.editor.viewmodel.internal.EditorType
@@ -33,6 +35,13 @@ class EditorViewModel(private val window: ComposeWindow) {
     }
 
     /* Menu Functions */
+
+    fun newPalette() {
+        isDragAndDropping = false
+        reset()
+        paletteViewModel.init(ColorPalette("New Palette", sortedSetOf(GameColor(0, "White", 255, 255, 255), GameColor(1, "Black", 0, 0, 0))))
+        editorType = EditorType.RKP_PALETTE
+    }
 
     fun promptOpenFile() {
         val chooser = JFileChooser()

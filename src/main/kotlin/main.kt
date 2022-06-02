@@ -84,6 +84,14 @@ fun main() = application {
                 }
                 Separator()
                 Item(
+                    "Create Palette",
+                    icon = painterResource("icons/$themeStr/palette.svg"),
+                    onClick = { editorViewModel.newPalette() },
+                    shortcut = KeyShortcut(Key.P, ctrl = true),
+                    enabled = editorViewModel.editorType == EditorType.NONE
+                )
+                Separator()
+                Item(
                     "Save...",
                     icon = painterResource("icons/$themeStr/save.svg"),
                     onClick = { editorViewModel.save() },

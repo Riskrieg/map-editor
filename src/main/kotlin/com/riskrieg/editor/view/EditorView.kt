@@ -45,7 +45,9 @@ class EditorView(val model: EditorViewModel) {
             modifier = Modifier.fillMaxSize().background(color = if (model.isDragAndDropping) ViewConstants.UI_HOVER_HIGHLIGHT_DARK else ViewConstants.UI_BACKGROUND_DARK)
         ) {
             Text(
-                "Drag a map file (.rkm) or palette file (.rkp) into this window in order to get started.\n\nYou can also go to File -> Import to get started.",
+                "Drag a map file (.rkm) or palette file (.rkp) into this window in order to get started." +
+                        "\n\n" +
+                        "You can also go to File -> Import to get started on a map, or File -> Create Palette to get started on a new palette.",
                 fontStyle = FontStyle.Italic, textAlign = TextAlign.Center,
                 modifier = Modifier.align(Alignment.Center),
                 color = ViewConstants.UI_TEXT_ON_DARK
