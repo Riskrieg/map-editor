@@ -25,7 +25,7 @@ dependencies {
 
     implementation("com.github.aaronjyoder:polylabel-java-mirror:1.3.0")
 
-    implementation("com.riskrieg:core:3.0.0-2205.0-alpha")
+    implementation("com.riskrieg:core:3.0.0-0.2206-alpha")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3") // Needed for workaround at EditorModel.kt#343
 
     implementation("org.jgrapht:jgrapht-io:1.5.1")
