@@ -39,7 +39,7 @@ fun main() = application {
         ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, javaClass.getResourceAsStream("/font/spectral/Spectral-Regular.ttf")))
         ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, javaClass.getResourceAsStream("/font/spectral/Spectral-Medium.ttf")))
         ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, javaClass.getResourceAsStream("/font/spectral/Spectral-MediumItalic.ttf")))
-    } catch (e: java.lang.Exception) {
+    } catch (e: Exception) {
         e.printStackTrace()
     }
 
