@@ -1,4 +1,4 @@
-package com.riskrieg.editor.view.component.palette
+package com.riskrieg.editor.view.palette
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable

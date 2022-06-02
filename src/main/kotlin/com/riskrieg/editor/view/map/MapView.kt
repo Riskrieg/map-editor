@@ -1,4 +1,4 @@
-package com.riskrieg.editor.view.component.map
+package com.riskrieg.editor.view.map
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -28,15 +28,15 @@ import kotlin.math.pow
 
 @OptIn(ExperimentalFoundationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
-fun MapView(model: MapViewModel, viewModifier: Modifier) {
+fun MapView(model: MapViewModel, modifier: Modifier) {
     Column {
         Row(modifier = Modifier.weight(1f)) {
-            Sidebar(model, modifier = Modifier.fillMaxHeight().width(180.dp))
+            MapSidebarView(model, modifier = Modifier.fillMaxHeight().width(180.dp))
             Column(Modifier.weight(1f)) {
-                MapViewport(model, viewModifier)
+                MapViewport(model, modifier)
             }
         }
-        FooterView(model)
+        MapFooterView(model, Modifier.fillMaxWidth().height(25.dp).padding(3.dp))
     }
 }
 

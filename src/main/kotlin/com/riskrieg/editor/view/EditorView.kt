@@ -16,8 +16,8 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import com.riskrieg.editor.viewmodel.EditorViewModel
 import com.riskrieg.editor.viewmodel.internal.EditorType
-import com.riskrieg.editor.view.component.map.MapView
-import com.riskrieg.editor.view.component.palette.PaletteView
+import com.riskrieg.editor.view.map.MapView
+import com.riskrieg.editor.view.palette.PaletteView
 
 class EditorView(val model: EditorViewModel) {
 

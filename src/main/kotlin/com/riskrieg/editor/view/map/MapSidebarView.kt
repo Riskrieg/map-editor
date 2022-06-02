@@ -1,4 +1,4 @@
-package com.riskrieg.editor.view.component.map
+package com.riskrieg.editor.view.map
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -16,9 +16,10 @@ import com.riskrieg.core.api.game.map.GameMap
 import com.riskrieg.editor.viewmodel.MapViewModel
 
 @Composable
-fun Sidebar(model: MapViewModel, modifier: Modifier) {
-
-    Column(modifier = modifier.background(color = Color(255, 255, 255))) {
+fun MapSidebarView(model: MapViewModel, modifier: Modifier) {
+    Column(
+        modifier = modifier.background(color = Color(255, 255, 255))
+    ) {
         val colors = TextFieldDefaults.textFieldColors(
             cursorColor = Color(GameMap.BORDER_COLOR.rgb),
             focusedIndicatorColor = Color(GameMap.BORDER_COLOR.rgb),
