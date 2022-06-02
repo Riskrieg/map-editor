@@ -12,10 +12,10 @@ import com.riskrieg.editor.viewmodel.PaletteViewModel
 @OptIn(ExperimentalFoundationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun PaletteView(model: PaletteViewModel, modifier: Modifier) {
-    Box(modifier=modifier) {
+    Box(modifier = modifier) {
         Row(modifier = Modifier.fillMaxSize()) {
-            PaletteDisplayView(model, Modifier.fillMaxHeight().weight(1.0f))
-            PaletteMapPreview(model, Modifier.fillMaxHeight().weight(4.0f))
+            PaletteSidebarView(model, Modifier.fillMaxHeight().weight(1.0f))
+            PaletteMapPreview(model, Modifier.fillMaxHeight().weight(5.0f))
         }
     }
 }
