@@ -28,7 +28,6 @@ import java.net.URL
 import javax.swing.JOptionPane
 import kotlin.system.exitProcess
 
-
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() = application {
 
