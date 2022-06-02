@@ -75,7 +75,6 @@ fun PaletteSidebarView(model: PaletteViewModel, modifier: Modifier) {
     }
 
     val onDelete = {
-        // TODO: Clear map of the deleted color
         model.removeSelectedColor()
 
         // Deselect

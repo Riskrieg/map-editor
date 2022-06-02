@@ -166,6 +166,20 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
 
     fun removeSelectedColor() {
         if (isActiveColorSelected()) {
+            // Clear relevant territory first
+            val territoryToClear: MutableSet<Territory> = mutableSetOf()
+            for (entry in paintedTerritories) {
+                if (entry.value == activeColor) {
+                    territoryToClear.add(entry.key)
+                }
+            }
+
+            for (territory in territoryToClear) {
+                paintedTerritories.remove(territory)
+            }
+
+            // Remove the color now
+
             val removedIndex = activeColor.id
             val oldIndexSet: TreeSet<GameColor> = sortedSetOf()
             val reindexedSet: TreeSet<GameColor> = sortedSetOf()
@@ -183,6 +197,7 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
             colorSet.addAll(reindexedSet)
 
             deselectActiveColor()
+            updateMapImage()
         }
     }
 
