@@ -12,6 +12,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -170,8 +171,9 @@ private fun SelectableColorListItem(text: String = "[ITEM]", backgroundColor: Co
     Box( // TODO: Border color leaks out the corners
         modifier = Modifier.height(48.dp)
             .fillMaxWidth()
-            .background(color = backgroundColor, shape = RoundedCornerShape(4.dp))
+            .background(color = backgroundColor, shape = if(selected) RoundedCornerShape(6.dp) else RoundedCornerShape(4.dp)) // Hacky workaround for color leaking from corners
             .border(border = borderStroke, shape = RoundedCornerShape(4.dp))
+            .clip(RoundedCornerShape(4.dp))
             .selectable(selected = selected, onClick = { onClick.invoke(index) }),
         contentAlignment = Alignment.Center
     ) {
