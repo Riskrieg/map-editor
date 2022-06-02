@@ -8,12 +8,16 @@ import com.riskrieg.core.api.Riskrieg
 import com.riskrieg.core.api.color.ColorPalette
 import com.riskrieg.core.api.color.GameColor
 import com.riskrieg.core.api.game.map.GameMap
-import com.riskrieg.core.api.game.territory.Claim
+import com.riskrieg.core.api.game.map.Territory
+import com.riskrieg.core.api.game.map.territory.Nucleus
 import com.riskrieg.core.decode.RkmDecoder
 import com.riskrieg.core.decode.RkpDecoder
 import com.riskrieg.core.encode.RkpEncoder
+import com.riskrieg.editor.core.algorithm.fill.MilazzoFill
+import com.riskrieg.editor.util.ImageUtil
 import java.awt.Color
 import java.awt.Point
+import java.awt.image.BufferedImage
 import java.io.File
 import java.io.FileOutputStream
 import java.text.Normalizer
@@ -32,7 +36,8 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
     var colorSet: TreeSet<GameColor> by mutableStateOf(sortedSetOf())
 
     private var paletteMap: GameMap = loadDefaultMap()
-    private var claims: Set<Claim> by mutableStateOf(mutableSetOf())
+    private var coloredBaseLayer: BufferedImage by mutableStateOf(BufferedImage(1, 1, 2))
+    private var paintedTerritories: MutableMap<Territory, GameColor> = HashMap()
 
     private val paletteNameRegex = Regex("[a-z0-9-]+")
 
@@ -43,6 +48,7 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
 
         paletteName = palette.name
         colorSet = TreeSet(palette.set)
+        coloredBaseLayer = paletteMap.baseLayer
     }
 
     fun reset() {
@@ -54,7 +60,8 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
         colorSet.clear()
 
         paletteMap = loadDefaultMap()
-        claims = mutableSetOf()
+        coloredBaseLayer = ImageUtil.createCopy(paletteMap.baseLayer, BufferedImage.TYPE_INT_ARGB)
+        paintedTerritories.clear()
     }
 
     fun save() {
@@ -213,6 +220,37 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
         return paletteMap
     }
 
+    fun paletteMapColoredBaseLayer(): BufferedImage {
+        return coloredBaseLayer
+    }
+
+    fun interact() {
+        val selectedTerritory = getTerritory(paletteMap.baseLayer, mousePosition, paletteMap.vertices)
+        if (selectedTerritory.isPresent) {
+            if (isActiveColorSelected()) {
+                paintedTerritories[selectedTerritory.get()] = activeColor
+            } else {
+                paintedTerritories.remove(selectedTerritory.get())
+            }
+            updateMapImage()
+        }
+    }
+
+    private fun updateMapImage() {
+        val copy = BufferedImage(paletteMap.baseLayer.width, paletteMap.baseLayer.height, BufferedImage.TYPE_INT_ARGB)
+        val g2d = copy.createGraphics()
+        g2d.drawImage(paletteMap.baseLayer, 0, 0, null)
+        g2d.dispose()
+
+        for (entry in paintedTerritories) {
+            for (seedPoint in entry.key.nuclei()) {
+                val point = seedPoint.toPoint()
+                MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), entry.value.toColor()).fill(point)
+            }
+        }
+        coloredBaseLayer = copy
+    }
+
     fun loadDefaultPalette(): ColorPalette {
         val resource = loadResource("palette/default.rkp")
         return RkpDecoder().decode(resource)
@@ -251,6 +289,18 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
             return null
         }
         return colorSet.toList()[index]
+    }
+
+    //
+
+    private fun getTerritory(baseLayer: BufferedImage, point: Point, territorySet: Set<Territory>): Optional<Territory> {
+        val root = ImageUtil.getRootPixel(baseLayer, point)
+        for (territory in territorySet) {
+            if (territory.nuclei().contains(Nucleus(root.x, root.y))) {
+                return Optional.of(territory)
+            }
+        }
+        return Optional.empty()
     }
 
 }

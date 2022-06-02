@@ -66,6 +66,14 @@ object ImageUtil {
         return result
     }
 
+    fun createCopy(source: BufferedImage, imageType: Int): BufferedImage {
+        val result = BufferedImage(source.width, source.height, imageType)
+        val g2 = result.createGraphics()
+        g2.drawImage(source, 0, 0, null)
+        g2.dispose()
+        return result
+    }
+
 }
 
 /**
