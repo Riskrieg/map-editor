@@ -81,6 +81,13 @@ fun main() = application {
                         shortcut = KeyShortcut(Key.I, alt = true),
                         enabled = editorViewModel.editorType == EditorType.NONE || editorViewModel.editorType == EditorType.RKM_MAP
                     )
+//                    Item( // TODO: Add import palette menu item
+//                        "Palette",
+//                        icon = painterResource("icons/$themeStr/import_image_layers.svg"),
+//                        onClick = { editorViewModel.mapViewModel.openImageLayers() },
+//                        shortcut = KeyShortcut(Key.P, alt = true),
+//                        enabled = editorViewModel.editorType == EditorType.NONE || editorViewModel.editorType == EditorType.RKM_MAP
+//                    )
                 }
                 Separator()
                 Item(

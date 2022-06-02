@@ -152,6 +152,7 @@ private fun ColorEditorView(
 
             Spacer(modifier = Modifier.height(5.dp))
             // TextField to enter color
+            // TODO: Replace this with a color picker at some point
             Text("Color (Hex Code)", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp), color = ViewConstants.UI_TEXT_ON_DARK)
             TextField(
                 model.newColorHexString,
