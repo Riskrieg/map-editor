@@ -28,11 +28,10 @@ import java.util.*
 @Composable
 fun PaletteSidebarView(model: PaletteViewModel, modifier: Modifier) {
     var selected by remember { mutableStateOf(false) }
-    var previousSelectedIndex by remember { mutableStateOf(-1) }
     var selectedIndex by remember { mutableStateOf(-1) }
 
     val onClickListItem = { index: Int ->
-        if (selected && previousSelectedIndex == index) { // TODO: Rewrite this lol, not sure I need previousSelectedIndex
+        if (selected && selectedIndex == index) {
             // Deselect
             selected = false
             selectedIndex = -1
@@ -40,7 +39,6 @@ fun PaletteSidebarView(model: PaletteViewModel, modifier: Modifier) {
         } else {
             // Select
             selectedIndex = index
-            previousSelectedIndex = selectedIndex
             selected = true
             model.selectActiveColor(model.colorSet.toList()[index])
         }
@@ -48,14 +46,22 @@ fun PaletteSidebarView(model: PaletteViewModel, modifier: Modifier) {
 
     val onMoveSelection = { movedUp: Boolean ->
         if (movedUp) {
-            model.moveSelectedUp()
+            model.moveSelectedColorUp()
             selectedIndex -= 1
-            previousSelectedIndex = selectedIndex
         } else {
-            model.moveSelectedDown()
+            model.moveSelectedColorDown()
             selectedIndex += 1
-            previousSelectedIndex = selectedIndex
         }
+    }
+
+    val onDelete = {
+        // TODO: Clear map of the deleted color
+        model.removeSelectedColor()
+
+        // Deselect
+        selected = false
+        selectedIndex = -1
+        model.deselectActiveColor()
     }
 
     Box(modifier = modifier.background(color = ViewConstants.UI_BACKGROUND_DARK)) {
@@ -66,7 +72,8 @@ fun PaletteSidebarView(model: PaletteViewModel, modifier: Modifier) {
                 selected = selected,
                 index = selectedIndex,
                 maxIndex = model.colorSet.size - 1,
-                onMoveSelection = onMoveSelection
+                onMoveSelection = onMoveSelection,
+                onDelete = onDelete
             )
             SelectableColorListView(
                 modifier = Modifier.fillMaxHeight().padding(8.dp),
@@ -79,10 +86,12 @@ fun PaletteSidebarView(model: PaletteViewModel, modifier: Modifier) {
 }
 
 @Composable
-private fun ColorEntryView(modifier: Modifier) {
+private fun ColorEditorView(modifier: Modifier) {
     Box(modifier = modifier) {
         Row {
-
+            // TextField to enter palette name
+            // TextField to enter color name
+            // TextField to enter color
         }
     }
 }
@@ -93,39 +102,53 @@ private fun ReorderView(
     selected: Boolean,
     index: Int,
     maxIndex: Int,
-    onMoveSelection: (Boolean) -> Unit
+    onMoveSelection: (Boolean) -> Unit,
+    onDelete: () -> Unit
 ) {
     Box(modifier = modifier) {
-        Row {
-
-            Button(modifier = Modifier.weight(1.0F).padding(start = 0.dp, end = 2.dp, top = 2.dp, bottom = 2.dp),
+        Column {
+            Button(modifier = Modifier.height(40.dp).fillMaxWidth().padding(start = 0.dp, end = 0.dp, top = 2.dp, bottom = 2.dp),
                 shape = RoundedCornerShape(4.dp),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color(180, 112, 54),
+                    backgroundColor = Color(190, 54, 54),
                     contentColor = Color.White
                 ),
-                enabled = selected && index > 0,
+                enabled = selected,
                 onClick = {
-                    onMoveSelection.invoke(true)
-                    // TODO: Move item up in the list
+                    onDelete.invoke()
+                    // TODO: Remove selected item from the list
                 }) {
-                Text("Up", fontSize = 14.sp)
+                Text("Delete", fontSize = 14.sp)
             }
+            Row {
+                // Button to remove color
+                Button(modifier = Modifier.weight(1.0F).padding(start = 0.dp, end = 2.dp, top = 2.dp, bottom = 2.dp),
+                    shape = RoundedCornerShape(4.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color(180, 112, 54),
+                        contentColor = Color.White
+                    ),
+                    enabled = selected && index > 0,
+                    onClick = {
+                        onMoveSelection.invoke(true)
+                    }) {
+                    Text("Up", fontSize = 14.sp)
+                }
 
-            Button(modifier = Modifier.weight(1.0F).padding(start = 2.dp, end = 0.dp, top = 2.dp, bottom = 2.dp),
-                shape = RoundedCornerShape(4.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color(180, 112, 54),
-                    contentColor = Color.White
-                ),
-                enabled = selected && index < maxIndex,
-                onClick = {
-                    onMoveSelection.invoke(false)
-                    // TODO: Move item down in the list
-                }) {
-                Text("Down", fontSize = 14.sp)
+                Button(modifier = Modifier.weight(1.0F).padding(start = 2.dp, end = 0.dp, top = 2.dp, bottom = 2.dp),
+                    shape = RoundedCornerShape(4.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color(180, 112, 54),
+                        contentColor = Color.White
+                    ),
+                    enabled = selected && index < maxIndex,
+                    onClick = {
+                        onMoveSelection.invoke(false)
+                    }) {
+                    Text("Down", fontSize = 14.sp)
+                }
+
             }
-
         }
     }
 }
@@ -171,7 +194,7 @@ private fun SelectableColorListItem(text: String = "[ITEM]", backgroundColor: Co
     Box( // TODO: Border color leaks out the corners
         modifier = Modifier.height(48.dp)
             .fillMaxWidth()
-            .background(color = backgroundColor, shape = if(selected) RoundedCornerShape(6.dp) else RoundedCornerShape(4.dp)) // Hacky workaround for color leaking from corners
+            .background(color = backgroundColor, shape = if (selected) RoundedCornerShape(6.dp) else RoundedCornerShape(4.dp)) // Hacky workaround for color leaking from corners
             .border(border = borderStroke, shape = RoundedCornerShape(4.dp))
             .clip(RoundedCornerShape(4.dp))
             .selectable(selected = selected, onClick = { onClick.invoke(index) }),

@@ -26,6 +26,8 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
     var paletteName by mutableStateOf("")
     var colorSet: TreeSet<GameColor> by mutableStateOf(sortedSetOf())
 
+    // TODO: Add map of territories to gamecolor
+
     private val paletteNameRegex = Regex("[a-z0-9-]+")
 
     /** Methods **/
@@ -92,7 +94,34 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
         this.activeColor = GameColor(-1, "None", 0, 0, 0)
     }
 
-    fun moveSelectedUp() {
+    fun addNewColor() {
+
+    }
+
+    fun removeSelectedColor() {
+        if (isActiveColorSelected()) {
+            // TODO: Need to re-order every entry AFTER the deleted one, by subtracting 1 from each
+            val removedIndex = activeColor.id
+            val oldIndexSet: TreeSet<GameColor> = sortedSetOf()
+            val reindexedSet: TreeSet<GameColor> = sortedSetOf()
+            for (i in removedIndex + 1 until colorSet.size) {
+                val currentColor = getGameColorAt(i)
+                if (currentColor != null) {
+                    oldIndexSet.add(currentColor)
+                    val reindexedColor = GameColor(currentColor.id - 1, currentColor.name, currentColor.r, currentColor.g, currentColor.b)
+                    reindexedSet.add(reindexedColor)
+                }
+            }
+
+            colorSet.remove(activeColor)
+            colorSet.removeAll(oldIndexSet)
+            colorSet.addAll(reindexedSet)
+
+            deselectActiveColor()
+        }
+    }
+
+    fun moveSelectedColorUp() {
         if (isActiveColorSelected()) {
             val movedUp = GameColor(activeColor.id - 1, activeColor.name, activeColor.r, activeColor.g, activeColor.b)
             val toMove = getGameColorAt(movedUp.id)
@@ -107,7 +136,7 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
         }
     }
 
-    fun moveSelectedDown() {
+    fun moveSelectedColorDown() {
         if (isActiveColorSelected()) {
             val movedDown = GameColor(activeColor.id + 1, activeColor.name, activeColor.r, activeColor.g, activeColor.b)
             val toMove = getGameColorAt(movedDown.id)
@@ -142,6 +171,15 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
 
     private fun isActiveColorSelected(): Boolean {
         return this.activeColor != GameColor(-1, "None", 0, 0, 0)
+    }
+
+    private fun getGameColorWithId(id: Int): GameColor? {
+        for (gameColor in colorSet) {
+            if (id == gameColor.id) {
+                return gameColor
+            }
+        }
+        return null
     }
 
     private fun getGameColorAt(index: Int): GameColor? {
