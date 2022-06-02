@@ -11,8 +11,11 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.scale
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.key
@@ -22,6 +25,7 @@ import androidx.compose.ui.input.mouse.MouseScrollUnit
 import androidx.compose.ui.input.mouse.mouseScrollFilter
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.unit.dp
+import com.riskrieg.editor.view.ViewConstants
 import com.riskrieg.editor.viewmodel.MapViewModel
 import java.awt.Point
 import kotlin.math.pow
@@ -29,14 +33,17 @@ import kotlin.math.pow
 @OptIn(ExperimentalFoundationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun MapView(model: MapViewModel, modifier: Modifier) {
-    Column {
+    Column(modifier = Modifier.background(color = ViewConstants.UI_BACKGROUND_DARK)) {
         Row(modifier = Modifier.weight(1f)) {
             MapSidebarView(model, modifier = Modifier.fillMaxHeight().width(180.dp))
             Column(Modifier.weight(1f)) {
                 MapViewport(model, modifier)
             }
         }
-        MapFooterView(model, Modifier.fillMaxWidth().height(25.dp).padding(3.dp))
+        MapFooterView(
+            model,
+            Modifier.fillMaxWidth().height(25.dp)
+        )
     }
 }
 
@@ -60,7 +67,7 @@ private fun MapViewport(model: MapViewModel, modifier: Modifier) {
         focusRequester.requestFocus() // TODO: Fix focus stuff after entering territory name
     }
 
-    Box(modifier = modifier.background(color = Color(255, 255, 255))) {
+    Box(modifier = modifier.background(color = ViewConstants.UI_BACKGROUND_DARK)) {
         Box(
             modifier = Modifier
                 .fillMaxSize()

@@ -3,29 +3,35 @@ package com.riskrieg.editor.view.map
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.riskrieg.editor.view.ViewConstants
 import com.riskrieg.editor.viewmodel.MapViewModel
 
 @Composable
 fun MapFooterView(model: MapViewModel, modifier: Modifier) {
     Row(
-        modifier = modifier.background(color = Color(240, 240, 240))
+        modifier = modifier.background(color = ViewConstants.UI_FOOTER_DARK)
     ) {
         Text(
+            modifier = Modifier.align(Alignment.CenterVertically).padding(horizontal = 4.dp),
             text = "Left click to select/deselect regions or territories.",
             fontSize = 12.sp,
-            textAlign = TextAlign.Start
+            textAlign = TextAlign.Start,
+            color = ViewConstants.UI_TEXT_ON_DARK
         )
         Text(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().align(Alignment.CenterVertically).padding(horizontal = 4.dp),
             text = "Mouse: (${model.mousePosition.x}, ${model.mousePosition.y})  |   Size: ${model.mapImage().width}x${model.mapImage().height}",
             fontSize = 12.sp,
-            textAlign = TextAlign.End
+            textAlign = TextAlign.End,
+            color = ViewConstants.UI_TEXT_ON_DARK
         )
     }
 }

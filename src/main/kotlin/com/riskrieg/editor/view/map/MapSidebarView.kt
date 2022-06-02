@@ -13,12 +13,13 @@ import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.riskrieg.core.api.game.map.GameMap
+import com.riskrieg.editor.view.ViewConstants
 import com.riskrieg.editor.viewmodel.MapViewModel
 
 @Composable
 fun MapSidebarView(model: MapViewModel, modifier: Modifier) {
     Column(
-        modifier = modifier.background(color = Color(255, 255, 255))
+        modifier = modifier.background(color = ViewConstants.UI_BACKGROUND_DARK)
     ) {
         val colors = TextFieldDefaults.textFieldColors(
             cursorColor = Color(GameMap.BORDER_COLOR.rgb),
@@ -27,7 +28,7 @@ fun MapSidebarView(model: MapViewModel, modifier: Modifier) {
         )
         Spacer(modifier = Modifier.height(2.dp))
 
-        Text("Map Display Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp))
+        Text("Map Display Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp), color = ViewConstants.UI_TEXT_ON_DARK)
         TextField(
             model.mapDisplayName,
             colors = colors,
@@ -39,7 +40,7 @@ fun MapSidebarView(model: MapViewModel, modifier: Modifier) {
 
         Spacer(modifier = Modifier.height(5.dp))
 
-        Text("Author Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp))
+        Text("Author Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp), color = ViewConstants.UI_TEXT_ON_DARK)
         TextField(
             model.mapAuthorName,
             colors = colors,
@@ -57,7 +58,7 @@ fun MapSidebarView(model: MapViewModel, modifier: Modifier) {
                 Divider(modifier = Modifier.padding(horizontal = 10.dp), color = Color.LightGray, thickness = 2.dp)
                 Spacer(modifier = Modifier.height(5.dp))
 
-                Text("Territory Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp))
+                Text("Territory Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp), color = ViewConstants.UI_TEXT_ON_DARK)
                 TextField(
                     model.newTerritoryName,
                     colors = colors,
@@ -88,7 +89,7 @@ fun MapSidebarView(model: MapViewModel, modifier: Modifier) {
 
                 Spacer(modifier = Modifier.height(5.dp))
 
-                if (model.isSelectingRegion) {
+                if (model.isSelectingRegion &&  !model.selectedRegionsHaveLabel) {
                     Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color(180, 112, 54), contentColor = Color.White),
                         enabled = !model.selectedRegionsHaveLabel,

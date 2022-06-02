@@ -18,9 +18,9 @@ import com.riskrieg.core.util.io.RkJsonUtil
 import com.riskrieg.editor.core.Constants
 import com.riskrieg.editor.core.algorithm.fill.MilazzoFill
 import com.riskrieg.editor.core.algorithm.label.LabelPosition
-import com.riskrieg.editor.viewmodel.internal.MapGraph
 import com.riskrieg.editor.util.ImageUtil
 import com.riskrieg.editor.util.TerritoryUtil
+import com.riskrieg.editor.viewmodel.internal.MapGraph
 import org.jgrapht.Graphs
 import org.jgrapht.graph.SimpleGraph
 import java.awt.Color
