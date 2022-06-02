@@ -6,9 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,12 +16,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.riskrieg.core.api.color.ColorPalette
 import com.riskrieg.core.api.color.GameColor
 import com.riskrieg.core.api.game.map.GameMap
 import com.riskrieg.editor.util.ColorUtil
 import com.riskrieg.editor.view.ViewConstants
 import com.riskrieg.editor.viewmodel.PaletteViewModel
-import java.util.*
 
 @Composable
 fun PaletteSidebarView(model: PaletteViewModel, modifier: Modifier) {
@@ -41,6 +39,8 @@ fun PaletteSidebarView(model: PaletteViewModel, modifier: Modifier) {
             selectedIndex = index
             selected = true
             model.selectActiveColor(model.colorSet.toList()[index])
+            model.newColorName = model.activeColorName()
+            model.newColorHexString = model.activeColorHexString()
         }
     }
 
@@ -52,6 +52,27 @@ fun PaletteSidebarView(model: PaletteViewModel, modifier: Modifier) {
             model.moveSelectedColorDown()
             selectedIndex += 1
         }
+    }
+
+    val onUpdate = {
+        model.updateSelectedColor()
+    }
+
+    val onAdd = {
+        // Add
+        model.addNewColor()
+
+        // Hack to update lazy list
+
+        // Select
+        selectedIndex = model.colorSet.size - 1
+        selected = true
+        model.selectActiveColor(model.colorSet.toList()[model.colorSet.size - 1])
+
+        // Deselect
+        selected = false
+        selectedIndex = -1
+        model.deselectActiveColor()
     }
 
     val onDelete = {
@@ -66,18 +87,28 @@ fun PaletteSidebarView(model: PaletteViewModel, modifier: Modifier) {
 
     Box(modifier = modifier.background(color = ViewConstants.UI_BACKGROUND_DARK)) {
         Column {
-//            ColorEntryView(modifier = Modifier.weight(1.0F, false).padding(vertical = 4.dp))
+            ColorEditorView(
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 10.dp, bottom = 0.dp),
+                model = model
+            )
             ReorderView(
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 10.dp, bottom = 0.dp),
                 selected = selected,
                 index = selectedIndex,
                 maxIndex = model.colorSet.size - 1,
                 onMoveSelection = onMoveSelection,
+                canUpdate = selected && model.isNewColorNameValid() && model.isNewColorHexStringValid()
+                        && (model.newColorName != model.activeColorName() || model.newColorHexString != model.activeColorHexString()),
+                canAdd = !selected && model.colorSet.size < ColorPalette.MAXIMUM_SIZE && !model.colorSetContainsNewColor()
+                        && model.isNewColorNameValid() && model.isNewColorHexStringValid(),
+                canDelete = selected,
+                onUpdate = onUpdate,
+                onAdd = onAdd,
                 onDelete = onDelete
             )
             SelectableColorListView(
                 modifier = Modifier.fillMaxHeight().padding(8.dp),
-                set = model.colorSet,
+                list = model.colorSet.toList(),
                 selected = { i -> selectedIndex == i && selected },
                 onClickItem = onClickListItem
             )
@@ -86,12 +117,54 @@ fun PaletteSidebarView(model: PaletteViewModel, modifier: Modifier) {
 }
 
 @Composable
-private fun ColorEditorView(modifier: Modifier) {
+private fun ColorEditorView(
+    modifier: Modifier,
+    model: PaletteViewModel
+) {
+    val colors = TextFieldDefaults.textFieldColors(
+        cursorColor = Color(GameMap.BORDER_COLOR.rgb),
+        focusedIndicatorColor = Color(GameMap.BORDER_COLOR.rgb),
+        backgroundColor = Color(GameMap.TERRITORY_COLOR.rgb)
+    )
+
     Box(modifier = modifier) {
-        Row {
+        Column {
             // TextField to enter palette name
+            Text("Palette Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp), color = ViewConstants.UI_TEXT_ON_DARK)
+            TextField(
+                model.paletteName,
+                colors = colors,
+                singleLine = true,
+                onValueChange = {
+                    model.paletteName = it
+                }, modifier = Modifier.padding(horizontal = 10.dp)
+            )
+
+            Spacer(modifier = Modifier.height(5.dp))
             // TextField to enter color name
+            Text("Color Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp), color = ViewConstants.UI_TEXT_ON_DARK)
+            TextField(
+                model.newColorName,
+                colors = colors,
+                singleLine = true,
+                onValueChange = {
+                    model.newColorName = it
+                }, modifier = Modifier.padding(horizontal = 10.dp)
+            )
+
+            Spacer(modifier = Modifier.height(5.dp))
             // TextField to enter color
+            Text("Color (Hex Code)", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp), color = ViewConstants.UI_TEXT_ON_DARK)
+            TextField(
+                model.newColorHexString,
+                colors = colors,
+                singleLine = true,
+                onValueChange = {
+                    model.newColorHexString = it
+                }, modifier = Modifier.padding(horizontal = 10.dp)
+            )
+
+            Spacer(modifier = Modifier.height(5.dp))
         }
     }
 }
@@ -103,25 +176,48 @@ private fun ReorderView(
     index: Int,
     maxIndex: Int,
     onMoveSelection: (Boolean) -> Unit,
-    onDelete: () -> Unit
+    canUpdate: Boolean,
+    canAdd: Boolean,
+    canDelete: Boolean,
+    onUpdate: () -> Unit,
+    onAdd: () -> Unit,
+    onDelete: () -> Unit,
 ) {
     Box(modifier = modifier) {
         Column {
             Button(modifier = Modifier.height(40.dp).fillMaxWidth().padding(start = 0.dp, end = 0.dp, top = 2.dp, bottom = 2.dp),
                 shape = RoundedCornerShape(4.dp),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color(190, 54, 54),
+                    backgroundColor = if (canUpdate) { // Update
+                        Color(180, 112, 54)
+                    } else if (canAdd) { // Add
+                        Color(54, 190, 54)
+                    } else { // Delete
+                        Color(190, 54, 54)
+                    },
                     contentColor = Color.White
                 ),
-                enabled = selected,
+                enabled = canUpdate || canAdd || canDelete,
                 onClick = {
-                    onDelete.invoke()
-                    // TODO: Remove selected item from the list
+                    if (canUpdate) { // Update
+                        onUpdate.invoke()
+                    } else if (canAdd) { // Add
+                        onAdd.invoke()
+                    } else { // Delete
+                        onDelete.invoke()
+                    }
                 }) {
-                Text("Delete", fontSize = 14.sp)
+
+                if (canUpdate) { // Update
+                    Text("Update", fontSize = 14.sp)
+                } else if (canAdd) { // Add
+                    Text("Add", fontSize = 14.sp)
+                } else { // Delete
+                    Text("Delete", fontSize = 14.sp)
+                }
             }
             Row {
-                // Button to remove color
+
                 Button(modifier = Modifier.weight(1.0F).padding(start = 0.dp, end = 2.dp, top = 2.dp, bottom = 2.dp),
                     shape = RoundedCornerShape(4.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -156,7 +252,7 @@ private fun ReorderView(
 @Composable
 private fun SelectableColorListView(
     modifier: Modifier,
-    set: SortedSet<GameColor>,
+    list: List<GameColor>,
     selected: (Int) -> Boolean,
     onClickItem: (Int) -> Unit
 ) {
@@ -164,8 +260,8 @@ private fun SelectableColorListView(
 
     Box(modifier = modifier.background(color = ViewConstants.UI_BACKGROUND_DARK_ON_DARK, shape = RoundedCornerShape(4.dp))) {
         LazyColumn(Modifier.fillMaxSize().padding(top = 8.dp, bottom = 8.dp, start = 12.dp, end = 16.dp), listState) {
-            items(set.size) { i ->
-                val gameColor = set.toList()[i]
+            items(list.size) { i ->
+                val gameColor = list[i]
                 SelectableColorListItem(
                     text = gameColor.name,
                     backgroundColor = Color(gameColor.r, gameColor.g, gameColor.b),

@@ -89,7 +89,7 @@ fun MapSidebarView(model: MapViewModel, modifier: Modifier) {
 
                 Spacer(modifier = Modifier.height(5.dp))
 
-                if (model.isSelectingRegion &&  !model.selectedRegionsHaveLabel) {
+                if (model.isSelectingRegion && !model.selectedRegionsHaveLabel) {
                     Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color(180, 112, 54), contentColor = Color.White),
                         enabled = !model.selectedRegionsHaveLabel,

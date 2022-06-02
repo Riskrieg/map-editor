@@ -4,9 +4,6 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -17,7 +14,6 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -26,7 +22,6 @@ import androidx.compose.ui.input.mouse.MouseScrollOrientation
 import androidx.compose.ui.input.mouse.MouseScrollUnit
 import androidx.compose.ui.input.mouse.mouseScrollFilter
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.riskrieg.editor.view.ViewConstants
 import com.riskrieg.editor.viewmodel.PaletteViewModel
 import java.awt.image.BufferedImage

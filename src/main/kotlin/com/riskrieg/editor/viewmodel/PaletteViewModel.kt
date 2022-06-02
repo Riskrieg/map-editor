@@ -8,9 +8,11 @@ import com.riskrieg.core.api.Riskrieg
 import com.riskrieg.core.api.color.ColorPalette
 import com.riskrieg.core.api.color.GameColor
 import com.riskrieg.core.api.game.map.GameMap
+import com.riskrieg.core.api.game.territory.Claim
 import com.riskrieg.core.decode.RkmDecoder
 import com.riskrieg.core.decode.RkpDecoder
 import com.riskrieg.core.encode.RkpEncoder
+import java.awt.Color
 import java.awt.Point
 import java.io.File
 import java.io.FileOutputStream
@@ -22,11 +24,15 @@ import javax.swing.filechooser.FileNameExtensionFilter
 
 class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Point) {
 
-    var activeColor by mutableStateOf(GameColor(-1, "None", 0, 0, 0))
+    private var activeColor by mutableStateOf(GameColor(-1, "None", 0, 0, 0))
+    var newColorName by mutableStateOf("")
+    var newColorHexString by mutableStateOf("")
+
     var paletteName by mutableStateOf("")
     var colorSet: TreeSet<GameColor> by mutableStateOf(sortedSetOf())
 
-    // TODO: Add map of territories to gamecolor
+    private var paletteMap: GameMap = loadDefaultMap()
+    private var claims: Set<Claim> by mutableStateOf(mutableSetOf())
 
     private val paletteNameRegex = Regex("[a-z0-9-]+")
 
@@ -35,12 +41,20 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
     fun init(palette: ColorPalette) {
         reset()
 
+        paletteName = palette.name
         colorSet = TreeSet(palette.set)
     }
 
     fun reset() {
         activeColor = GameColor(-1, "None", 0, 0, 0)
+        newColorName = ""
+        newColorHexString = ""
+
+        paletteName = ""
         colorSet.clear()
+
+        paletteMap = loadDefaultMap()
+        claims = mutableSetOf()
     }
 
     fun save() {
@@ -86,6 +100,26 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
         }
     }
 
+    fun activeColorName(): String {
+        return if (isActiveColorSelected()) activeColor.name else ""
+    }
+
+    fun activeColorHexString(): String {
+        return if (isActiveColorSelected()) String.format("#%02X%02X%02X", activeColor.r, activeColor.g, activeColor.b) else ""
+    }
+
+    fun isNewColorNameValid(): Boolean {
+        return newColorName.isNotBlank()
+    }
+
+    fun isNewColorHexStringValid(): Boolean {
+        return try {
+            newColorHexString.isNotBlank() && Color.decode(newColorHexString) != null
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     fun selectActiveColor(gameColor: GameColor) {
         this.activeColor = gameColor
     }
@@ -94,13 +128,37 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
         this.activeColor = GameColor(-1, "None", 0, 0, 0)
     }
 
-    fun addNewColor() {
+    fun updateSelectedColor() {
+        if (isActiveColorSelected() && isNewColorNameValid() && isNewColorHexStringValid()) {
+            val updatedColor = GameColor(activeColor.id, newColorName, newColorHexString)
+            colorSet.remove(activeColor)
+            colorSet.add(updatedColor)
 
+            // hack to update lazylist
+            deselectActiveColor()
+            selectActiveColor(updatedColor)
+        }
+    }
+
+    fun colorSetContainsNewColor(): Boolean {
+        for (gameColor in colorSet) {
+            if (newColorName.trim() == gameColor.name || newColorHexString.trim() == String.format("#%02X%02X%02X", gameColor.r, gameColor.g, gameColor.b)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    fun addNewColor() {
+        if (isNewColorNameValid() && isNewColorHexStringValid()) {
+            val newColor = GameColor(colorSet.size, newColorName, newColorHexString)
+            colorSet.add(newColor)
+
+        }
     }
 
     fun removeSelectedColor() {
         if (isActiveColorSelected()) {
-            // TODO: Need to re-order every entry AFTER the deleted one, by subtracting 1 from each
             val removedIndex = activeColor.id
             val oldIndexSet: TreeSet<GameColor> = sortedSetOf()
             val reindexedSet: TreeSet<GameColor> = sortedSetOf()
@@ -149,6 +207,10 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
                 this.activeColor = movedDown
             }
         }
+    }
+
+    fun paletteMap(): GameMap {
+        return paletteMap
     }
 
     fun loadDefaultPalette(): ColorPalette {
