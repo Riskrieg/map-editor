@@ -9,7 +9,6 @@ import androidx.compose.material.darkColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import com.riskrieg.editor.view.map.MapView
@@ -43,7 +42,7 @@ class EditorView(val model: EditorViewModel) {
     @Composable
     fun DefaultEditorView() {
         Box(
-            modifier = Modifier.fillMaxSize().background(color = if (model.isDragAndDropping) Color(0, 0, 0, 0xB4) else ViewConstants.UI_BACKGROUND_DARK)
+            modifier = Modifier.fillMaxSize().background(color = if (model.isDragAndDropping) ViewConstants.UI_HOVER_HIGHLIGHT_DARK else ViewConstants.UI_BACKGROUND_DARK)
         ) {
             Text(
                 "Drag a map file (.rkm) or palette file (.rkp) into this window in order to get started.\n\nYou can also go to File -> Import to get started.",
