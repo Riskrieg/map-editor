@@ -7,6 +7,6 @@ import com.riskrieg.editor.viewmodel.PaletteViewModel
 
 @OptIn(ExperimentalFoundationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
-fun PaletteView(model: PaletteViewModel, viewModifier: Modifier) {
-
+fun PaletteView(model: PaletteViewModel, modifier: Modifier) {
+    
 }
