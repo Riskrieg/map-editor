@@ -12,7 +12,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -173,7 +172,6 @@ private fun SelectableColorListItem(text: String = "[ITEM]", backgroundColor: Co
             .fillMaxWidth()
             .background(color = backgroundColor, shape = RoundedCornerShape(4.dp))
             .border(border = borderStroke, shape = RoundedCornerShape(4.dp))
-            .clip(RoundedCornerShape(4.dp))
             .selectable(selected = selected, onClick = { onClick.invoke(index) }),
         contentAlignment = Alignment.Center
     ) {
@@ -187,92 +185,3 @@ private fun SelectableColorListItem(text: String = "[ITEM]", backgroundColor: Co
         )
     }
 }
-
-//@Composable
-//private fun PaletteColorControlView(model: PaletteViewModel) {
-//    Column(modifier = Modifier.fillMaxSize().padding(10.dp)) {
-//        // TODO: This shouldn't be a button
-//        ActiveColorView(modifier = Modifier.fillMaxWidth(), model.activeColor)
-////        Button(modifier = Modifier.fillMaxWidth().height(40.dp), shape = RoundedCornerShape(4.dp),
-////            colors = ButtonDefaults.buttonColors(backgroundColor = model.activeColor, contentColor = ColorUtil.getTextColor(model.activeColor)),
-////            onClick = {
-////                Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(activeColorText), null)
-////                JOptionPane.showMessageDialog(null, "Hex color successfully copied to clipboard.", "Success", JOptionPane.PLAIN_MESSAGE)
-////            }) {
-////            Text(activeColorText, fontSize = 18.sp)
-////        }
-//        Spacer(modifier = Modifier.padding(horizontal = 0.dp, vertical = 10.dp))
-//        Button(modifier = Modifier.fillMaxWidth().height(40.dp), shape = RoundedCornerShape(4.dp),
-//            colors = ButtonDefaults.buttonColors(backgroundColor = Color(190, 98, 54), contentColor = Color.White),
-//            onClick = {
-//                // TODO: Reset map
-//            }) {
-//            Text("Clear Map", fontSize = 14.sp)
-//        }
-//        Spacer(modifier = Modifier.padding(horizontal = 0.dp, vertical = 4.dp))
-//        Button(modifier = Modifier.fillMaxWidth().height(40.dp), shape = RoundedCornerShape(4.dp),
-//            colors = ButtonDefaults.buttonColors(backgroundColor = Color(190, 54, 54), contentColor = Color.White),
-//            onClick = {
-//                // TODO: Reset map and palette
-//            }) {
-//            Text("Reset Palette", fontSize = 14.sp)
-//        }
-//    }
-//}
-//
-//@Composable
-//private fun ActiveColorView(modifier: Modifier, gameColor: GameColor) {
-//    val activeColor = Color(gameColor.r, gameColor.g, gameColor.b)
-//    val activeColorAsHexString: String by remember {
-//        mutableStateOf(
-//            String.format(
-//                "#%02X%02X%02X",
-//                gameColor.r,
-//                gameColor.b,
-//                gameColor.g
-//            )
-//        )
-//    }
-//
-//    Column(modifier = modifier) {
-//
-//        Text(
-//            text = "Selected Color",
-//            modifier = Modifier.fillMaxWidth(),
-//            textAlign = TextAlign.Start,
-//            color = ViewConstants.UI_TEXT_ON_DARK
-//        )
-//        Spacer(modifier = Modifier.padding(vertical = 2.dp))
-//        Button(modifier = Modifier.fillMaxWidth().height(40.dp), shape = RoundedCornerShape(4.dp),
-//            colors = ButtonDefaults.buttonColors(backgroundColor = activeColor, contentColor = ColorUtil.getTextColor(activeColor)),
-//            onClick = {
-//                Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(activeColorAsHexString), null)
-//                JOptionPane.showMessageDialog(null, "Color hex code successfully copied to clipboard.", "Success", JOptionPane.PLAIN_MESSAGE)
-//            }) {
-//            Text(gameColor.name, fontSize = 18.sp)
-//        }
-//
-////        TextField(
-////            value = text,
-////            onValueChange = {
-////                if (it.length <= maxChar) text = it
-////            },
-////            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-////            shape = RoundedCornerShape(4.dp),
-////            colors = TextFieldDefaults.textFieldColors(
-////                backgroundColor = color,
-////                textColor = Color(GameMap.TEXT_COLOR.red, GameMap.TEXT_COLOR.green, GameMap.TEXT_COLOR.blue)
-////            )
-////        )
-//    }
-//}
-//
-//@Composable
-//private fun ColorPaletteView() {
-//
-//}
-//
-//@Composable
-//private fun SingleColorView() {
-//
-//}
