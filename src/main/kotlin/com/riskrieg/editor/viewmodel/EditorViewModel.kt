@@ -37,7 +37,13 @@ class EditorViewModel(private val window: ComposeWindow) {
     fun promptOpenFile() {
         val chooser = JFileChooser()
         chooser.isAcceptAllFileFilterUsed = false
-        chooser.fileFilter = FileNameExtensionFilter("${Riskrieg.NAME} Map (*.rkm) or Palette (*.rkp)", "rkm", "rkp")
+        val extensionFilterAll = FileNameExtensionFilter("All ${Riskrieg.NAME} Files (*.rkm, *.rkp)", "rkm", "rkp")
+        val extensionFilterRkm = FileNameExtensionFilter("${Riskrieg.NAME} Map (*.rkm)", "rkm")
+        val extensionFilterRkp = FileNameExtensionFilter("${Riskrieg.NAME} Palette (*.rkp)", "rkp")
+        chooser.addChoosableFileFilter(extensionFilterAll)
+        chooser.addChoosableFileFilter(extensionFilterRkm)
+        chooser.addChoosableFileFilter(extensionFilterRkp)
+        chooser.fileFilter = extensionFilterAll
         chooser.currentDirectory = File(System.getProperty("user.home"))
         if (chooser.showDialog(window, "Open") == JFileChooser.APPROVE_OPTION) {
             openFile(chooser.selectedFile)
