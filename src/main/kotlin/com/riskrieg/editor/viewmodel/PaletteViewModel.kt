@@ -150,6 +150,13 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
             colorSet.remove(activeColor)
             colorSet.add(updatedColor)
 
+            // Update relevant territories
+            for (entry in paintedTerritories) {
+                if (entry.value.id == updatedColor.id) {
+                    paintedTerritories[entry.key] = updatedColor
+                }
+            }
+
             // hack to update lazylist
             deselectActiveColor()
             selectActiveColor(updatedColor)
@@ -171,7 +178,7 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
             // Clear relevant territory first
             val territoryToClear: MutableSet<Territory> = mutableSetOf()
             for (entry in paintedTerritories) {
-                if (entry.value == activeColor) {
+                if (entry.value.toColor() == activeColor.toColor()) {
                     territoryToClear.add(entry.key)
                 }
             }
@@ -203,7 +210,7 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
         }
     }
 
-    fun moveSelectedColorUp() {
+    fun moveSelectedColorUp() { // TODO: When moving, need to update all territories as well.
         if (isActiveColorSelected()) {
             val movedUp = GameColor(activeColor.id - 1, activeColor.name, activeColor.r, activeColor.g, activeColor.b)
             val toMove = getGameColorAt(movedUp.id)
@@ -218,7 +225,7 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
         }
     }
 
-    fun moveSelectedColorDown() {
+    fun moveSelectedColorDown() { // TODO: Territories need to be updated when the color moves/updates
         if (isActiveColorSelected()) {
             val movedDown = GameColor(activeColor.id + 1, activeColor.name, activeColor.r, activeColor.g, activeColor.b)
             val toMove = getGameColorAt(movedDown.id)
