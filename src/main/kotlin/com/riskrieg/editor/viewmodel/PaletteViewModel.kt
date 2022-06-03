@@ -169,10 +169,11 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
         if (isNewColorNameValid() && isNewColorHexStringValid()) {
             val newColor = GameColor(colorSet.size, newColorName, newColorHexString)
             colorSet.add(newColor)
-
         }
     }
 
+    // TODO: Deleting color, adding back, moving up one, changes the territories that had the ID
+    // Example: Black index 1, red index 2, draw red territory, delete black, add black, move black up 1. draw black territory, red becomes black
     fun removeSelectedColor() {
         if (isActiveColorSelected()) {
             // Clear relevant territory first
@@ -201,6 +202,8 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
                 }
             }
 
+            // TODO: Need to update territories with oldIndex to newIndex
+
             colorSet.remove(activeColor)
             colorSet.removeAll(oldIndexSet)
             colorSet.addAll(reindexedSet)
@@ -210,32 +213,75 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
         }
     }
 
-    fun moveSelectedColorUp() { // TODO: When moving, need to update all territories as well.
+    fun moveSelectedColorUp() {
         if (isActiveColorSelected()) {
-            val movedUp = GameColor(activeColor.id - 1, activeColor.name, activeColor.r, activeColor.g, activeColor.b)
-            val toMove = getGameColorAt(movedUp.id)
-            if (toMove != null) {
-                val movedDown = GameColor(toMove.id + 1, toMove.name, toMove.r, toMove.g, toMove.b)
-                colorSet.remove(toMove)
+            val activeColorMovedUp = GameColor(activeColor.id - 1, activeColor.name, activeColor.r, activeColor.g, activeColor.b)
+            val colorToMoveDown = getGameColorAt(activeColorMovedUp.id)
+            if (colorToMoveDown != null) {
+                // Prep territories
+                val activeColorTerritories = mutableListOf<Territory>()
+                val toMoveDownColorTerritories = mutableListOf<Territory>()
+                for (entry in paintedTerritories) {
+                    if (entry.value == activeColor) {
+                        activeColorTerritories.add(entry.key)
+                    } else if (entry.value == colorToMoveDown) {
+                        toMoveDownColorTerritories.add(entry.key)
+                    }
+                }
+
+                // Move colors
+                val colorMovedDown = GameColor(colorToMoveDown.id + 1, colorToMoveDown.name, colorToMoveDown.r, colorToMoveDown.g, colorToMoveDown.b)
+                colorSet.remove(colorToMoveDown)
                 colorSet.remove(activeColor)
-                colorSet.add(movedUp)
-                colorSet.add(movedDown)
-                this.activeColor = movedUp
+                colorSet.add(activeColorMovedUp)
+                colorSet.add(colorMovedDown)
+                this.activeColor = activeColorMovedUp
+
+                // Now update territories
+                for (territory in activeColorTerritories) {
+                    paintedTerritories[territory] = activeColorMovedUp
+                }
+                for (territory in toMoveDownColorTerritories) {
+                    paintedTerritories[territory] = colorMovedDown
+                }
+
             }
         }
     }
 
-    fun moveSelectedColorDown() { // TODO: Territories need to be updated when the color moves/updates
+    fun moveSelectedColorDown() {
         if (isActiveColorSelected()) {
-            val movedDown = GameColor(activeColor.id + 1, activeColor.name, activeColor.r, activeColor.g, activeColor.b)
-            val toMove = getGameColorAt(movedDown.id)
-            if (toMove != null) {
-                val movedUp = GameColor(toMove.id - 1, toMove.name, toMove.r, toMove.g, toMove.b)
-                colorSet.remove(toMove)
+            val activeColorMovedDown = GameColor(activeColor.id + 1, activeColor.name, activeColor.r, activeColor.g, activeColor.b)
+            val colorToMoveUp = getGameColorAt(activeColorMovedDown.id)
+            if (colorToMoveUp != null) {
+                // Prep territories
+                val activeColorTerritories = mutableListOf<Territory>()
+                val toMoveUpColorTerritories = mutableListOf<Territory>()
+                for (entry in paintedTerritories) {
+                    if (entry.value == activeColor) {
+                        activeColorTerritories.add(entry.key)
+                    } else if (entry.value == colorToMoveUp) {
+                        toMoveUpColorTerritories.add(entry.key)
+                    }
+                }
+
+
+                // Move colors
+                val colorMovedUp = GameColor(colorToMoveUp.id - 1, colorToMoveUp.name, colorToMoveUp.r, colorToMoveUp.g, colorToMoveUp.b)
+                colorSet.remove(colorToMoveUp)
                 colorSet.remove(activeColor)
-                colorSet.add(movedDown)
-                colorSet.add(movedUp)
-                this.activeColor = movedDown
+                colorSet.add(activeColorMovedDown)
+                colorSet.add(colorMovedUp)
+                this.activeColor = activeColorMovedDown
+
+                // Now update territories
+                for (territory in activeColorTerritories) {
+                    paintedTerritories[territory] = activeColorMovedDown
+                }
+                for (territory in toMoveUpColorTerritories) {
+                    paintedTerritories[territory] = colorMovedUp
+                }
+
             }
         }
     }

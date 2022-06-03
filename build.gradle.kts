@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.riskrieg"
-version = "2.7.4"
+version = "2.7.5"
 repositories {
     google()
     mavenCentral()

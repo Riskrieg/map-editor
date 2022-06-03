@@ -3,7 +3,7 @@ package com.riskrieg.editor.core
 import java.awt.Color
 
 object Constants {
-    var VERSION = "2.7.4-0.2206"
+    var VERSION = "2.7.5-0.2206"
 
     var SELECT_COLOR = Color(255, 250, 165)
     var NEIGHBOR_SELECT_COLOR = Color(255, 165, 255)
