@@ -144,7 +144,7 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
         this.activeColor = GameColor(-1, "None", 0, 0, 0)
     }
 
-    fun updateSelectedColor() {
+    fun updateSelectedColor() { // TODO: Don't allow updating a color to one that already exists!
         if (isActiveColorSelected() && isNewColorNameValid() && isNewColorHexStringValid()) {
             val updatedColor = GameColor(activeColor.id, newColorName, newColorHexString)
             colorSet.remove(activeColor)
@@ -177,7 +177,7 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
             // Clear relevant territory first
             val territoryToClear: MutableSet<Territory> = mutableSetOf()
             for (entry in paintedTerritories) {
-                if (entry.value.toColor() == activeColor.toColor()) {
+                if (entry.value == activeColor) {
                     territoryToClear.add(entry.key)
                 }
             }
