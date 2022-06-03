@@ -193,7 +193,7 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
                 val currentColor = getGameColorAt(i)
                 if (currentColor != null) {
                     val newIndexColor = GameColor(currentColor.id - 1, currentColor.name, currentColor.r, currentColor.g, currentColor.b)
-                    oldToNewColorIndexMap.put(currentColor, newIndexColor)
+                    oldToNewColorIndexMap[currentColor] = newIndexColor
                 }
             }
 
