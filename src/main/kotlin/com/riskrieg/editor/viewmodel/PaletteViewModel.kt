@@ -172,8 +172,6 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
         }
     }
 
-    // TODO: Deleting color, adding back, moving up one, changes the territories that had the ID
-    // Example: Black index 1, red index 2, draw red territory, delete black, add black, move black up 1. draw black territory, red becomes black
     fun removeSelectedColor() {
         if (isActiveColorSelected()) {
             // Clear relevant territory first
@@ -189,24 +187,28 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
             }
 
             // Remove the color now
-
             val removedIndex = activeColor.id
-            val oldIndexSet: TreeSet<GameColor> = sortedSetOf()
-            val reindexedSet: TreeSet<GameColor> = sortedSetOf()
+            val oldToNewColorIndexMap: SortedMap<GameColor, GameColor> = sortedMapOf()
             for (i in removedIndex + 1 until colorSet.size) {
                 val currentColor = getGameColorAt(i)
                 if (currentColor != null) {
-                    oldIndexSet.add(currentColor)
-                    val reindexedColor = GameColor(currentColor.id - 1, currentColor.name, currentColor.r, currentColor.g, currentColor.b)
-                    reindexedSet.add(reindexedColor)
+                    val newIndexColor = GameColor(currentColor.id - 1, currentColor.name, currentColor.r, currentColor.g, currentColor.b)
+                    oldToNewColorIndexMap.put(currentColor, newIndexColor)
                 }
             }
 
-            // TODO: Need to update territories with oldIndex to newIndex
+            // Update territory entries with reindexed colors
+            for (colorEntry in oldToNewColorIndexMap) {
+                for (territoryEntry in paintedTerritories) {
+                    if (territoryEntry.value == colorEntry.key) {
+                        paintedTerritories[territoryEntry.key] = colorEntry.value
+                    }
+                }
+            }
 
             colorSet.remove(activeColor)
-            colorSet.removeAll(oldIndexSet)
-            colorSet.addAll(reindexedSet)
+            colorSet.removeAll(oldToNewColorIndexMap.keys)
+            colorSet.addAll(oldToNewColorIndexMap.values)
 
             deselectActiveColor()
             updateMapImage()
