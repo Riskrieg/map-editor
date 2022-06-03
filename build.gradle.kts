@@ -41,6 +41,8 @@ tasks.withType<KotlinCompile>() {
     kotlinOptions.jvmTarget = "17"
 }
 
+fun getProjectProperty(name: String) = project.properties[name] as? String
+
 compose.desktop {
     application {
         mainClass = "MainKt"
@@ -63,7 +65,7 @@ compose.desktop {
                 menuGroup = "Riskrieg"
                 dirChooser = true
                 perUserInstall = true
-                upgradeUuid = "eb7036b9-4a1d-439e-89dd-9575560086d4"
+                upgradeUuid = getProjectProperty("guid")
             }
 
             macOS { // Requires a Mac in order to notarize
