@@ -13,7 +13,6 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.formdev.flatlaf.FlatDarkLaf
-import com.riskrieg.core.api.Riskrieg
 import com.riskrieg.editor.core.Constants
 import com.riskrieg.editor.view.EditorView
 import com.riskrieg.editor.viewmodel.EditorViewModel
@@ -45,7 +44,7 @@ fun main() = application {
 
     Window(
         onCloseRequest = ::exitApplication,
-        title = "${Riskrieg.NAME} Map Editor v${Constants.VERSION}",
+        title = "${Constants.NAME} Map Editor v${Constants.VERSION}",
         state = rememberWindowState(width = Constants.DEFAULT_WINDOW_WIDTH.dp, height = Constants.DEFAULT_WINDOW_HEIGHT.dp),
         icon = painterResource("icon/icon.png")
     ) {

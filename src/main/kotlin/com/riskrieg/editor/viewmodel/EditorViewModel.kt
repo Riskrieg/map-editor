@@ -4,12 +4,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.awt.ComposeWindow
-import com.riskrieg.core.api.Riskrieg
-import com.riskrieg.core.api.color.ColorPalette
-import com.riskrieg.core.api.color.GameColor
-import com.riskrieg.core.decode.RkmDecoder
-import com.riskrieg.core.decode.RkpDecoder
+import com.riskrieg.codec.decode.RkmDecoder
+import com.riskrieg.codec.decode.RkpDecoder
+import com.riskrieg.editor.core.Constants
 import com.riskrieg.editor.viewmodel.internal.EditorType
+import com.riskrieg.palette.RkpColor
+import com.riskrieg.palette.RkpPalette
 import java.awt.Point
 import java.io.File
 import javax.swing.JFileChooser
@@ -39,16 +39,16 @@ class EditorViewModel(private val window: ComposeWindow) {
     fun newPalette() {
         isDragAndDropping = false
         reset()
-        paletteViewModel.init(ColorPalette("New Palette", sortedSetOf(GameColor(0, "White", 255, 255, 255), GameColor(1, "Black", 0, 0, 0))))
+        paletteViewModel.init(RkpPalette("New Palette", sortedSetOf(RkpColor(0, "White", 255, 255, 255), RkpColor(1, "Black", 0, 0, 0))))
         editorType = EditorType.RKP_PALETTE
     }
 
     fun promptOpenFile() {
         val chooser = JFileChooser()
         chooser.isAcceptAllFileFilterUsed = false
-        val extensionFilterAll = FileNameExtensionFilter("All ${Riskrieg.NAME} Files (*.rkm, *.rkp)", "rkm", "rkp")
-        val extensionFilterRkm = FileNameExtensionFilter("${Riskrieg.NAME} Map (*.rkm)", "rkm")
-        val extensionFilterRkp = FileNameExtensionFilter("${Riskrieg.NAME} Palette (*.rkp)", "rkp")
+        val extensionFilterAll = FileNameExtensionFilter("All ${Constants.NAME} Files (*.rkm, *.rkp)", "rkm", "rkp")
+        val extensionFilterRkm = FileNameExtensionFilter("${Constants.NAME} Map (*.rkm)", "rkm")
+        val extensionFilterRkp = FileNameExtensionFilter("${Constants.NAME} Palette (*.rkp)", "rkp")
         chooser.addChoosableFileFilter(extensionFilterAll)
         chooser.addChoosableFileFilter(extensionFilterRkm)
         chooser.addChoosableFileFilter(extensionFilterRkp)

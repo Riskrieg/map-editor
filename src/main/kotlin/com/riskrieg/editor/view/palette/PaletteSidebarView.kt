@@ -16,11 +16,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.riskrieg.core.api.color.GameColor
-import com.riskrieg.core.api.game.map.GameMap
 import com.riskrieg.editor.util.ColorUtil
 import com.riskrieg.editor.view.ViewConstants
 import com.riskrieg.editor.viewmodel.PaletteViewModel
+import com.riskrieg.palette.RkpColor
+import com.riskrieg.palette.RkpPalette
 
 @Composable
 fun PaletteSidebarView(model: PaletteViewModel, modifier: Modifier) {
@@ -120,9 +120,9 @@ private fun ColorEditorView(
     model: PaletteViewModel
 ) {
     val colors = TextFieldDefaults.textFieldColors(
-        cursorColor = Color(GameMap.BORDER_COLOR.rgb),
-        focusedIndicatorColor = Color(GameMap.BORDER_COLOR.rgb),
-        backgroundColor = Color(GameMap.TERRITORY_COLOR.rgb)
+        cursorColor = Color(RkpPalette.DEFAULT_BORDER_COLOR.toAwtColor().rgb),
+        focusedIndicatorColor = Color(RkpPalette.DEFAULT_BORDER_COLOR.toAwtColor().rgb),
+        backgroundColor = Color(RkpPalette.DEFAULT_TERRITORY_COLOR.toAwtColor().rgb)
     )
 
     Box(modifier = modifier) {
@@ -255,7 +255,7 @@ private fun AdjustmentButtonsView(
 @Composable
 private fun SelectableColorListView(
     modifier: Modifier,
-    list: List<GameColor>,
+    list: List<RkpColor>,
     selected: (Int) -> Boolean,
     onClickItem: (Int) -> Unit
 ) {
@@ -264,10 +264,10 @@ private fun SelectableColorListView(
     Box(modifier = modifier.background(color = ViewConstants.UI_BACKGROUND_DARK_ON_DARK, shape = RoundedCornerShape(4.dp))) {
         LazyColumn(Modifier.fillMaxSize().padding(top = 8.dp, bottom = 8.dp, start = 12.dp, end = 16.dp), listState) {
             items(list.size) { i ->
-                val gameColor = list[i]
+                val rkpColor = list[i]
                 SelectableColorListItem(
-                    text = gameColor.name,
-                    backgroundColor = Color(gameColor.r, gameColor.g, gameColor.b),
+                    text = rkpColor.name,
+                    backgroundColor = Color(rkpColor.r, rkpColor.g, rkpColor.b),
                     index = i,
                     selected = selected(i),
                     onClick = onClickItem
@@ -305,7 +305,11 @@ private fun SelectableColorListItem(text: String = "[ITEM]", backgroundColor: Co
             fontWeight = FontWeight.SemiBold,
             fontSize = 18.sp,
             textAlign = TextAlign.Center,
-            color = if (selected) ColorUtil.getTextLightOrDark(backgroundColor) else Color(GameMap.TEXT_COLOR.red, GameMap.TEXT_COLOR.green, GameMap.TEXT_COLOR.blue)
+            color = if (selected) ColorUtil.getTextLightOrDark(backgroundColor) else Color(
+                RkpPalette.DEFAULT_TEXT_COLOR.toAwtColor().red,
+                RkpPalette.DEFAULT_TEXT_COLOR.toAwtColor().green,
+                RkpPalette.DEFAULT_TEXT_COLOR.toAwtColor().blue
+            )
         )
     }
 }

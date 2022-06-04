@@ -7,20 +7,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.awt.ComposeWindow
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
-import com.riskrieg.core.api.Riskrieg
-import com.riskrieg.core.api.game.map.GameMap
-import com.riskrieg.core.api.game.map.Territory
-import com.riskrieg.core.api.game.map.territory.Border
-import com.riskrieg.core.api.game.map.territory.Nucleus
-import com.riskrieg.core.api.identifier.TerritoryIdentifier
-import com.riskrieg.core.encode.RkmEncoder
-import com.riskrieg.core.util.io.RkJsonUtil
+import com.riskrieg.codec.encode.RkmEncoder
+import com.riskrieg.codec.internal.json.JsonHelper
 import com.riskrieg.editor.core.Constants
 import com.riskrieg.editor.core.algorithm.fill.MilazzoFill
 import com.riskrieg.editor.core.algorithm.label.LabelPosition
 import com.riskrieg.editor.util.ImageUtil
 import com.riskrieg.editor.util.TerritoryUtil
 import com.riskrieg.editor.viewmodel.internal.MapGraph
+import com.riskrieg.map.RkmMap
+import com.riskrieg.map.Territory
+import com.riskrieg.map.territory.Border
+import com.riskrieg.map.territory.Nucleus
+import com.riskrieg.map.territory.TerritoryIdentity
+import com.riskrieg.palette.RkpPalette
 import org.jgrapht.Graphs
 import org.jgrapht.graph.SimpleGraph
 import java.awt.Color
@@ -88,7 +88,7 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
 
     /** Methods **/
 
-    fun init(map: GameMap) {
+    fun init(map: RkmMap) {
         reset()
 
         mapDisplayName = map.displayName
@@ -99,16 +99,7 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
         textLayer = map.textLayer()
 
         // Load graph data
-        graph = SimpleGraph<Territory, Border>(Border::class.java)
-
-        for (territory in map.graph().vertexSet()) {
-            graph.addVertex(territory)
-        }
-        for (border in map.graph().edgeSet()) {
-            val source = map.graph().vertexSet().find { t -> t.identifier.id == border.sourceId }
-            val target = map.graph().vertexSet().find { t -> t.identifier.id == border.targetId }
-            graph.addEdge(source, target, border)
-        }
+        graph = map.toGraph()
 
         submittedTerritories.addAll(graph.vertexSet())
         for (territory in graph.vertexSet()) {
@@ -156,9 +147,9 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
         }
 
         val chooser = JFileChooser()
-        chooser.dialogTitle = "Save ${Riskrieg.NAME} Map File"
+        chooser.dialogTitle = "Save ${Constants.NAME} Map File"
         chooser.isAcceptAllFileFilterUsed = false
-        chooser.fileFilter = FileNameExtensionFilter("${Riskrieg.NAME} Map File (*.rkm)", "rkm")
+        chooser.fileFilter = FileNameExtensionFilter("${Constants.NAME} Map File (*.rkm)", "rkm")
         chooser.currentDirectory = File(System.getProperty("user.home"))
 
         val normalizedName = Normalizer.normalize(mapDisplayName, Normalizer.Form.NFD).replace("[^\\p{ASCII}]".toRegex(), "")
@@ -171,7 +162,7 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
             } else {
                 val directory = chooser.currentDirectory.path.replace('\\', '/') + "/"
                 try {
-                    val rkmMap = GameMap(mapCodename, mapDisplayName, mapAuthorName, graph.vertexSet(), graph.edgeSet(), baseLayer, textLayer)
+                    val rkmMap = RkmMap(mapCodename, mapDisplayName, mapAuthorName, graph.vertexSet(), graph.edgeSet(), baseLayer, textLayer)
                     val encoder = RkmEncoder()
                     val fos = FileOutputStream(File(directory + "${mapCodename}.rkm"))
                     encoder.encode(rkmMap, fos)
@@ -283,7 +274,7 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
 
     fun exportTextImage() {
         val chooser = JFileChooser()
-        chooser.dialogTitle = "Save ${Riskrieg.NAME} Text Image"
+        chooser.dialogTitle = "Save ${Constants.NAME} Text Image"
         chooser.isAcceptAllFileFilterUsed = false
         chooser.fileFilter = FileNameExtensionFilter("Image (*.png)", "png")
         chooser.currentDirectory = File(System.getProperty("user.home"))
@@ -305,7 +296,7 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
     fun importGraph() {
         val chooser = JFileChooser()
         chooser.isAcceptAllFileFilterUsed = false
-        chooser.fileFilter = FileNameExtensionFilter("${Riskrieg.NAME} Graph (*.json)", "json")
+        chooser.fileFilter = FileNameExtensionFilter("${Constants.NAME} Graph (*.json)", "json")
         chooser.currentDirectory = File(System.getProperty("user.home"))
         if (chooser.showDialog(window, "Import Graph File") == JFileChooser.APPROVE_OPTION) {
             try {
@@ -328,8 +319,8 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
                         graph.addVertex(territory)
                     }
                     for (border in mapGraph.edgeSet) {
-                        val source = graph.vertexSet().find { t -> t.identifier.id == border.sourceId }
-                        val target = graph.vertexSet().find { t -> t.identifier.id == border.targetId }
+                        val source = graph.vertexSet().find { t -> t.identity == border.source }
+                        val target = graph.vertexSet().find { t -> t.identity == border.source }
                         graph.addEdge(source, target, border)
                     }
                     submittedTerritories.addAll(graph.vertexSet())
@@ -357,9 +348,9 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
             return
         }
         val chooser = JFileChooser()
-        chooser.dialogTitle = "Save ${Riskrieg.NAME} Graph File"
+        chooser.dialogTitle = "Save ${Constants.NAME} Graph File"
         chooser.isAcceptAllFileFilterUsed = false
-        chooser.fileFilter = FileNameExtensionFilter("${Riskrieg.NAME} Graph (*.json)", "json")
+        chooser.fileFilter = FileNameExtensionFilter("${Constants.NAME} Graph (*.json)", "json")
         chooser.currentDirectory = File(System.getProperty("user.home"))
 
         if (chooser.showSaveDialog(window) == JFileChooser.APPROVE_OPTION) {
@@ -367,7 +358,7 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
                 JOptionPane.showMessageDialog(window, "Invalid file name. Use only lowercase letters, numbers, and hyphens/dashes.", "Error", JOptionPane.ERROR_MESSAGE)
             } else {
                 try {
-                    RkJsonUtil.write(chooser.currentDirectory.toPath().resolve("${chooser.selectedFile.nameWithoutExtension}.json"), MapGraph::class.java, MapGraph(graph))
+                    JsonHelper.write(chooser.currentDirectory.toPath().resolve("${chooser.selectedFile.nameWithoutExtension}.json"), MapGraph::class.java, MapGraph(graph))
                     JOptionPane.showMessageDialog(window, "Graph file successfully exported to the selected directory.", "Success", JOptionPane.PLAIN_MESSAGE)
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -408,7 +399,7 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
             }
         } else { // Region
             val root = ImageUtil.getRootPixel(baseLayer, mousePosition)
-            if (baseLayer.getRGB(root.x, root.y) == GameMap.TERRITORY_COLOR.rgb) {
+            if (baseLayer.getRGB(root.x, root.y) == RkpPalette.DEFAULT_TERRITORY_COLOR.toAwtColor().rgb) {
                 if (selectedTerritories.isNotEmpty() || selectedNeighbors.isNotEmpty()) { // Deselect territory
                     deselectTerritory()
                     isSelectingTerritory = false
@@ -476,7 +467,7 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
 
                 val textGraphics = convertedText.createGraphics()
 
-                textGraphics.paint = GameMap.TEXT_COLOR
+                textGraphics.paint = RkpPalette.DEFAULT_TEXT_COLOR.toAwtColor()
 
                 // TODO: Set size based on whether it can fit inside territory bounds, to a minimum, with 20 as the maximum and default
                 ImageUtil.drawCenteredString(textGraphics, newTerritoryName.trim(), Rectangle(labelPosition.x, labelPosition.y, 1, 1), territoryFont)
@@ -498,7 +489,7 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
             for (point in selectedRegions) {
                 nuclei.add(Nucleus(point.x, point.y))
             }
-            val result = Territory(TerritoryIdentifier.of(newTerritoryName.trim()), nuclei)
+            val result = Territory(TerritoryIdentity(newTerritoryName.trim()), nuclei)
             graph.addVertex(result)
             submittedTerritories.add(result)
             deselectRegions()
@@ -525,7 +516,7 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
             }
 
             for (neighbor in selectedNeighbors) {
-                val border = Border(selected.identifier.id, neighbor.identifier.id)
+                val border = Border(selected.identity, neighbor.identity)
                 graph.addEdge(selected, neighbor, border)
             }
             if (Graphs.neighborListOf(graph, selected).size == 0) {
@@ -588,17 +579,17 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
             val lp = LabelPosition(baseLayer, territory.nuclei.map { nucleus -> nucleus.toPoint() }.toMutableSet(), 0.001)
 
             val territoryFont = Font("Spectral Medium", Font.PLAIN, 20)
-            if (lp.canLabelFit(territory.identifier.id.trim(), territoryFont)) { // Only draw label if it can fit
+            if (lp.canLabelFit(territory.identity.toString().trim(), territoryFont)) { // Only draw label if it can fit
                 val labelPosition = lp.calculatePosition()
 
                 val convertedText = ImageUtil.createCopy(ImageUtil.convert(textLayer, BufferedImage.TYPE_INT_ARGB))
 
                 val textGraphics = convertedText.createGraphics()
 
-                textGraphics.paint = GameMap.TEXT_COLOR
+                textGraphics.paint = RkpPalette.DEFAULT_TEXT_COLOR.toAwtColor()
 
                 // TODO: Set size based on whether it can fit inside territory bounds, to a minimum, with 20 as the maximum and default
-                ImageUtil.drawCenteredString(textGraphics, territory.identifier.id.trim(), Rectangle(labelPosition.x, labelPosition.y, 1, 1), territoryFont)
+                ImageUtil.drawCenteredString(textGraphics, territory.identity.toString().trim(), Rectangle(labelPosition.x, labelPosition.y, 1, 1), territoryFont)
 
                 textGraphics.dispose()
                 textLayer = convertedText
@@ -714,6 +705,23 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
             }
         }
         return Optional.empty()
+    }
+
+    private fun RkmMap.toGraph(): SimpleGraph<Territory, Border> {
+        val graph = SimpleGraph<Territory, Border>(Border::class.java)
+
+        for (territory in this.vertices) {
+            graph.addVertex(territory)
+        }
+
+        for (border in this.edges) {
+            val source = this.vertices.stream().filter { t -> t.identity == border.source }.findAny().orElse(null)
+            val target = this.vertices.stream().filter { t -> t.identity == border.target }.findAny().orElse(null)
+            if (source != null && target != null) {
+                graph.addEdge(source, target, border)
+            }
+        }
+        return graph
     }
 
 }

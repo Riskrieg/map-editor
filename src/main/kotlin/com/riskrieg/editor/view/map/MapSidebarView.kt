@@ -12,9 +12,9 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.riskrieg.core.api.game.map.GameMap
 import com.riskrieg.editor.view.ViewConstants
 import com.riskrieg.editor.viewmodel.MapViewModel
+import com.riskrieg.palette.RkpPalette
 
 @Composable
 fun MapSidebarView(model: MapViewModel, modifier: Modifier) {
@@ -22,9 +22,9 @@ fun MapSidebarView(model: MapViewModel, modifier: Modifier) {
         modifier = modifier.background(color = ViewConstants.UI_BACKGROUND_DARK)
     ) {
         val colors = TextFieldDefaults.textFieldColors(
-            cursorColor = Color(GameMap.BORDER_COLOR.rgb),
-            focusedIndicatorColor = Color(GameMap.BORDER_COLOR.rgb),
-            backgroundColor = Color(GameMap.TERRITORY_COLOR.rgb)
+            cursorColor = Color(RkpPalette.DEFAULT_BORDER_COLOR.toAwtColor().rgb),
+            focusedIndicatorColor = Color(RkpPalette.DEFAULT_BORDER_COLOR.toAwtColor().rgb),
+            backgroundColor = Color(RkpPalette.DEFAULT_TERRITORY_COLOR.toAwtColor().rgb)
         )
         Spacer(modifier = Modifier.height(2.dp))
 

@@ -4,17 +4,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.awt.ComposeWindow
-import com.riskrieg.core.api.Riskrieg
-import com.riskrieg.core.api.color.ColorPalette
-import com.riskrieg.core.api.color.GameColor
-import com.riskrieg.core.api.game.map.GameMap
-import com.riskrieg.core.api.game.map.Territory
-import com.riskrieg.core.api.game.map.territory.Nucleus
-import com.riskrieg.core.decode.RkmDecoder
-import com.riskrieg.core.decode.RkpDecoder
-import com.riskrieg.core.encode.RkpEncoder
+import com.riskrieg.codec.decode.RkmDecoder
+import com.riskrieg.codec.decode.RkpDecoder
+import com.riskrieg.codec.encode.RkpEncoder
+import com.riskrieg.editor.core.Constants
 import com.riskrieg.editor.core.algorithm.fill.MilazzoFill
 import com.riskrieg.editor.util.ImageUtil
+import com.riskrieg.map.RkmMap
+import com.riskrieg.map.Territory
+import com.riskrieg.map.territory.Nucleus
+import com.riskrieg.palette.RkpColor
+import com.riskrieg.palette.RkpPalette
 import java.awt.Color
 import java.awt.Point
 import java.awt.image.BufferedImage
@@ -28,31 +28,31 @@ import javax.swing.filechooser.FileNameExtensionFilter
 
 class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Point) {
 
-    private var activeColor by mutableStateOf(GameColor(-1, "None", 0, 0, 0))
+    private var activeColor by mutableStateOf(RkpColor(-1, "None", 0, 0, 0))
     var newColorName by mutableStateOf("")
     var newColorHexString by mutableStateOf("")
 
     var paletteName by mutableStateOf("")
-    var colorSet: TreeSet<GameColor> by mutableStateOf(sortedSetOf())
+    var colorSet: TreeSet<RkpColor> by mutableStateOf(sortedSetOf())
 
-    private var paletteMap: GameMap = loadDefaultMap()
+    private var paletteMap: RkmMap = loadDefaultMap()
     private var coloredBaseLayer: BufferedImage by mutableStateOf(BufferedImage(1, 1, 2))
-    private var paintedTerritories: MutableMap<Territory, GameColor> = HashMap()
+    private var paintedTerritories: MutableMap<Territory, RkpColor> = HashMap()
 
     private val paletteNameRegex = Regex("[a-z0-9-]+")
 
     /** Methods **/
 
-    fun init(palette: ColorPalette) {
+    fun init(palette: RkpPalette) {
         reset()
 
         paletteName = palette.name
-        colorSet = TreeSet(palette.set)
+        colorSet = TreeSet(palette.sortedColorSet)
         coloredBaseLayer = paletteMap.baseLayer
     }
 
     fun reset() {
-        activeColor = GameColor(-1, "None", 0, 0, 0)
+        activeColor = RkpColor(-1, "None", 0, 0, 0)
         newColorName = ""
         newColorHexString = ""
 
@@ -71,17 +71,17 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
         if (paletteName.isBlank()) {
             throw IllegalStateException("Please name your palette before saving.")
         }
-        if (colorSet.size < ColorPalette.MINIMUM_SIZE) {
-            throw IllegalStateException("Your palette must have at least ${ColorPalette.MINIMUM_SIZE} colors.")
+        if (colorSet.size < RkpPalette.MINIMUM_SIZE) {
+            throw IllegalStateException("Your palette must have at least ${RkpPalette.MINIMUM_SIZE} colors.")
         }
-        if (colorSet.size > ColorPalette.MAXIMUM_SIZE) {
-            throw IllegalStateException("Your palette can only have ${ColorPalette.MAXIMUM_SIZE} colors at maximum.")
+        if (colorSet.size > RkpPalette.MAXIMUM_SIZE) {
+            throw IllegalStateException("Your palette can only have ${RkpPalette.MAXIMUM_SIZE} colors at maximum.")
         }
 
         val chooser = JFileChooser()
-        chooser.dialogTitle = "Save ${Riskrieg.NAME} Palette File"
+        chooser.dialogTitle = "Save ${Constants.NAME} Palette File"
         chooser.isAcceptAllFileFilterUsed = false
-        chooser.fileFilter = FileNameExtensionFilter("${Riskrieg.NAME} Palette File (*.rkp)", "rkp")
+        chooser.fileFilter = FileNameExtensionFilter("${Constants.NAME} Palette File (*.rkp)", "rkp")
         chooser.currentDirectory = File(System.getProperty("user.home"))
 
         val normalizedName = Normalizer.normalize(paletteName, Normalizer.Form.NFD).replace("[^\\p{ASCII}]".toRegex(), "")
@@ -94,7 +94,7 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
             } else {
                 val directory = chooser.currentDirectory.path.replace('\\', '/') + "/"
                 try {
-                    val palette = ColorPalette(paletteName, colorSet)
+                    val palette = RkpPalette(paletteName, colorSet)
                     val encoder = RkpEncoder()
                     val fos = FileOutputStream(File(directory + "${normalizedPaletteName}.rkp"))
                     encoder.encode(palette, fos)
@@ -136,23 +136,24 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
         return false
     }
 
-    fun selectActiveColor(gameColor: GameColor) {
-        this.activeColor = gameColor
+    fun selectActiveColor(rkpColor: RkpColor) {
+        this.activeColor = rkpColor
     }
 
     fun deselectActiveColor() {
-        this.activeColor = GameColor(-1, "None", 0, 0, 0)
+        this.activeColor = RkpColor(-1, "None", 0, 0, 0)
     }
 
     fun updateSelectedColor() { // TODO: Don't allow updating a color to one that already exists!
         if (isActiveColorSelected() && isNewColorNameValid() && isNewColorHexStringValid()) {
-            val updatedColor = GameColor(activeColor.id, newColorName, newColorHexString)
+            val awtColor = Color.decode(newColorHexString)
+            val updatedColor = RkpColor(activeColor.order, newColorName, awtColor.red, awtColor.green, awtColor.blue)
             colorSet.remove(activeColor)
             colorSet.add(updatedColor)
 
             // Update relevant territories
             for (entry in paintedTerritories) {
-                if (entry.value.id == updatedColor.id) {
+                if (entry.value.order == updatedColor.order) {
                     paintedTerritories[entry.key] = updatedColor
                 }
             }
@@ -167,7 +168,8 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
 
     fun addNewColor() {
         if (isNewColorNameValid() && isNewColorHexStringValid()) {
-            val newColor = GameColor(colorSet.size, newColorName, newColorHexString)
+            val awtColor = Color.decode(newColorHexString)
+            val newColor = RkpColor(colorSet.size, newColorName, awtColor.red, awtColor.green, awtColor.blue)
             colorSet.add(newColor)
         }
     }
@@ -187,12 +189,12 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
             }
 
             // Remove the color now
-            val removedIndex = activeColor.id
-            val oldToNewColorIndexMap: SortedMap<GameColor, GameColor> = sortedMapOf()
+            val removedIndex = activeColor.order
+            val oldToNewColorIndexMap: SortedMap<RkpColor, RkpColor> = sortedMapOf()
             for (i in removedIndex + 1 until colorSet.size) {
-                val currentColor = getGameColorAt(i)
+                val currentColor = getRkpColorAt(i)
                 if (currentColor != null) {
-                    val newIndexColor = GameColor(currentColor.id - 1, currentColor.name, currentColor.r, currentColor.g, currentColor.b)
+                    val newIndexColor = RkpColor(currentColor.order - 1, currentColor.name, currentColor.r, currentColor.g, currentColor.b)
                     oldToNewColorIndexMap[currentColor] = newIndexColor
                 }
             }
@@ -217,8 +219,8 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
 
     fun moveSelectedColorUp() {
         if (isActiveColorSelected()) {
-            val activeColorMovedUp = GameColor(activeColor.id - 1, activeColor.name, activeColor.r, activeColor.g, activeColor.b)
-            val colorToMoveDown = getGameColorAt(activeColorMovedUp.id)
+            val activeColorMovedUp = RkpColor(activeColor.order - 1, activeColor.name, activeColor.r, activeColor.g, activeColor.b)
+            val colorToMoveDown = getRkpColorAt(activeColorMovedUp.order)
             if (colorToMoveDown != null) {
                 // Prep territories
                 val activeColorTerritories = mutableListOf<Territory>()
@@ -232,7 +234,7 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
                 }
 
                 // Move colors
-                val colorMovedDown = GameColor(colorToMoveDown.id + 1, colorToMoveDown.name, colorToMoveDown.r, colorToMoveDown.g, colorToMoveDown.b)
+                val colorMovedDown = RkpColor(colorToMoveDown.order + 1, colorToMoveDown.name, colorToMoveDown.r, colorToMoveDown.g, colorToMoveDown.b)
                 colorSet.remove(colorToMoveDown)
                 colorSet.remove(activeColor)
                 colorSet.add(activeColorMovedUp)
@@ -253,8 +255,8 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
 
     fun moveSelectedColorDown() {
         if (isActiveColorSelected()) {
-            val activeColorMovedDown = GameColor(activeColor.id + 1, activeColor.name, activeColor.r, activeColor.g, activeColor.b)
-            val colorToMoveUp = getGameColorAt(activeColorMovedDown.id)
+            val activeColorMovedDown = RkpColor(activeColor.order + 1, activeColor.name, activeColor.r, activeColor.g, activeColor.b)
+            val colorToMoveUp = getRkpColorAt(activeColorMovedDown.order)
             if (colorToMoveUp != null) {
                 // Prep territories
                 val activeColorTerritories = mutableListOf<Territory>()
@@ -269,7 +271,7 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
 
 
                 // Move colors
-                val colorMovedUp = GameColor(colorToMoveUp.id - 1, colorToMoveUp.name, colorToMoveUp.r, colorToMoveUp.g, colorToMoveUp.b)
+                val colorMovedUp = RkpColor(colorToMoveUp.order - 1, colorToMoveUp.name, colorToMoveUp.r, colorToMoveUp.g, colorToMoveUp.b)
                 colorSet.remove(colorToMoveUp)
                 colorSet.remove(activeColor)
                 colorSet.add(activeColorMovedDown)
@@ -288,7 +290,7 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
         }
     }
 
-    fun paletteMap(): GameMap {
+    fun paletteMap(): RkmMap {
         return paletteMap
     }
 
@@ -317,18 +319,18 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
         for (entry in paintedTerritories) {
             for (seedPoint in entry.key.nuclei()) {
                 val point = seedPoint.toPoint()
-                MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), entry.value.toColor()).fill(point)
+                MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), entry.value.toAwtColor()).fill(point)
             }
         }
         coloredBaseLayer = copy
     }
 
-    fun loadDefaultPalette(): ColorPalette {
+    fun loadDefaultPalette(): RkpPalette {
         val resource = loadResource("palette/default.rkp")
         return RkpDecoder().decode(resource)
     }
 
-    fun loadDefaultMap(): GameMap {
+    fun loadDefaultMap(): RkmMap {
         val resource = loadResource("map/north-america.rkm")
         return RkmDecoder().decode(resource)
     }
@@ -342,19 +344,19 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
     /* Private */
 
     private fun isActiveColorSelected(): Boolean {
-        return this.activeColor != GameColor(-1, "None", 0, 0, 0)
+        return this.activeColor != RkpColor(-1, "None", 0, 0, 0)
     }
 
-    private fun getGameColorWithId(id: Int): GameColor? {
-        for (gameColor in colorSet) {
-            if (id == gameColor.id) {
-                return gameColor
+    private fun getRkpColorWithOrder(order: Int): RkpColor? {
+        for (rkpColor in colorSet) {
+            if (order == rkpColor.order) {
+                return rkpColor
             }
         }
         return null
     }
 
-    private fun getGameColorAt(index: Int): GameColor? {
+    private fun getRkpColorAt(index: Int): RkpColor? {
         if (index < 0) {
             return null
         } else if (index >= colorSet.size) {

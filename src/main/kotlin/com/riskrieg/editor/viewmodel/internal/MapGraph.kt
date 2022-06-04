@@ -1,7 +1,7 @@
 package com.riskrieg.editor.viewmodel.internal
 
-import com.riskrieg.core.api.game.map.Territory
-import com.riskrieg.core.api.game.map.territory.Border
+import com.riskrieg.map.Territory
+import com.riskrieg.map.territory.Border
 import org.jgrapht.Graph
 
 data class MapGraph(val vertexSet: Set<Territory>, val edgeSet: Set<Border>) {
