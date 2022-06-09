@@ -18,9 +18,6 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.toComposeImageBitmap
-import androidx.compose.ui.input.mouse.MouseScrollOrientation
-import androidx.compose.ui.input.mouse.MouseScrollUnit
-import androidx.compose.ui.input.mouse.mouseScrollFilter
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.unit.dp
 import com.riskrieg.editor.view.ViewConstants
@@ -72,16 +69,7 @@ private fun MapViewport(modifier: Modifier, baseLayer: BufferedImage, textLayer:
                 .pointerMoveFilter(
                     onMove = { pointerPos = it; false },
                     onExit = { pointerPos = Offset(0f, 0f); false }
-                )
-                .mouseScrollFilter(onMouseScroll = { event, _ -> // TODO: Update mouseScrollFilter to whatever replaces it
-                    if (event.orientation == MouseScrollOrientation.Vertical) {
-                        val deltaY = when (val delta = event.delta) {
-                            is MouseScrollUnit.Line -> -delta.value
-                            is MouseScrollUnit.Page -> -delta.value
-                        }
-                    }
-                    false
-                }).combinedClickable(
+                ).combinedClickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
                     onClick = {

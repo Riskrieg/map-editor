@@ -20,9 +20,8 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.mouse.MouseScrollOrientation
-import androidx.compose.ui.input.mouse.MouseScrollUnit
-import androidx.compose.ui.input.mouse.mouseScrollFilter
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.unit.dp
 import com.riskrieg.editor.view.ViewConstants
@@ -90,17 +89,23 @@ private fun MapViewport(model: MapViewModel, modifier: Modifier) {
                         scale = 1.0f
                     }
                     false
-                }.mouseScrollFilter(onMouseScroll = { event, _ -> // TODO: Update mouseScrollFilter to whatever replaces it
-                    if (event.orientation == MouseScrollOrientation.Vertical && canZoom) {
-                        val deltaY = when (val delta = event.delta) {
-                            is MouseScrollUnit.Line -> -delta.value
-                            is MouseScrollUnit.Page -> -delta.value
+                }
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            if (event.type == PointerEventType.Scroll) {
+                                val scrollDelta = event.changes.first().scrollDelta
+                                if (canZoom) {
+                                    scale *= 1.02f.pow(-scrollDelta.y)
+                                    scale = minScale.coerceAtLeast(maxScale.coerceAtMost(scale))
+                                    event.changes.first().consume()
+                                }
+                            }
                         }
-                        scale *= 1.02.pow(deltaY.toDouble()).toFloat()
-                        scale = minScale.coerceAtLeast(maxScale.coerceAtMost(scale))
                     }
-                    canZoom // If false, scroll is enabled, if true, scroll is disabled.
-                }).combinedClickable(
+                }
+                .combinedClickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
                     onClick = {
