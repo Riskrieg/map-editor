@@ -46,7 +46,6 @@ class EditorViewModel(private val window: ComposeWindow) {
     fun newMap() {
         isDragAndDropping = false
         if (mapViewModel.openBaseImageOnly()) {
-            reset()
             editorType = EditorType.RKM_MAP
         }
     }

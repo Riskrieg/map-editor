@@ -85,14 +85,22 @@ fun main() = application {
                     Item(
                         "Base Image",
                         icon = painterResource("icons/$themeStr/import_image.svg"),
-                        onClick = { editorViewModel.mapViewModel.openBaseImageOnly() },
+                        onClick = {
+                            if (editorViewModel.mapViewModel.openBaseImageOnly()) {
+                                editorViewModel.editorType = EditorType.RKM_MAP
+                            }
+                        },
                         shortcut = KeyShortcut(Key.I, ctrl = true),
                         enabled = editorViewModel.editorType == EditorType.NONE || editorViewModel.editorType == EditorType.RKM_MAP
                     )
                     Item(
                         "Image Layers",
                         icon = painterResource("icons/$themeStr/import_image_layers.svg"),
-                        onClick = { editorViewModel.mapViewModel.openImageLayers() },
+                        onClick = {
+                            if (editorViewModel.mapViewModel.openImageLayers()) {
+                                editorViewModel.editorType = EditorType.RKM_MAP
+                            }
+                        },
                         shortcut = KeyShortcut(Key.I, alt = true),
                         enabled = editorViewModel.editorType == EditorType.NONE || editorViewModel.editorType == EditorType.RKM_MAP
                     )

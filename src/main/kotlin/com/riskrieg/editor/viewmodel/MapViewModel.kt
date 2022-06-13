@@ -189,8 +189,6 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
                 baseLayer = newBaseLayer
                 textLayer = BufferedImage(baseLayer.width, baseLayer.height, BufferedImage.TYPE_INT_ARGB)
 
-                println("${baseLayer.height} | ${baseLayer.width}")
-
                 update()
                 return true
             } catch (e: IOException) {
