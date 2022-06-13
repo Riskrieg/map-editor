@@ -6,7 +6,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.ContentAlpha
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,8 +18,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.riskrieg.editor.constant.ViewColor
 import com.riskrieg.editor.util.ColorUtil
-import com.riskrieg.editor.view.ViewConstants
+import com.riskrieg.editor.view.component.RkButton
+import com.riskrieg.editor.view.component.RkTextField
 import com.riskrieg.editor.viewmodel.PaletteViewModel
 import com.riskrieg.palette.RkpColor
 import com.riskrieg.palette.RkpPalette
@@ -83,7 +87,7 @@ fun PaletteSidebarView(model: PaletteViewModel, modifier: Modifier) {
         model.deselectActiveColor()
     }
 
-    Box(modifier = modifier.background(color = ViewConstants.UI_BACKGROUND_DARK)) {
+    Box(modifier = modifier.background(color = ViewColor.UI_BACKGROUND_DARK)) {
         Column {
             ColorEditorView(
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 10.dp, bottom = 0.dp),
@@ -119,48 +123,44 @@ private fun ColorEditorView(
     modifier: Modifier,
     model: PaletteViewModel
 ) {
-    val colors = TextFieldDefaults.textFieldColors(
-        cursorColor = Color(RkpPalette.DEFAULT_BORDER_COLOR.toAwtColor().rgb),
-        focusedIndicatorColor = Color(RkpPalette.DEFAULT_BORDER_COLOR.toAwtColor().rgb),
-        backgroundColor = Color(RkpPalette.DEFAULT_TERRITORY_COLOR.toAwtColor().rgb)
-    )
-
     Box(modifier = modifier) {
         Column {
             // TextField to enter palette name
-            Text("Palette Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp), color = ViewConstants.UI_TEXT_ON_DARK)
-            TextField(
-                model.paletteName,
-                colors = colors,
+            RkTextField(
+                modifier = Modifier.padding(horizontal = 10.dp),
+                value = model.paletteName,
+                label = "Palette Name",
                 singleLine = true,
                 onValueChange = {
                     model.paletteName = it
-                }, modifier = Modifier.padding(horizontal = 10.dp)
+                }
             )
 
             Spacer(modifier = Modifier.height(5.dp))
+
             // TextField to enter color name
-            Text("Color Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp), color = ViewConstants.UI_TEXT_ON_DARK)
-            TextField(
-                model.newColorName,
-                colors = colors,
+            RkTextField(
+                modifier = Modifier.padding(horizontal = 10.dp),
+                value = model.newColorName,
+                label = "Color Name",
                 singleLine = true,
                 onValueChange = {
                     model.newColorName = it
-                }, modifier = Modifier.padding(horizontal = 10.dp)
+                }
             )
 
             Spacer(modifier = Modifier.height(5.dp))
+
             // TextField to enter color
             // TODO: Replace this with a color picker at some point
-            Text("Color (Hex Code)", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp), color = ViewConstants.UI_TEXT_ON_DARK)
-            TextField(
-                model.newColorHexString,
-                colors = colors,
+            RkTextField(
+                modifier = Modifier.padding(horizontal = 10.dp),
+                value = model.newColorHexString,
+                label = "Color (Hex Code)",
                 singleLine = true,
                 onValueChange = {
                     model.newColorHexString = it
-                }, modifier = Modifier.padding(horizontal = 10.dp)
+                }
             )
 
             Spacer(modifier = Modifier.height(5.dp))
@@ -184,21 +184,7 @@ private fun AdjustmentButtonsView(
 ) {
     Box(modifier = modifier) {
         Column {
-            Button(modifier = Modifier.height(40.dp).fillMaxWidth().padding(start = 0.dp, end = 0.dp, top = 2.dp, bottom = 2.dp),
-                shape = RoundedCornerShape(4.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (canUpdate) { // Update
-                        Color(180, 112, 54)
-                    } else if (canAdd) { // Add
-                        Color(54, 190, 54)
-                    } else if (canDelete) { // Delete
-                        Color(190, 54, 54)
-                    } else {
-                        Color(54, 190, 54)
-                    },
-                    contentColor = Color.White
-                ),
-                enabled = canUpdate || canAdd || canDelete,
+            RkButton(
                 onClick = {
                     if (canUpdate) { // Update
                         onUpdate.invoke()
@@ -207,8 +193,24 @@ private fun AdjustmentButtonsView(
                     } else if (canDelete) { // Delete
                         onDelete.invoke()
                     }
-                }) {
-
+                },
+                modifier = Modifier.padding(start = 0.dp, end = 0.dp, top = 2.dp, bottom = 2.dp),
+                enabled = canUpdate || canAdd || canDelete,
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = if (canUpdate) { // Update
+                        ViewColor.ORANGE
+                    } else if (canAdd) { // Add
+                        ViewColor.GREEN
+                    } else if (canDelete) { // Delete
+                        ViewColor.RED
+                    } else {
+                        ViewColor.GREEN
+                    },
+                    contentColor = Color.White,
+                    disabledBackgroundColor = ViewColor.UI_BUTTON_DISABLED,
+                    disabledContentColor = ViewColor.UI_TEXT_ON_DARK_DISABLED.copy(alpha = ContentAlpha.disabled)
+                )
+            ) {
                 if (canUpdate) { // Update
                     Text("Update", fontSize = 14.sp)
                 } else if (canAdd) { // Add
@@ -219,31 +221,38 @@ private fun AdjustmentButtonsView(
                     Text("Add", fontSize = 14.sp)
                 }
             }
+
             Row {
 
-                Button(modifier = Modifier.weight(1.0F).padding(start = 0.dp, end = 2.dp, top = 2.dp, bottom = 2.dp),
-                    shape = RoundedCornerShape(4.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color(180, 112, 54),
-                        contentColor = Color.White
-                    ),
-                    enabled = selected && index > 0,
+                RkButton(
                     onClick = {
                         onMoveSelection.invoke(true)
-                    }) {
+                    },
+                    modifier = Modifier.weight(1.0F).padding(start = 0.dp, end = 2.dp, top = 2.dp, bottom = 2.dp),
+                    enabled = selected && index > 0,
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = ViewColor.ORANGE,
+                        contentColor = Color.White,
+                        disabledBackgroundColor = ViewColor.UI_BUTTON_DISABLED,
+                        disabledContentColor = ViewColor.UI_TEXT_ON_DARK_DISABLED.copy(alpha = ContentAlpha.disabled)
+                    )
+                ) {
                     Text("Up", fontSize = 14.sp)
                 }
 
-                Button(modifier = Modifier.weight(1.0F).padding(start = 2.dp, end = 0.dp, top = 2.dp, bottom = 2.dp),
-                    shape = RoundedCornerShape(4.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color(180, 112, 54),
-                        contentColor = Color.White
-                    ),
-                    enabled = selected && index < maxIndex,
+                RkButton(
                     onClick = {
                         onMoveSelection.invoke(false)
-                    }) {
+                    },
+                    modifier = Modifier.weight(1.0F).padding(start = 2.dp, end = 0.dp, top = 2.dp, bottom = 2.dp),
+                    enabled = selected && index < maxIndex,
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = ViewColor.ORANGE,
+                        contentColor = Color.White,
+                        disabledBackgroundColor = ViewColor.UI_BUTTON_DISABLED,
+                        disabledContentColor = ViewColor.UI_TEXT_ON_DARK_DISABLED.copy(alpha = ContentAlpha.disabled)
+                    )
+                ) {
                     Text("Down", fontSize = 14.sp)
                 }
 
@@ -261,7 +270,7 @@ private fun SelectableColorListView(
 ) {
     val listState = rememberLazyListState()
 
-    Box(modifier = modifier.background(color = ViewConstants.UI_BACKGROUND_DARK_ON_DARK, shape = RoundedCornerShape(4.dp))) {
+    Box(modifier = modifier.background(color = ViewColor.UI_BACKGROUND_DARK_ON_DARK, shape = RoundedCornerShape(4.dp))) {
         LazyColumn(Modifier.fillMaxSize().padding(top = 8.dp, bottom = 8.dp, start = 12.dp, end = 16.dp), listState) {
             items(list.size) { i ->
                 val rkpColor = list[i]

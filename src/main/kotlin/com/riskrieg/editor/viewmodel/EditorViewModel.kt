@@ -43,6 +43,14 @@ class EditorViewModel(private val window: ComposeWindow) {
         editorType = EditorType.RKP_PALETTE
     }
 
+    fun newMap() {
+        isDragAndDropping = false
+        if (mapViewModel.openBaseImageOnly()) {
+            reset()
+            editorType = EditorType.RKM_MAP
+        }
+    }
+
     fun promptOpenFile() {
         val chooser = JFileChooser()
         chooser.isAcceptAllFileFilterUsed = false

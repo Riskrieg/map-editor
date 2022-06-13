@@ -2,9 +2,14 @@ package com.riskrieg.editor.view.map
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.ContentAlpha
+import androidx.compose.material.Divider
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -12,42 +17,38 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.riskrieg.editor.view.ViewConstants
+import com.riskrieg.editor.constant.ViewColor
+import com.riskrieg.editor.view.component.RkButton
+import com.riskrieg.editor.view.component.RkTextField
 import com.riskrieg.editor.viewmodel.MapViewModel
-import com.riskrieg.palette.RkpPalette
 
 @Composable
 fun MapSidebarView(model: MapViewModel, modifier: Modifier) {
     Column(
-        modifier = modifier.background(color = ViewConstants.UI_BACKGROUND_DARK)
+        modifier = modifier.background(color = ViewColor.UI_BACKGROUND_DARK)
     ) {
-        val colors = TextFieldDefaults.textFieldColors(
-            cursorColor = Color(RkpPalette.DEFAULT_BORDER_COLOR.toAwtColor().rgb),
-            focusedIndicatorColor = Color(RkpPalette.DEFAULT_BORDER_COLOR.toAwtColor().rgb),
-            backgroundColor = Color(RkpPalette.DEFAULT_TERRITORY_COLOR.toAwtColor().rgb)
-        )
-        Spacer(modifier = Modifier.height(2.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
-        Text("Map Display Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp), color = ViewConstants.UI_TEXT_ON_DARK)
-        TextField(
-            model.mapDisplayName,
-            colors = colors,
+        RkTextField(
+            modifier = Modifier.padding(horizontal = 10.dp),
+            value = model.mapDisplayName,
+            label = "Map Display Name",
             singleLine = true,
             onValueChange = {
                 model.mapDisplayName = it
-            }, modifier = Modifier.padding(horizontal = 10.dp)
+            }
         )
 
         Spacer(modifier = Modifier.height(5.dp))
 
-        Text("Author Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp), color = ViewConstants.UI_TEXT_ON_DARK)
-        TextField(
-            model.mapAuthorName,
-            colors = colors,
+        RkTextField(
+            modifier = Modifier.padding(horizontal = 10.dp),
+            value = model.mapAuthorName,
+            label = "Author",
             singleLine = true,
             onValueChange = {
                 model.mapAuthorName = it
-            }, modifier = Modifier.padding(horizontal = 10.dp)
+            }
         )
 
         Spacer(modifier = Modifier.height(5.dp))
@@ -58,28 +59,35 @@ fun MapSidebarView(model: MapViewModel, modifier: Modifier) {
                 Divider(modifier = Modifier.padding(horizontal = 10.dp), color = Color.LightGray, thickness = 2.dp)
                 Spacer(modifier = Modifier.height(5.dp))
 
-                Text("Territory Name", fontSize = 16.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp), color = ViewConstants.UI_TEXT_ON_DARK)
-                TextField(
-                    model.newTerritoryName,
-                    colors = colors,
-                    singleLine = true,
+                RkTextField(
+                    modifier = Modifier.padding(horizontal = 10.dp),
                     enabled = !model.isSelectingTerritory,
+                    value = model.newTerritoryName,
+                    label = "Territory Name",
+                    singleLine = true,
                     onValueChange = {
                         model.newTerritoryName = it.replace("[^\\p{IsAlphabetic}\\p{IsDigit}]".toRegex(), "").toUpperCase(Locale.current)
-                    }, modifier = Modifier.padding(horizontal = 10.dp)
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(5.dp))
 
-                Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(54, 112, 180), contentColor = Color.White),
+                RkButton(
                     onClick = {
                         if (model.isSelectingTerritory) {
                             model.submitSelectedNeighbors()
                         } else if (model.isSelectingRegion) {
                             model.submitSelectedRegions(false)
                         }
-                    }) {
+                    },
+                    enabled = model.isSelectingTerritory || model.isSelectingRegion,
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = ViewColor.BLUE,
+                        contentColor = Color.White,
+                        disabledBackgroundColor = ViewColor.UI_BUTTON_DISABLED,
+                        disabledContentColor = ViewColor.UI_TEXT_ON_DARK_DISABLED.copy(alpha = ContentAlpha.disabled)
+                    )
+                ) {
                     if (model.isSelectingTerritory) {
                         Text("Submit", fontSize = 14.sp)
                     } else {
@@ -90,12 +98,18 @@ fun MapSidebarView(model: MapViewModel, modifier: Modifier) {
                 Spacer(modifier = Modifier.height(5.dp))
 
                 if (model.isSelectingRegion && !model.selectedRegionsHaveLabel) {
-                    Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(180, 112, 54), contentColor = Color.White),
-                        enabled = !model.selectedRegionsHaveLabel,
+                    RkButton(
                         onClick = {
                             model.submitSelectedRegions(true)
-                        }) {
+                        },
+                        enabled = !model.selectedRegionsHaveLabel,
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = ViewColor.ORANGE,
+                            contentColor = Color.White,
+                            disabledBackgroundColor = ViewColor.UI_BUTTON_DISABLED,
+                            disabledContentColor = ViewColor.UI_TEXT_ON_DARK_DISABLED.copy(alpha = ContentAlpha.disabled)
+                        )
+                    ) {
                         Text("Add & Label", fontSize = 14.sp)
                     }
 
@@ -103,25 +117,38 @@ fun MapSidebarView(model: MapViewModel, modifier: Modifier) {
                 }
 
                 if (model.isSelectingTerritory) {
-                    Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(190, 98, 54), contentColor = Color.White),
-                        enabled = model.isSelectingTerritory,
+                    RkButton(
                         onClick = {
                             if (model.selectedTerritoryHasLabel) model.clearTerritoryLabel() else model.addTerritoryLabel()
-                        }) {
+                        },
+                        enabled = model.isSelectingTerritory,
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = ViewColor.ORANGE,
+                            contentColor = Color.White,
+                            disabledBackgroundColor = ViewColor.UI_BUTTON_DISABLED,
+                            disabledContentColor = ViewColor.UI_TEXT_ON_DARK_DISABLED.copy(alpha = ContentAlpha.disabled)
+                        )
+                    ) {
                         Text(if (model.selectedTerritoryHasLabel) "Clear Label" else "Add Label", fontSize = 14.sp)
                     }
 
                     Spacer(modifier = Modifier.height(5.dp))
 
-                    Button(modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 10.dp), shape = RoundedCornerShape(4.dp),
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(190, 54, 54), contentColor = Color.White),
-                        enabled = model.isSelectingTerritory,
+                    RkButton(
                         onClick = {
                             model.deleteSelectedTerritory()
-                        }) {
+                        },
+                        enabled = model.isSelectingTerritory,
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = ViewColor.RED,
+                            contentColor = Color.White,
+                            disabledBackgroundColor = ViewColor.UI_BUTTON_DISABLED,
+                            disabledContentColor = ViewColor.UI_TEXT_ON_DARK_DISABLED.copy(alpha = ContentAlpha.disabled)
+                        )
+                    ) {
                         Text("Delete", fontSize = 14.sp)
                     }
+
                 }
 
             }

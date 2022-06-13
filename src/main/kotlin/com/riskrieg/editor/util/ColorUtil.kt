@@ -1,13 +1,13 @@
 package com.riskrieg.editor.util
 
 import androidx.compose.ui.graphics.Color
-import com.riskrieg.editor.view.ViewConstants
+import com.riskrieg.editor.constant.ViewColor
 import kotlin.math.pow
 
 object ColorUtil {
 
     fun getTextLightOrDark(color: Color): Color {
-        return getLightOrDark(color, ViewConstants.UI_TEXT_ON_DARK, ViewConstants.UI_TEXT_ON_LIGHT)
+        return getLightOrDark(color, ViewColor.UI_TEXT_ON_DARK, ViewColor.UI_TEXT_ON_LIGHT)
     }
 
     fun getLightOrDark(color: Color, light: Color, dark: Color): Color {

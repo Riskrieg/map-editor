@@ -52,13 +52,29 @@ fun main() = application {
         val editorViewModel by remember { mutableStateOf(EditorViewModel(window)) }
         MenuBar {
             Menu("File", mnemonic = 'F') {
-                Item(
-                    "New",
-                    icon = painterResource("icons/$themeStr/new.svg"),
-                    onClick = { editorViewModel.reset() },
-                    shortcut = KeyShortcut(Key.N, ctrl = true),
-                    enabled = editorViewModel.editorType != EditorType.NONE
-                )
+                Menu("New...", mnemonic = 'N') {
+                    Item(
+                        "Project",
+                        icon = painterResource("icons/$themeStr/new.svg"),
+                        onClick = { editorViewModel.reset() },
+                        shortcut = KeyShortcut(Key.P, ctrl = true),
+                        enabled = editorViewModel.editorType != EditorType.NONE
+                    )
+                    Item(
+                        "Map...",
+                        icon = painterResource("icons/$themeStr/map.svg"),
+                        onClick = { editorViewModel.newMap() },
+                        shortcut = KeyShortcut(Key.M, ctrl = true),
+                        enabled = true
+                    )
+                    Item(
+                        "Palette",
+                        icon = painterResource("icons/$themeStr/palette.svg"),
+                        onClick = { editorViewModel.newPalette() },
+                        shortcut = KeyShortcut(Key.L, ctrl = true),
+                        enabled = true
+                    )
+                }
                 Item(
                     "Open...",
                     icon = painterResource("icons/$themeStr/open.svg"),
@@ -88,14 +104,6 @@ fun main() = application {
 //                        enabled = editorViewModel.editorType == EditorType.NONE || editorViewModel.editorType == EditorType.RKM_MAP
 //                    )
                 }
-                Separator()
-                Item(
-                    "Create Palette",
-                    icon = painterResource("icons/$themeStr/palette.svg"),
-                    onClick = { editorViewModel.newPalette() },
-                    shortcut = KeyShortcut(Key.P, ctrl = true),
-                    enabled = editorViewModel.editorType == EditorType.NONE
-                )
                 Separator()
                 Item(
                     "Save...",

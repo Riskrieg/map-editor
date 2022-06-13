@@ -177,7 +177,7 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
 
     /* Menu Bar Functions */
 
-    fun openBaseImageOnly() {
+    fun openBaseImageOnly(): Boolean {
         val chooser = JFileChooser()
         chooser.isAcceptAllFileFilterUsed = false
         chooser.fileFilter = FileNameExtensionFilter("Images (*.png)", "png")
@@ -189,14 +189,18 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
                 baseLayer = newBaseLayer
                 textLayer = BufferedImage(baseLayer.width, baseLayer.height, BufferedImage.TYPE_INT_ARGB)
 
+                println("${baseLayer.height} | ${baseLayer.width}")
+
                 update()
+                return true
             } catch (e: IOException) {
                 JOptionPane.showMessageDialog(window, "Error loading image.", "Error", JOptionPane.ERROR_MESSAGE)
             }
         }
+        return false
     }
 
-    fun openImageLayers() {
+    fun openImageLayers(): Boolean {
         val chooser = JFileChooser()
         chooser.isAcceptAllFileFilterUsed = false
         chooser.fileFilter = FileNameExtensionFilter("Images (*.png)", "png")
@@ -213,6 +217,7 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
                     if (newTextLayer.height == newBaseLayer.height && newTextLayer.width == newBaseLayer.width) {
                         textLayer = newTextLayer
                         update()
+                        return true
                     } else {
                         JOptionPane.showMessageDialog(
                             window,
@@ -227,6 +232,7 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
                 JOptionPane.showMessageDialog(window, "Error loading image.", "Error", JOptionPane.ERROR_MESSAGE)
             }
         }
+        return false
     }
 
     fun reimportBaseImage() {

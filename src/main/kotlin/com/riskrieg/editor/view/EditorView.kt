@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
+import com.riskrieg.editor.constant.ViewColor
 import com.riskrieg.editor.view.map.MapView
 import com.riskrieg.editor.view.palette.PaletteView
 import com.riskrieg.editor.viewmodel.EditorViewModel
@@ -42,7 +43,7 @@ class EditorView(val model: EditorViewModel) {
     @Composable
     fun DefaultEditorView() {
         Box(
-            modifier = Modifier.fillMaxSize().background(color = if (model.isDragAndDropping) ViewConstants.UI_HOVER_HIGHLIGHT_DARK else ViewConstants.UI_BACKGROUND_DARK)
+            modifier = Modifier.fillMaxSize().background(color = if (model.isDragAndDropping) ViewColor.UI_HOVER_HIGHLIGHT_DARK else ViewColor.UI_BACKGROUND_DARK)
         ) {
             Text(
                 "Drag a map file (.rkm) or palette file (.rkp) into this window in order to get started." +
@@ -50,7 +51,7 @@ class EditorView(val model: EditorViewModel) {
                         "You can also go to File -> Import to get started on a map, or File -> Create Palette to get started on a new palette.",
                 fontStyle = FontStyle.Italic, textAlign = TextAlign.Center,
                 modifier = Modifier.align(Alignment.Center),
-                color = ViewConstants.UI_TEXT_ON_DARK
+                color = ViewColor.UI_TEXT_ON_DARK
             )
         }
     }

@@ -20,7 +20,7 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.unit.dp
-import com.riskrieg.editor.view.ViewConstants
+import com.riskrieg.editor.constant.ViewColor
 import com.riskrieg.editor.viewmodel.PaletteViewModel
 import java.awt.Point
 import java.awt.image.BufferedImage
@@ -30,7 +30,7 @@ import java.awt.image.BufferedImage
 
 @Composable
 fun PaletteMapPreview(model: PaletteViewModel, modifier: Modifier) {
-    Box(modifier = modifier.background(color = ViewConstants.UI_BACKGROUND_DARK)) {
+    Box(modifier = modifier.background(color = ViewColor.UI_BACKGROUND_DARK)) {
         MapViewport(
             modifier = Modifier.fillMaxSize().padding(20.dp).clip(RoundedCornerShape(4.dp)).clipToBounds(),
             baseLayer = model.paletteMapColoredBaseLayer(),
@@ -52,7 +52,7 @@ private fun MapViewport(modifier: Modifier, baseLayer: BufferedImage, textLayer:
         focusRequester.requestFocus()
     }
 
-    Box(modifier = modifier.background(color = ViewConstants.UI_BACKGROUND_DARK)) {
+    Box(modifier = modifier.background(color = ViewColor.UI_BACKGROUND_DARK)) {
         Box(
             modifier = Modifier
                 .fillMaxSize()

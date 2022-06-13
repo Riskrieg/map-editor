@@ -24,7 +24,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.unit.dp
-import com.riskrieg.editor.view.ViewConstants
+import com.riskrieg.editor.constant.ViewColor
 import com.riskrieg.editor.viewmodel.MapViewModel
 import java.awt.Point
 import kotlin.math.pow
@@ -32,7 +32,7 @@ import kotlin.math.pow
 @OptIn(ExperimentalFoundationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun MapView(model: MapViewModel, modifier: Modifier) {
-    Column(modifier = Modifier.background(color = ViewConstants.UI_BACKGROUND_DARK)) {
+    Column(modifier = Modifier.background(color = ViewColor.UI_BACKGROUND_DARK)) {
         Row(modifier = Modifier.weight(1f)) {
             MapSidebarView(model, modifier = Modifier.fillMaxHeight().width(180.dp))
             Column(Modifier.weight(1f)) {
@@ -66,7 +66,7 @@ private fun MapViewport(model: MapViewModel, modifier: Modifier) {
         focusRequester.requestFocus() // TODO: Fix focus stuff after entering territory name
     }
 
-    Box(modifier = modifier.background(color = ViewConstants.UI_BACKGROUND_DARK)) {
+    Box(modifier = modifier.background(color = ViewColor.UI_BACKGROUND_DARK)) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
