@@ -1,4 +1,4 @@
-package com.riskrieg.editor.core.algorithm.label
+package com.riskrieg.editor.algorithm
 
 import io.github.aaronjyoder.fill.Filler
 import io.github.aaronjyoder.fill.util.FillUtil

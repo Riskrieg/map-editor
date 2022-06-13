@@ -1,4 +1,4 @@
-package com.riskrieg.editor.core.algorithm.label
+package com.riskrieg.editor.algorithm
 
 import com.monst.polylabel.PolyLabel
 import com.riskrieg.editor.constant.Constants
