@@ -9,7 +9,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.riskrieg.codec.encode.RkmEncoder
 import com.riskrieg.codec.internal.json.JsonHelper
-import com.riskrieg.editor.core.Constants
+import com.riskrieg.editor.constant.Constants
 import com.riskrieg.editor.core.algorithm.label.LabelPosition
 import com.riskrieg.editor.util.ImageUtil
 import com.riskrieg.editor.util.TerritoryUtil

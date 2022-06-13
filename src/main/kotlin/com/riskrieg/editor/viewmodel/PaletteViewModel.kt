@@ -7,7 +7,7 @@ import androidx.compose.ui.awt.ComposeWindow
 import com.riskrieg.codec.decode.RkmDecoder
 import com.riskrieg.codec.decode.RkpDecoder
 import com.riskrieg.codec.encode.RkpEncoder
-import com.riskrieg.editor.core.Constants
+import com.riskrieg.editor.constant.Constants
 import com.riskrieg.editor.util.ImageUtil
 import com.riskrieg.map.RkmMap
 import com.riskrieg.map.Territory

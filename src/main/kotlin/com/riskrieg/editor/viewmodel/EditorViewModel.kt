@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.awt.ComposeWindow
 import com.riskrieg.codec.decode.RkmDecoder
 import com.riskrieg.codec.decode.RkpDecoder
-import com.riskrieg.editor.core.Constants
+import com.riskrieg.editor.constant.Constants
 import com.riskrieg.editor.viewmodel.internal.EditorType
 import com.riskrieg.palette.RkpColor
 import com.riskrieg.palette.RkpPalette

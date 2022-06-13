@@ -1,4 +1,4 @@
-package com.riskrieg.editor.core
+package com.riskrieg.editor.constant
 
 import java.awt.Color
 

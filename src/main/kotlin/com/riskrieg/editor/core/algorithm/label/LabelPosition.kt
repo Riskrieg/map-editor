@@ -1,7 +1,7 @@
 package com.riskrieg.editor.core.algorithm.label
 
 import com.monst.polylabel.PolyLabel
-import com.riskrieg.editor.core.Constants
+import com.riskrieg.editor.constant.Constants
 import com.riskrieg.editor.util.ImageUtil
 import java.awt.Color
 import java.awt.Font
