@@ -19,15 +19,16 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
 
-    implementation("com.formdev:flatlaf:2.2")
-    implementation("com.formdev:flatlaf-intellij-themes:2.2")
+    implementation("com.formdev:flatlaf:2.3")
+    implementation("com.formdev:flatlaf-intellij-themes:2.3")
     implementation(compose.materialIconsExtended)
 
+    implementation("io.github.aaronjyoder:fill:1.0.0-0.2206")
     implementation("com.github.aaronjyoder:polylabel-java-mirror:1.3.0")
 
-    implementation("com.riskrieg:map:1.0.0-0.2206")
-    implementation("com.riskrieg:palette:1.1.0-0.2206")
-    implementation("com.riskrieg:codec:1.0.0-1.2206")
+    implementation("com.riskrieg:map:1.0.0-2.2206")
+    implementation("com.riskrieg:palette:1.1.0-1.2206")
+    implementation("com.riskrieg:codec:1.0.0-3.2206")
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3") // Needed for workaround at EditorModel.kt#343
 

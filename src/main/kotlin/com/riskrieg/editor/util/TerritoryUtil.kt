@@ -1,8 +1,7 @@
 package com.riskrieg.editor.util
 
 import com.riskrieg.editor.core.Constants
-import com.riskrieg.editor.core.algorithm.label.GetInnerPointFill
-import java.awt.Color
+import com.riskrieg.editor.core.algorithm.label.InnerPointFiller
 import java.awt.Point
 import java.awt.image.BufferedImage
 
@@ -18,9 +17,9 @@ object TerritoryUtil {
 
         for (seedPoint in seedPoints) {
             val innerPoints = HashSet<Point>()
-            val fill = GetInnerPointFill(temp, Color(temp.getRGB(seedPoint.x, seedPoint.y)), Constants.SELECT_COLOR) // TODO: Change this so it doesn't actually need to fill?
-            fill.fill(seedPoint)
-            innerPoints.addAll(fill.allPoints)
+            val filler = InnerPointFiller(temp)
+            filler.fill(seedPoint, Constants.SELECT_COLOR) // TODO: Change this so it doesn't actually need to fill?
+            innerPoints.addAll(filler.allPoints)
             innerPointMap[seedPoint] = innerPoints
         }
 

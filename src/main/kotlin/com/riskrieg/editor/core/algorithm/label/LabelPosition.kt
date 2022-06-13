@@ -38,9 +38,9 @@ class LabelPosition(private val base: BufferedImage, private val regionSeeds: Se
 
         for (seedPoint in seedPoints) {
             val innerPoints = HashSet<Point>()
-            val fill = GetInnerPointFill(temp, Color(temp.getRGB(seedPoint.x, seedPoint.y)), Constants.SELECT_COLOR) // TODO: Change this so it doesn't actually need to fill?
-            fill.fill(seedPoint)
-            innerPoints.addAll(fill.allPoints)
+            val filler = InnerPointFiller(temp)
+            filler.fill(seedPoint, Constants.SELECT_COLOR) // TODO: Change this so it doesn't actually need to fill?
+            innerPoints.addAll(filler.allPoints)
             innerPointMap[seedPoint] = innerPoints
         }
 

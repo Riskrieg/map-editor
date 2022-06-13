@@ -10,7 +10,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.riskrieg.codec.encode.RkmEncoder
 import com.riskrieg.codec.internal.json.JsonHelper
 import com.riskrieg.editor.core.Constants
-import com.riskrieg.editor.core.algorithm.fill.MilazzoFill
 import com.riskrieg.editor.core.algorithm.label.LabelPosition
 import com.riskrieg.editor.util.ImageUtil
 import com.riskrieg.editor.util.TerritoryUtil
@@ -21,6 +20,7 @@ import com.riskrieg.map.territory.Border
 import com.riskrieg.map.territory.Nucleus
 import com.riskrieg.map.territory.TerritoryIdentity
 import com.riskrieg.palette.RkpPalette
+import io.github.aaronjyoder.fill.recursive.BlockFiller
 import org.jgrapht.Graphs
 import org.jgrapht.graph.SimpleGraph
 import java.awt.Color
@@ -664,33 +664,33 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
         for (territory in submittedTerritories) {
             for (seedPoint in territory.nuclei()) {
                 val point = seedPoint.toPoint()
-                MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SUBMITTED_COLOR).fill(point)
+                BlockFiller(copy).fill(point, Constants.SUBMITTED_COLOR)
             }
         }
 
         for (territory in finishedTerritories) {
             for (seedPoint in territory.nuclei()) {
                 val point = seedPoint.toPoint()
-                MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.FINISHED_COLOR).fill(point)
+                BlockFiller(copy).fill(point, Constants.FINISHED_COLOR)
             }
         }
 
         for (territory in selectedNeighbors) {
             for (seedPoint in territory.nuclei()) {
                 val point = seedPoint.toPoint()
-                MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.NEIGHBOR_SELECT_COLOR).fill(point)
+                BlockFiller(copy).fill(point, Constants.NEIGHBOR_SELECT_COLOR)
             }
         }
 
         if (selectedRegions.isNotEmpty()) {
             for (point in selectedRegions) {
-                MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SELECT_COLOR).fill(point)
+                BlockFiller(copy).fill(point, Constants.SELECT_COLOR)
             }
         } else if (selectedTerritories.isNotEmpty()) {
             for (territory in selectedTerritories) {
                 for (seedPoint in territory.nuclei()) {
                     val point = seedPoint.toPoint()
-                    MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), Constants.SELECT_COLOR).fill(point)
+                    BlockFiller(copy).fill(point, Constants.SELECT_COLOR)
                 }
             }
         }

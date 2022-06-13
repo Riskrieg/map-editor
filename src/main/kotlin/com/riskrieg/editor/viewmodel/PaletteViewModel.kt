@@ -8,13 +8,13 @@ import com.riskrieg.codec.decode.RkmDecoder
 import com.riskrieg.codec.decode.RkpDecoder
 import com.riskrieg.codec.encode.RkpEncoder
 import com.riskrieg.editor.core.Constants
-import com.riskrieg.editor.core.algorithm.fill.MilazzoFill
 import com.riskrieg.editor.util.ImageUtil
 import com.riskrieg.map.RkmMap
 import com.riskrieg.map.Territory
 import com.riskrieg.map.territory.Nucleus
 import com.riskrieg.palette.RkpColor
 import com.riskrieg.palette.RkpPalette
+import io.github.aaronjyoder.fill.recursive.BlockFiller
 import java.awt.Color
 import java.awt.Point
 import java.awt.image.BufferedImage
@@ -319,7 +319,7 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
         for (entry in paintedTerritories) {
             for (seedPoint in entry.key.nuclei()) {
                 val point = seedPoint.toPoint()
-                MilazzoFill(copy, Color(copy.getRGB(point.x, point.y)), entry.value.toAwtColor()).fill(point)
+                BlockFiller(copy).fill(point, entry.value.toAwtColor())
             }
         }
         coloredBaseLayer = copy
