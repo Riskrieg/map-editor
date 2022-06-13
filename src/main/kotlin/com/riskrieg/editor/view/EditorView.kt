@@ -48,7 +48,7 @@ class EditorView(val model: EditorViewModel) {
             Text(
                 "Drag a map file (.rkm) or palette file (.rkp) into this window in order to get started." +
                         "\n\n" +
-                        "You can also go to File -> Import to get started on a map, or File -> Create Palette to get started on a new palette.",
+                        "You can also go to File -> New... to get started.",
                 fontStyle = FontStyle.Italic, textAlign = TextAlign.Center,
                 modifier = Modifier.align(Alignment.Center),
                 color = ViewColor.UI_TEXT_ON_DARK
