@@ -27,7 +27,7 @@ dependencies {
     implementation("com.github.aaronjyoder:polylabel-java-mirror:1.3.0")
 
     implementation("com.riskrieg:map:1.0.0-2.2206")
-    implementation("com.riskrieg:palette:1.1.0-1.2206")
+    implementation("com.riskrieg:palette:1.1.0-4.2206")
     implementation("com.riskrieg:codec:1.0.0-3.2206")
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3") // Needed for workaround at EditorModel.kt#343
