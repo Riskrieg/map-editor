@@ -100,7 +100,8 @@ fun PaletteSidebarView(model: PaletteViewModel, modifier: Modifier) {
                 maxIndex = model.colorSet.size - 1,
                 onMoveSelection = onMoveSelection,
                 canUpdate = selected && model.isNewColorNameValid() && model.isNewColorHexStringValid()
-                        && (model.newColorName != model.activeColorName() || model.newColorHexString != model.activeColorHexString()),
+                        && (model.newColorName != model.activeColorName() || model.newColorHexString != model.activeColorHexString())
+                        && !model.colorSetContainsHexColor(),
                 canAdd = !selected && !model.colorSetContainsNewColor()
                         && model.isNewColorNameValid() && model.isNewColorHexStringValid(),
                 canDelete = selected,
@@ -159,7 +160,7 @@ private fun ColorEditorView(
                 label = "Color (Hex Code)",
                 singleLine = true,
                 onValueChange = {
-                    model.newColorHexString = it
+                    model.newColorHexString = it.uppercase()
                 }
             )
 
@@ -270,7 +271,12 @@ private fun SelectableColorListView(
 ) {
     val listState = rememberLazyListState()
 
-    Box(modifier = modifier.background(color = ViewColor.UI_BACKGROUND_DARK_ON_DARK, shape = RoundedCornerShape(4.dp))) {
+    Box(
+        modifier = modifier.background(
+            color = ViewColor.UI_BACKGROUND_DARK_ON_DARK,
+            shape = RoundedCornerShape(4.dp)
+        )
+    ) {
         LazyColumn(Modifier.fillMaxSize().padding(top = 8.dp, bottom = 8.dp, start = 12.dp, end = 16.dp), listState) {
             items(list.size) { i ->
                 val rkpColor = list[i]
@@ -293,7 +299,13 @@ private fun SelectableColorListView(
 }
 
 @Composable
-private fun SelectableColorListItem(text: String = "[ITEM]", backgroundColor: Color, index: Int, selected: Boolean, onClick: (Int) -> Unit) {
+private fun SelectableColorListItem(
+    text: String = "[ITEM]",
+    backgroundColor: Color,
+    index: Int,
+    selected: Boolean,
+    onClick: (Int) -> Unit
+) {
     val borderStroke = if (selected) {
         BorderStroke(4.dp, ColorUtil.getTextLightOrDark(backgroundColor))
     } else {
@@ -302,7 +314,10 @@ private fun SelectableColorListItem(text: String = "[ITEM]", backgroundColor: Co
     Box( // TODO: Border color leaks out the corners
         modifier = Modifier.height(48.dp)
             .fillMaxWidth()
-            .background(color = backgroundColor, shape = if (selected) RoundedCornerShape(6.dp) else RoundedCornerShape(4.dp)) // Hacky workaround for color leaking from corners
+            .background(
+                color = backgroundColor,
+                shape = if (selected) RoundedCornerShape(6.dp) else RoundedCornerShape(4.dp)
+            ) // Hacky workaround for color leaking from corners
             .border(border = borderStroke, shape = RoundedCornerShape(4.dp))
             .clip(RoundedCornerShape(4.dp))
             .selectable(selected = selected, onClick = { onClick.invoke(index) }),
