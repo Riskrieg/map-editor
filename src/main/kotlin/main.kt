@@ -48,7 +48,7 @@ fun main() = application {
         state = rememberWindowState(width = Constants.DEFAULT_WINDOW_WIDTH.dp, height = Constants.DEFAULT_WINDOW_HEIGHT.dp),
         icon = painterResource("icon/icon.png")
     ) {
-        window.setLocationRelativeTo(null)
+        window.setLocationRelativeTo(null) // TODO: Only seems to center properly after opening a file
         val editorViewModel by remember { mutableStateOf(EditorViewModel(window)) }
         MenuBar {
             Menu("File", mnemonic = 'F') {
