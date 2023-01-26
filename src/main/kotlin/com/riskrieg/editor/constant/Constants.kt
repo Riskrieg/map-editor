@@ -4,7 +4,7 @@ import java.awt.Color
 
 object Constants {
     var NAME = "Riskrieg"
-    var VERSION = "2.8.3-0.2301"
+    var VERSION = "2.8.4-0.2301"
 
     var SELECT_COLOR = Color(255, 250, 165)
     var NEIGHBOR_SELECT_COLOR = Color(255, 165, 255)

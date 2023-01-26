@@ -374,7 +374,15 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
 
     /* Selection */
 
+    fun checkAndCorrectMouseBounds() { // This is necessary because it seems like the mouse goes out of bounds on some systems, unsure why
+        if (mousePosition.x < 0) mousePosition.x = 0
+        if (mousePosition.y < 0) mousePosition.y = 0
+        if (mousePosition.x >= currentBaseLayer.width) mousePosition.x = currentBaseLayer.width - 1
+        if (mousePosition.y >= currentBaseLayer.height) mousePosition.y = currentBaseLayer.height - 1
+    }
+
     fun interact() {
+        checkAndCorrectMouseBounds()
         val selectedTerritory = getTerritory(mousePosition, graph.vertexSet())
         if (selectedTerritory.isPresent) { // Territory or Neighbor
             if (selectedRegions.isNotEmpty()) { // Deselect region
