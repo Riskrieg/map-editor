@@ -160,7 +160,7 @@ private fun ColorEditorView(
                 label = "Color (Hex Code)",
                 singleLine = true,
                 onValueChange = {
-                    model.newColorHexString = it.uppercase()
+                    model.newColorHexString = it.uppercase().trim()
                 }
             )
 
