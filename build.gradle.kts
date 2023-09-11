@@ -3,12 +3,12 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.7.20"
-    id("org.jetbrains.compose") version "1.2.2"
+    kotlin("jvm") version "1.9.10"
+    id("org.jetbrains.compose") version "1.5.1"
 }
 
 group = "com.riskrieg"
-version = "2.8.4"
+version = "2.8.5"
 repositories {
     google()
     mavenCentral()
@@ -19,8 +19,8 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
 
-    implementation("com.formdev:flatlaf:3.0")
-    implementation("com.formdev:flatlaf-intellij-themes:3.0")
+    implementation("com.formdev:flatlaf:3.2.1")
+    implementation("com.formdev:flatlaf-intellij-themes:3.2.1")
     implementation(compose.materialIconsExtended)
 
     implementation("io.github.aaronjyoder:fill:1.0.0-0.2206")
@@ -32,7 +32,7 @@ dependencies {
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0") // Needed for workaround at EditorModel.kt#343
 
-    implementation("org.jgrapht:jgrapht-io:1.5.1")
+    implementation("org.jgrapht:jgrapht-io:1.5.2")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.0")
 }
