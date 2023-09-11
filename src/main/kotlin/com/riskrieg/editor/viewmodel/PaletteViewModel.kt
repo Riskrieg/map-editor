@@ -139,7 +139,6 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
     fun colorSetContainsNewColor(): Boolean {
         for (gameColor in colorSet) {
             if (newColorName.trim() == gameColor.name || newColorHexString.trim() == String.format("#%02X%02X%02X", gameColor.r, gameColor.g, gameColor.b)) {
-                println(gameColor.name)
                 return true
             }
         }
