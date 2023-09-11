@@ -151,6 +151,8 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
 
     fun deselectActiveColor() {
         this.activeColor = RkpColor(-1, "None", 0, 0, 0)
+        this.newColorName = ""
+        this.newColorHexString = ""
     }
 
     fun updateSelectedColor() { // TODO: Don't allow updating a color to one that already exists!
