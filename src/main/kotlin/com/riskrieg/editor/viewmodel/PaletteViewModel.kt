@@ -173,6 +173,8 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
             // hack to update lazylist
             deselectActiveColor()
             selectActiveColor(updatedColor)
+            newColorName = activeColorName()
+            newColorHexString = activeColorHexString()
 
             updateMapImage()
         }
