@@ -156,6 +156,7 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
     }
 
     fun updateSelectedColor() { // TODO: Don't allow updating a color to one that already exists!
+        this.newColorName = newColorName.trim()
         if (isActiveColorSelected() && isNewColorNameValid() && isNewColorHexStringValid()) {
             val awtColor = Color.decode(newColorHexString)
             val updatedColor = RkpColor(activeColor.order, newColorName, awtColor.red, awtColor.green, awtColor.blue)
@@ -178,6 +179,7 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
     }
 
     fun addNewColor() {
+        this.newColorName = newColorName.trim()
         if (isNewColorNameValid() && isNewColorHexStringValid()) {
             val awtColor = Color.decode(newColorHexString)
             val newColor = RkpColor(colorSet.size, newColorName, awtColor.red, awtColor.green, awtColor.blue)
@@ -310,6 +312,7 @@ class PaletteViewModel(private val window: ComposeWindow, var mousePosition: Poi
     }
 
     fun interact() {
+        // checkAndCorrectMouseBounds()
         val selectedTerritory = getTerritory(paletteMap.baseLayer, mousePosition, paletteMap.vertices)
         if (selectedTerritory.isPresent) {
             if (isActiveColorSelected()) {
