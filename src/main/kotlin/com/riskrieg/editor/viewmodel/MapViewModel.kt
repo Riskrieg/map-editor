@@ -238,14 +238,24 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
         chooser.isAcceptAllFileFilterUsed = false
         chooser.fileFilter = FileNameExtensionFilter("Image (*.png)", "png")
         chooser.currentDirectory = File(System.getProperty("user.home"))
-        if (chooser.showDialog(window, "New Base Layer Image") == JFileChooser.APPROVE_OPTION) {
-            try {
-                val newBaseLayer = ImageIO.read(chooser.selectedFile)
-                deselectAll()
-                baseLayer = newBaseLayer
-                update()
-            } catch (e: IOException) {
-                JOptionPane.showMessageDialog(window, "Error loading image.", "Error", JOptionPane.ERROR_MESSAGE)
+        if (chooser.showDialog(window, "Import Base Layer Image") == JFileChooser.APPROVE_OPTION) {
+            // TODO: Pop-up to select territories which have changed
+            // For now, just put a confirmation warning.
+            val selection: Int = JOptionPane.showConfirmDialog(window, "Warning! Changing the base layer may lead to unexpected issues if you do not remove the territories that were changed first. Continue?")
+            when(selection) {
+                JOptionPane.YES_OPTION -> {
+                    try {
+                        val newBaseLayer = ImageIO.read(chooser.selectedFile)
+                        deselectAll()
+                        baseLayer = newBaseLayer
+                        update()
+                    } catch (e: IOException) {
+                        JOptionPane.showMessageDialog(window, "Error loading image.", "Error", JOptionPane.ERROR_MESSAGE)
+                    }
+                }
+                JOptionPane.NO_OPTION -> return
+                JOptionPane.CANCEL_OPTION -> return
+                else -> return
             }
         }
     }
@@ -255,7 +265,7 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
         chooser.isAcceptAllFileFilterUsed = false
         chooser.fileFilter = FileNameExtensionFilter("Image (*.png)", "png")
         chooser.currentDirectory = File(System.getProperty("user.home"))
-        if (chooser.showDialog(window, "New Text Layer Image") == JFileChooser.APPROVE_OPTION) {
+        if (chooser.showDialog(window, "Import Text Layer Image") == JFileChooser.APPROVE_OPTION) {
             try {
                 val newTextLayer = ImageIO.read(chooser.selectedFile)
                 if (newTextLayer.height == mapImage().height && newTextLayer.width == mapImage().width) {
