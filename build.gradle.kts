@@ -3,8 +3,8 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.9.10"
-    id("org.jetbrains.compose") version "1.5.1"
+    kotlin("jvm") version "1.9.22"
+    id("org.jetbrains.compose") version "1.5.12"
 }
 
 group = "com.riskrieg"
@@ -42,7 +42,7 @@ tasks.test {
 }
 
 tasks.withType<KotlinCompile>() {
-    kotlinOptions.jvmTarget = "17"
+    kotlinOptions.jvmTarget = "21"
 }
 
 fun getProjectProperty(name: String) = project.properties[name] as? String
