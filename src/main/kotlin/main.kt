@@ -187,7 +187,7 @@ fun main() = application {
                     "Export base image...",
                     icon = painterResource("icons/$themeStr/export_graph.svg"),
                     onClick = { editorViewModel.mapViewModel.exportBaseImage() },
-                    shortcut = KeyShortcut(Key.Y, alt = true),
+                    shortcut = KeyShortcut(Key.V, alt = true),
                     enabled = editorViewModel.editorType == EditorType.RKM_MAP // && baseImage != null
                 )
                 Item(
