@@ -169,16 +169,16 @@ fun main() = application {
             }
             Menu("Debug", mnemonic = 'D') {
                 Item(
-                    "Re-import base image...",
+                    "Import base image...",
                     icon = painterResource("icons/$themeStr/reimport_base_image.svg"),
-                    onClick = { editorViewModel.mapViewModel.reimportBaseImage() },
+                    onClick = { editorViewModel.mapViewModel.importBaseImage() },
                     shortcut = KeyShortcut(Key.B, alt = true),
                     enabled = editorViewModel.editorType == EditorType.RKM_MAP
                 )
                 Item(
-                    "Re-import text image...",
+                    "Import text image...",
                     icon = painterResource("icons/$themeStr/reimport_text_image.svg"),
-                    onClick = { editorViewModel.mapViewModel.reimportTextImage() },
+                    onClick = { editorViewModel.mapViewModel.importTextImage() },
                     shortcut = KeyShortcut(Key.T, alt = true),
                     enabled = editorViewModel.editorType == EditorType.RKM_MAP
                 )

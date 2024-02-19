@@ -233,7 +233,7 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
         return false
     }
 
-    fun reimportBaseImage() {
+    fun importBaseImage() {
         val chooser = JFileChooser()
         chooser.isAcceptAllFileFilterUsed = false
         chooser.fileFilter = FileNameExtensionFilter("Image (*.png)", "png")
@@ -250,7 +250,7 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
         }
     }
 
-    fun reimportTextImage() {
+    fun importTextImage() {
         val chooser = JFileChooser()
         chooser.isAcceptAllFileFilterUsed = false
         chooser.fileFilter = FileNameExtensionFilter("Image (*.png)", "png")
