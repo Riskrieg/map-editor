@@ -19,8 +19,8 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
 
-    implementation("com.formdev:flatlaf:3.2.1")
-    implementation("com.formdev:flatlaf-intellij-themes:3.2.1")
+    implementation("com.formdev:flatlaf:3.3")
+    implementation("com.formdev:flatlaf-intellij-themes:3.3")
     implementation(compose.materialIconsExtended)
 
     implementation("io.github.aaronjyoder:fill:1.0.0-0.2206")
