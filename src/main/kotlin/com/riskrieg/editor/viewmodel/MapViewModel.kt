@@ -276,6 +276,27 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
         }
     }
 
+    fun exportBaseImage() {
+        val chooser = JFileChooser()
+        chooser.dialogTitle = "Save ${Constants.NAME} Base Image"
+        chooser.isAcceptAllFileFilterUsed = false
+        chooser.fileFilter = FileNameExtensionFilter("Image (*.png)", "png")
+        chooser.currentDirectory = File(System.getProperty("user.home"))
+        if (chooser.showSaveDialog(window) == JFileChooser.APPROVE_OPTION) {
+            if (chooser.selectedFile.name.isNullOrBlank()) {
+                JOptionPane.showMessageDialog(window, "Invalid file name.", "Error", JOptionPane.ERROR_MESSAGE)
+            } else {
+                val fileName = chooser.selectedFile.nameWithoutExtension
+                try {
+                    ImageIO.write(baseLayer, "png", chooser.currentDirectory.toPath().resolve("$fileName.png").toFile())
+                    JOptionPane.showMessageDialog(window, "Base image successfully exported to the selected directory.", "Success", JOptionPane.PLAIN_MESSAGE)
+                } catch (e: Exception) {
+                    JOptionPane.showMessageDialog(window, "Unable to save base image due to an error.", "Error", JOptionPane.ERROR_MESSAGE)
+                }
+            }
+        }
+    }
+
     fun exportTextImage() {
         val chooser = JFileChooser()
         chooser.dialogTitle = "Save ${Constants.NAME} Text Image"

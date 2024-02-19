@@ -184,6 +184,13 @@ fun main() = application {
                 )
                 Separator()
                 Item(
+                    "Export base image...",
+                    icon = painterResource("icons/$themeStr/export_graph.svg"),
+                    onClick = { editorViewModel.mapViewModel.exportBaseImage() },
+                    shortcut = KeyShortcut(Key.Y, alt = true),
+                    enabled = editorViewModel.editorType == EditorType.RKM_MAP // && baseImage != null
+                )
+                Item(
                     "Export text image...",
                     icon = painterResource("icons/$themeStr/export_graph.svg"),
                     onClick = { editorViewModel.mapViewModel.exportTextImage() },
