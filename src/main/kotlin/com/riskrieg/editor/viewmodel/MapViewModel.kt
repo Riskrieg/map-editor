@@ -291,7 +291,7 @@ class MapViewModel(private val window: ComposeWindow, var mousePosition: Point) 
                     ImageIO.write(textLayer, "png", chooser.currentDirectory.toPath().resolve("$fileName.png").toFile())
                     JOptionPane.showMessageDialog(window, "Text image successfully exported to the selected directory.", "Success", JOptionPane.PLAIN_MESSAGE)
                 } catch (e: Exception) {
-                    JOptionPane.showMessageDialog(window, "Unable to text image due to an error.", "Error", JOptionPane.ERROR_MESSAGE)
+                    JOptionPane.showMessageDialog(window, "Unable to save text image due to an error.", "Error", JOptionPane.ERROR_MESSAGE)
                 }
             }
         }
